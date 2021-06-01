@@ -1,0 +1,23 @@
+{
+    "parts": {
+        "dmsfwk_L2": {
+            "variants": ["phone", "wearable"],
+            "inner_kits": [
+                {
+                    "header": {
+                        "header_base": "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
+                        "header_files": [
+                            "uri.h"
+                        ]
+                    },
+                    "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri"
+                }
+            ],
+            "module_list": [
+            ],
+            "system_kits": [],
+            "test_list": []
+        }
+    },
+    "subsystem": "distributedschedule"
+}
