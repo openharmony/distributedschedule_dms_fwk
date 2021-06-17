@@ -1,6 +1,6 @@
 {
     "parts": {
-        "dmsfwk_L2": {
+        "dmsfwk_standard": {
             "variants": ["phone", "wearable"],
             "inner_kits": [
                 {
@@ -14,6 +14,9 @@
                 }
             ],
             "module_list": [
+                "//foundation/distributedschedule/dmsfwk/etc/init:etc",
+                "//foundation/distributedschedule/dmsfwk/sa_profile:dms_sa_profile",
+                "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
             ],
             "system_kits": [],
             "test_list": []
