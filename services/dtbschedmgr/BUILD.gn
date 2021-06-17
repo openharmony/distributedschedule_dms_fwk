@@ -1,0 +1,57 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+import("//build/ohos.gni")
+import("//build/ohos_var.gni")
+
+config("distributed_sched_config") {
+    visibility = [ ":*" ]
+    include_dirs = [
+        "include",
+    ]
+
+    cflags_cc = [ "-fexceptions" ]
+ }
+
+ohos_shared_library("distributedschedsvr") {
+    install_enable = true
+    sources = [
+        "src/distributed_sched_proxy.cpp",
+        "src/distributed_sched_service.cpp",
+        "src/distributed_sched_stub.cpp",
+    ]
+
+    configs = [ ":distributed_sched_config" ]
+
+    deps = [
+        "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+        "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
+        "//foundation/aafwk/standard/interfaces/innerkits/base:base",
+        "//foundation/aafwk/standard/interfaces/innerkits/want:want",
+        "//foundation/appexecfwk/standard/common:libappexecfwk_common",
+        "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+        "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+        "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+        "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+        "//utils/native/base:utils",
+    ]
+
+    external_deps = [
+        "hiviewdfx_hilog_native:libhilog",
+        "ipc:ipc_core",
+    ]
+
+    part_name = "dmsfwk_standard"
+    subsystem_name = "distributedschedule"
+}

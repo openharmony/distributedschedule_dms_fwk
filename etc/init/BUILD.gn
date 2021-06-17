@@ -1,3 +1,4 @@
+
 # Copyright (c) 2021 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,29 +13,17 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//build/ohos_var.gni")
 
-config("zuri_config") {
-  include_dirs = [
-    "//utils/native/base/include",
-    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
-  ]
+#################################################################################
+
+
+group("etc") {
+    deps = [ ":distributedsched.rc" ]
 }
 
-ohos_shared_library("zuri") {
-  sources =
-      [ "//foundation/distributedschedule/dmsfwk/utils/native/source/uri.cpp" ]
-  configs = [ ":zuri_config" ]
-
-  public_configs = [ ":zuri_config" ]
-
-  if (is_standard_system) {
-    external_deps = [
-      "hiviewdfx_hilog_native:libhilog",
-      "ipc:ipc_core",
-    ]
+ohos_prebuilt_etc("distributedsched.rc") {
+    source = "distributedsched.rc"
+    relative_install_dir = "init"
+    subsystem_name = "distributedschedule"
     part_name = "dmsfwk_standard"
-  }
-  deps = [ "//utils/native/base:utils" ]
-  subsystem_name = "distributedschedule"
 }
