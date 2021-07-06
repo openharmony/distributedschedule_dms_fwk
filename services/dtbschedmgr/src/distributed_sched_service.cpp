@@ -112,7 +112,7 @@ sptr<IDistributedSched> DistributedSchedService::GetRemoteDms(const std::string&
         return nullptr;
     }
     HILOGD("[PerformanceTest] DistributedSchedService GetRemoteDms begin");
-    auto object = samgr->CheckSystemAbility(1401/*,remoteDeviceId*/); //TODO
+    auto object = samgr->CheckSystemAbility(DISTRIBUTED_SCHED_SA_ID, remoteDeviceId);
     HILOGD("[PerformanceTest] DistributedSchedService GetRemoteDms end");
     if (object == nullptr) {
         HILOGE("GetRemoteDms failed to get remote DistributedSched %{private}s", remoteDeviceId.c_str());
