@@ -18,4 +18,4 @@ service distributedsched /system/bin/sa_main /system/profile/distributedsched.xm
     class z_core
     user system
     group system shell
-    seclabel u:r:distributedsched:s0
+    seclabel u:r:softbus_server:s0
