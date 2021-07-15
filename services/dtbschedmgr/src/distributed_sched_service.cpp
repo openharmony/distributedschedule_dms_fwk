@@ -92,7 +92,12 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& use
 int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
     OHOS::AAFwk::Want& innerWant, int32_t requestCode)
 {
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(userWant, requestCode);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (err != ERR_OK) {
+        HILOGE("StartAbilityFromRemote connect ability server failed %{public}d", err);
+        return err;
+    }
+    err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(userWant, requestCode);
     if (err != ERR_OK) {
         HILOGE("StartAbilityFromRemote is failed %{public}d", err);
     }
