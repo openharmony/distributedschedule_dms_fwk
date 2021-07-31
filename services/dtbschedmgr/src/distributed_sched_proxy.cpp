@@ -31,7 +31,7 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userW
     OHOS::AAFwk::Want& innerWant, int32_t requestCode)
 {
     sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr){
+    if (remote == nullptr) {
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
