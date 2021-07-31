@@ -201,7 +201,7 @@ enum{
      */
     NOT_FIND_SERVICE_PROXY = 29360162,
     /**
-     * Result(29360163) for IPC Send Request to EMUI DEF fail.
+     * Result(29360163) for IPC Send Request to DEF fail.
      */
     SEND_REQUEST_DEF_FAIL = 29360163,
     /**
