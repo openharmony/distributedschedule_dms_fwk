@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef HARMONYOS_DISTRIBUTED_SCHED_INTERFACE_H
-#define HARMONYOS_DISTRIBUTED_SCHED_INTERFACE_H
+#ifndef OHOS_DISTRIBUTED_SCHED_INTERFACE_H
+#define OHOS_DISTRIBUTED_SCHED_INTERFACE_H
 
 #include "iremote_broker.h"
 #include "ohos/aafwk/content/want.h"
@@ -51,4 +51,4 @@ public:
 } // namespace DistributedSchedule
 } // namespace OHOS
 
-#endif // HARMONYOS_DISTRIBUTED_SCHED_INTERFACE_H
+#endif // OHOS_DISTRIBUTED_SCHED_INTERFACE_H
