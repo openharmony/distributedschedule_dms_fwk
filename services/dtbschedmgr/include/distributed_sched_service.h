@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef HARMONYOS_DISTRIBUTED_SCHED_SERVICE_H
-#define HARMONYOS_DISTRIBUTED_SCHED_SERVICE_H
+#ifndef OHOS_DISTRIBUTED_SCHED_SERVICE_H
+#define OHOS_DISTRIBUTED_SCHED_SERVICE_H
 
 #include <memory>
 #include <mutex>
@@ -61,4 +61,4 @@ private:
 } // namespace DistributedSchedule
 } // namespace OHOS
 
-#endif // HARMONYOS_DISTRIBUTED_SCHED_SERVICE_H
+#endif // OHOS_DISTRIBUTED_SCHED_SERVICE_H
