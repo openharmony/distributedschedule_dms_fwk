@@ -30,7 +30,6 @@ public:
         int32_t requestCode) override;
     int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, 
         int32_t requestCode) override;
-
 private:
     static inline BrokerDelegator<DistributedSchedProxy> delegator_;
 };
