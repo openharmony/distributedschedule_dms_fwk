@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "uri.h"
 #include <regex>
 #include <vector>
 #include "hilog/log.h"
 #include "string_ex.h"
+#include "uri.h"
 
 using std::string;
 using std::regex;
