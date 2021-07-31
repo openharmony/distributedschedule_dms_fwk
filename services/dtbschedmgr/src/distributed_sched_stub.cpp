@@ -51,7 +51,7 @@ int32_t DistributedSchedStub::OnRemoteRequest(uint32_t code,
             return (this->*memberFunc)(data, reply);
         }
     }
-     auto distributedFuncIt = memberFuncMap_.find(code);
+    auto distributedFuncIt = memberFuncMap_.find(code);
     if (distributedFuncIt != memberFuncMap_.end()) {
         auto memberFunc = distributedFuncIt->second;
         if (memberFunc != nullptr) {
