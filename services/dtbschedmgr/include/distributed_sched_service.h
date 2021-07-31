@@ -37,7 +37,7 @@ enum class ServiceRunningState {
 };
 enum class TargetComponent {
     HARMONY_COMPONENT,
-    AOSP_COMPONENT,
+    DEF_COMPONENT,
 };
 
 class DistributedSchedService : public SystemAbility, public DistributedSchedStub {
