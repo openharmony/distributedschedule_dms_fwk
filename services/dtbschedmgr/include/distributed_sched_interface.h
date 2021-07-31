@@ -28,7 +28,7 @@ public:
         int32_t requestCode) = 0;
     virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
         int32_t requestCode) = 0;
-    enum{
+    enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
         START_ABILITY_FROM_REMOTE = 4,
