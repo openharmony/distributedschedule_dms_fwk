@@ -49,7 +49,8 @@ public:
     ~DistributedSchedService() = default;
     void OnStart() override;
     void OnStop() override;
-    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, int32_t requestCode) override;
+    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, 
+        int32_t requestCode) override;
     int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, 
         int32_t requestCode) override;
 private:
