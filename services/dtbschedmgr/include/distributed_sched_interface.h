@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
-class IDistributedSched : public OHOS::IRemoteBroker{
+class IDistributedSched : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.DistributedSchedule.IDistributedSched");
     virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
