@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef HARMONYOS_DISTRIBUTED_SCHED_INTERFACE_H
-#define HARMONYOS_DISTRIBUTED_SCHED_INTERFACE_H
+#ifndef OHOS_DISTRIBUTED_SCHED_INTERFACE_H
+#define OHOS_DISTRIBUTED_SCHED_INTERFACE_H
 
 #include "iremote_broker.h"
 #include "ohos/aafwk/content/want.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-class IDistributedSched : public OHOS::IRemoteBroker{
+class IDistributedSched : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.DistributedSchedule.IDistributedSched");
     virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
         int32_t requestCode) = 0;
     virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
         int32_t requestCode) = 0;
-    enum{
+    enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
         START_ABILITY_FROM_REMOTE = 4,
@@ -47,8 +47,6 @@ public:
         GET_REMOTE_APPTHREAD = 35,
     };
 };
-
 } // namespace DistributedSchedule
 } // namespace OHOS
-
-#endif // HARMONYOS_DISTRIBUTED_SCHED_INTERFACE_H
+#endif // OHOS_DISTRIBUTED_SCHED_INTERFACE_H
