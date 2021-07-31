@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef HARMONYOS_DISTRIBUTED_SCHED_PROXY_H
-#define HARMONYOS_DISTRIBUTED_SCHED_PROXY_H
+#ifndef OHOS_DISTRIBUTED_SCHED_PROXY_H
+#define OHOS_DISTRIBUTED_SCHED_PROXY_H
 
 #include "distributed_sched_interface.h"
 #include "iremote_proxy.h"
@@ -36,4 +36,4 @@ private:
 } // namespace DistributedSchedule
 } // namespace OHOS
 
-#endif // HARMONYOS_DISTRIBUTED_SCHED_PROXY_H
+#endif // OHOS_DISTRIBUTED_SCHED_PROXY_H
