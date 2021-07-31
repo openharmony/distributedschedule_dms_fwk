@@ -47,7 +47,6 @@ public:
         GET_REMOTE_APPTHREAD = 35,
     };
 };
-
 } // namespace DistributedSchedule
 } // namespace OHOS
 
