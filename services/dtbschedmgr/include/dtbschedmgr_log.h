@@ -49,7 +49,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel DSCHED_SERVICE_LABEL = {LOG_CORE, 0
 #define HILOGI(...) (void)OHOS::HiviewDFX::HiLog::Info(DSCHED_SERVICE_LABEL, __VA_ARGS__)
 #define HILOGW(...) (void)OHOS::HiviewDFX::HiLog::Warn(DSCHED_SERVICE_LABEL, __VA_ARGS__)
 
-enum{
+enum {
     /**
      * Module type: Distributed schedule Service side
      */
@@ -59,7 +59,7 @@ enum{
 // offset of dms error, only be used in this file.
 constexpr ErrCode DMS_SERVICE_ERR_OFFSET = ErrCodeOffset(SUBSYS_DISTRIBUTEDSCHEDULE, DMS_MODULE_TYPE_SERVICE);
 
-enum{
+enum {
     /**
      * Result(29360128) for invalid parameters.
      */
