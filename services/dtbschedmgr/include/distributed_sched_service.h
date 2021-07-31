@@ -57,7 +57,6 @@ private:
     DistributedSchedService();
     bool Init();
     sptr<IDistributedSched> GetRemoteDms(const std::string& remoteDeviceId);
-
     bool registerToService_ = false;
 };
 } // namespace DistributedSchedule
