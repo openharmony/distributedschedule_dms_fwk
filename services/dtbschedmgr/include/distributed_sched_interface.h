@@ -49,5 +49,4 @@ public:
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-
 #endif // OHOS_DISTRIBUTED_SCHED_INTERFACE_H
