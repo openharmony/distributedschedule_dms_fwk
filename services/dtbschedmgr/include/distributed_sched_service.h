@@ -61,5 +61,4 @@ private:
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-
 #endif // OHOS_DISTRIBUTED_SCHED_SERVICE_H
