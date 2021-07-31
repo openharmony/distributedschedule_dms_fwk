@@ -46,7 +46,7 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userW
 }
 
 int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
-    OHOS::AAFwk::Want& innerWant,int32_t requestCode)
+    OHOS::AAFwk::Want& innerWant, int32_t requestCode)
 {
         sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
