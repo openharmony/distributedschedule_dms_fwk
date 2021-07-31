@@ -37,5 +37,4 @@ private:
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-
 #endif // OHOS_DISTRIBUTED_SCHEDULE_STUB_H
