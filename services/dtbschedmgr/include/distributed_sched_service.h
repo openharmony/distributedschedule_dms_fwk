@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef HARMONYOS_DISTRIBUTED_SCHED_SERVICE_H
-#define HARMONYOS_DISTRIBUTED_SCHED_SERVICE_H
+#ifndef OHOS_DISTRIBUTED_SCHED_SERVICE_H
+#define OHOS_DISTRIBUTED_SCHED_SERVICE_H
 
 #include <memory>
 #include <mutex>
@@ -37,7 +37,7 @@ enum class ServiceRunningState {
 };
 enum class TargetComponent {
     HARMONY_COMPONENT,
-    AOSP_COMPONENT,
+    DEF_COMPONENT,
 };
 
 class DistributedSchedService : public SystemAbility, public DistributedSchedStub {
@@ -49,16 +49,16 @@ public:
     ~DistributedSchedService() = default;
     void OnStart() override;
     void OnStop() override;
-    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, int32_t requestCode) override;
-    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, int32_t requestCode) override;
+    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
+        int32_t requestCode) override;
+    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
+        int32_t requestCode) override;
 private:
     DistributedSchedService();
     bool Init();
     sptr<IDistributedSched> GetRemoteDms(const std::string& remoteDeviceId);
-
     bool registerToService_ = false;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-
-#endif // HARMONYOS_DISTRIBUTED_SCHED_SERVICE_H
+#endif // OHOS_DISTRIBUTED_SCHED_SERVICE_H
