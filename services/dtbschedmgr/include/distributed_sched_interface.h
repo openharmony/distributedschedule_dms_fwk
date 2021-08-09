@@ -51,4 +51,4 @@ public:
 } // namespace DistributedSchedule
 } // namespace OHOS
 
-#endif // HARMONYOS_DISTRIBUTED_SCHED_INTERFACE_H
+#endif // OHOS_DISTRIBUTED_SCHED_INTERFACE_H
