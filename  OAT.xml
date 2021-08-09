@@ -56,7 +56,7 @@ Note:If the text contains special characters, please escape them according to th
         <licensefile></licensefile>
         <filefilterlist>
             <filefilter name="copyrightPolicyFilter" desc="copyright文件头校验策略的过滤条件" >
-                <filteritem type="filepath" name="services/samgr/native/samgr_L2.cfg" desc="cfg文件为json格式,无法添加版权头"/>
+                <filteritem type="filepath" name="etc/init/distributedsched.cfg" desc="cfg文件为json格式,无法添加版权头"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
