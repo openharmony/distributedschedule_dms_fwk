@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef HARMONYOS_DISTRIBUTED_SCHED_STUB_H
-#define HARMONYOS_DISTRIBUTED_SCHED_STUB_H
+#ifndef OHOS_DISTRIBUTED_SCHED_STUB_H
+#define OHOS_DISTRIBUTED_SCHED_STUB_H
 
 #include "distributed_sched_interface.h"
 #include "iremote_stub.h"
@@ -37,5 +37,4 @@ private:
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-
 #endif // OHOS_DISTRIBUTED_SCHEDULE_STUB_H
