@@ -31,7 +31,7 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userW
     OHOS::AAFwk::Want& innerWant, int32_t requestCode)
 {
     sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr){
+    if (remote == nullptr) {
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -42,14 +42,14 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userW
     PARCEL_WRITE_HELPER(data, Parcelable, &innerWant);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
     MessageParcel reply;
-    PARCEL_TRANSACT_SYNC_RET_INT(remote,START_REMOTE_ABILITY,data,reply);
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY, data, reply);
 }
 
 int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
-    OHOS::AAFwk::Want& innerWant,int32_t requestCode)
+    OHOS::AAFwk::Want& innerWant, int32_t requestCode)
 {
-        sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr){
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -60,7 +60,7 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& u
     PARCEL_WRITE_HELPER(data, Parcelable, &innerWant);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
     MessageParcel reply;
-    PARCEL_TRANSACT_SYNC_RET_INT(remote,START_ABILITY_FROM_REMOTE,data,reply);
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
