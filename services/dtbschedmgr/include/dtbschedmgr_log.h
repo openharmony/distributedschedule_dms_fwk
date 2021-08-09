@@ -59,7 +59,7 @@ enum {
 // offset of dms error, only be used in this file.
 constexpr ErrCode DMS_SERVICE_ERR_OFFSET = ErrCodeOffset(SUBSYS_DISTRIBUTEDSCHEDULE, DMS_MODULE_TYPE_SERVICE);
 
-enum{
+enum {
     /**
      * Result(29360128) for invalid parameters.
      */
