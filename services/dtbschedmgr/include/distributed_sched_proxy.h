@@ -13,27 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef HARMONYOS_DISTRIBUTED_SCHED_PROXY_H
-#define HARMONYOS_DISTRIBUTED_SCHED_PROXY_H
+#ifndef OHOS_DISTRIBUTED_SCHED_PROXY_H
+#define OHOS_DISTRIBUTED_SCHED_PROXY_H
 
 #include "distributed_sched_interface.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-class DistributedSchedProxy : public IRemoteProxy<IDistributedSched>{
+class DistributedSchedProxy : public IRemoteProxy<IDistributedSched> {
 public:
     explicit DistributedSchedProxy(const sptr<IRemoteObject>& impl)
         : IRemoteProxy<IDistributedSched>(impl) {}
-    ~DistributedSchedProxy(){}
-    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, int32_t requestCode) override;
-    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant, int32_t requestCode) override;
+    ~DistributedSchedProxy() {}
+    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
+        int32_t requestCode) override;
+    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
+        int32_t requestCode) override;
 
 private:
     static inline BrokerDelegator<DistributedSchedProxy> delegator_;
 };
-
 } // namespace DistributedSchedule
 } // namespace OHOS
-
-#endif // HARMONYOS_DISTRIBUTED_SCHED_PROXY_H
+#endif // OHOS_DISTRIBUTED_SCHED_PROXY_H
