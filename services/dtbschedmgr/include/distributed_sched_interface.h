@@ -16,6 +16,7 @@
 #ifndef OHOS_DISTRIBUTED_SCHED_INTERFACE_H
 #define OHOS_DISTRIBUTED_SCHED_INTERFACE_H
 
+#include "ability_info.h"
 #include "iremote_broker.h"
 #include "ohos/aafwk/content/want.h"
 
@@ -24,9 +25,9 @@ namespace DistributedSchedule {
 class IDistributedSched : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.DistributedSchedule.IDistributedSched");
-    virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
+    virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         int32_t requestCode) = 0;
-    virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
+    virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         int32_t requestCode) = 0;
     enum {
         START_REMOTE_ABILITY = 1,
