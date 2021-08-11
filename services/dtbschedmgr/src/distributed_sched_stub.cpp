@@ -23,6 +23,8 @@ using namespace std;
 
 namespace OHOS {
 namespace DistributedSchedule {
+using namespace AAFwk;
+using namespace AppExecFwk;
 namespace {
     const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 }
