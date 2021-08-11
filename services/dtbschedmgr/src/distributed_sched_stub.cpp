@@ -73,14 +73,14 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
         HILOGW("DistributedSchedStub:: START_ABILITY userWant readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
-    shared_ptr<AAFwk::Want> innerWant(data.ReadParcelable<AAFwk::Want>());
-    if (innerWant == nullptr) {
-        HILOGW("DistributedSchedStub:: START_ABILITY innerWant readParcelable failed!");
+    unique_ptr<AbilityInfo> spAbilityInfo(data.ReadParcelable<AbilityInfo>());
+    if (spAbilityInfo == nullptr) {
+        HILOGW("DistributedSchedStub: StartRemoteAbilityInner AbilityInfo readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
     int32_t requestCode = 0;
     PARCEL_READ_HELPER(data, Int32, requestCode);
-    int32_t result = StartRemoteAbility(*userWant, *innerWant, requestCode);
+    int32_t result = StartRemoteAbility(*userWant, *spAbilityInfo, requestCode);
     HILOGI("DistributedSchedStub:: StartRemoteAbilityInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -96,14 +96,16 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
         HILOGW("DistributedSchedStub:: StartAbilityFromRemoteInner userWant readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
-    shared_ptr<AAFwk::Want> innerWant(data.ReadParcelable<AAFwk::Want>());
-    if (innerWant == nullptr) {
-        HILOGW("DistributedSchedStub:: StartAbilityFromRemoteInner innerWant readParcelable failed!");
+    unique_ptr<AbilityInfo> spAbilityInfo(data.ReadParcelable<AbilityInfo>());
+    if (spAbilityInfo == nullptr) {
+        HILOGW("DistributedSchedStub: StartAbilityFromRemoteInner AbilityInfo readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
     int32_t requestCode = 0;
+    CallerInfo callerInfo;
+    AccountInfo accountInfo;
     PARCEL_READ_HELPER(data, Int32, requestCode);
-    int32_t result = StartAbilityFromRemote(*userWant, *innerWant, requestCode);
+    int32_t result = StartAbilityFromRemote(*userWant, *spAbilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("DistributedSchedStub:: StartAbilityFromRemoteInner result = %{public}d", result);
     return ERR_NONE;
 }
