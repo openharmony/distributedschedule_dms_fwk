@@ -28,8 +28,8 @@ public:
     ~DistributedSchedProxy() {}
     int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         int32_t requestCode) override;
-    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
-        int32_t requestCode) override;
+    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo, 
+        int32_t requestCode, const AAFwk::CallerInfo& callerInfo, const AccountInfo& accountInfo) override;
 
 private:
     static inline BrokerDelegator<DistributedSchedProxy> delegator_;
