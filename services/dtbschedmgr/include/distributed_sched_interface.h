@@ -17,6 +17,7 @@
 #define OHOS_DISTRIBUTED_SCHED_INTERFACE_H
 
 #include "ability_info.h"
+#include "caller_info.h"
 #include "iremote_broker.h"
 #include "ohos/aafwk/content/want.h"
 
