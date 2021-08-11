@@ -86,7 +86,7 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& use
     CallerInfo callerInfo;
     AccountInfo accountInfo;
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact begin");
-    int32_t result = remoteDms->StartAbilityFromRemote(userWant, innerWant, requestCode, callerInfo, accountInfo);
+    int32_t result = remoteDms->StartAbilityFromRemote(userWant, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact end");
     return result;
 }
