@@ -25,10 +25,18 @@ namespace DistributedSchedule {
 class IDistributedSched : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.DistributedSchedule.IDistributedSched");
+    enum {
+        SAME_ACCOUNT_TYPE = 0,
+        DIFF_ACCOUNT_TYPE,
+    };
+    struct AccountInfo {
+        int32_t accountType = SAME_ACCOUNT_TYPE;
+        std::vector<std::string> groupIdList;
+    };
     virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         int32_t requestCode) = 0;
     virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
-        int32_t requestCode) = 0;
+        int32_t requestCode, const AAFwk::CallerInfo& callerInfo, const AccountInfo& accountInfo) = 0;
     enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
