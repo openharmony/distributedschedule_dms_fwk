@@ -46,7 +46,8 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userW
 }
 
 int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
-    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode,
+    const AAFwk::CallerInfo& callerInfo, const AccountInfo& accountInfo)
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -59,6 +60,7 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& u
     PARCEL_WRITE_HELPER(data, Parcelable, &userWant);
     PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
+    PARCEL_WRITE_HELPER(data, Parcelable, &callerInfo);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
 }
