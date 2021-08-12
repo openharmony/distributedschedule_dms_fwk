@@ -117,5 +117,5 @@ bool DistributedSchedStub::EnforceInterfaceToken(MessageParcel& data)
     u16string interfaceToken = data.ReadInterfaceToken();
     return interfaceToken == DMS_STUB_INTERFACE_TOKEN;
 }
-} //namespace DistributedSchedule
-} //namespace OHOS
+} // namespace DistributedSchedule
+} // namespace OHOS
