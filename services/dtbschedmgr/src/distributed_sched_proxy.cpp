@@ -35,7 +35,7 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userW
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
-    if(!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &userWant);
@@ -54,7 +54,7 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& u
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
-    if(!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &userWant);
