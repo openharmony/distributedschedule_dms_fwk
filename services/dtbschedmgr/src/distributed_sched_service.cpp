@@ -93,7 +93,7 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& use
 
 int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode,
-    const AAFwk::CallerInfo& callerInfo, const AccountInfo& accountInfo)
+    const CallerInfo& callerInfo, const AccountInfo& accountInfo)
 {
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (err != ERR_OK) {
