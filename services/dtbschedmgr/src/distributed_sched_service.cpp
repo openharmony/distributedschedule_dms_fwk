@@ -128,5 +128,5 @@ sptr<IDistributedSched> DistributedSchedService::GetRemoteDms(const std::string&
     }
     return iface_cast<IDistributedSched>(object);
 }
-} //namespace DistributedSchedule
-} //namespace OHOS
+} // namespace DistributedSchedule
+} // namespace OHOS
