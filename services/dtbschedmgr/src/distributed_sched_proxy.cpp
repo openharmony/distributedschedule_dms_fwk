@@ -28,36 +28,37 @@ namespace {
 const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 }
 int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userWant,
-    OHOS::AAFwk::Want& innerWant, int32_t requestCode)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
-    if(!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &userWant);
-    PARCEL_WRITE_HELPER(data, Parcelable, &innerWant);
+    PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY, data, reply);
 }
 
 int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
-    OHOS::AAFwk::Want& innerWant, int32_t requestCode)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode,
+    const CallerInfo& callerInfo, const AccountInfo& accountInfo)
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
-    if(!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &userWant);
-    PARCEL_WRITE_HELPER(data, Parcelable, &innerWant);
+    PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);

@@ -75,7 +75,7 @@ void DistributedSchedService::OnStop()
 }
 
 int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& userWant,
-    OHOS::AAFwk::Want& innerWant, int32_t requestCode)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
 {
     std::string deviceId = userWant.GetElement().GetDeviceID();
     sptr<IDistributedSched> remoteDms = GetRemoteDms(deviceId);
@@ -83,14 +83,17 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& use
         HILOGE("StartRemoteAbility DMS get remoteDms failed");
         return INVALID_PARAMETERS_ERR;
     }
+    CallerInfo callerInfo;
+    AccountInfo accountInfo;
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact begin");
-    int32_t result = remoteDms->StartAbilityFromRemote(userWant, innerWant, requestCode);
+    int32_t result = remoteDms->StartAbilityFromRemote(userWant, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact end");
     return result;
 }
 
 int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
-    OHOS::AAFwk::Want& innerWant, int32_t requestCode)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode,
+    const CallerInfo& callerInfo, const AccountInfo& accountInfo)
 {
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (err != ERR_OK) {
@@ -125,5 +128,5 @@ sptr<IDistributedSched> DistributedSchedService::GetRemoteDms(const std::string&
     }
     return iface_cast<IDistributedSched>(object);
 }
-} //namespace DistributedSchedule
-} //namespace OHOS
+} // namespace DistributedSchedule
+} // namespace OHOS

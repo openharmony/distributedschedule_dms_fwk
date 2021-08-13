@@ -16,6 +16,7 @@
 #ifndef OHOS_DISTRIBUTED_SCHED_INTERFACE_H
 #define OHOS_DISTRIBUTED_SCHED_INTERFACE_H
 
+#include "ability_info.h"
 #include "iremote_broker.h"
 #include "ohos/aafwk/content/want.h"
 
@@ -24,10 +25,32 @@ namespace DistributedSchedule {
 class IDistributedSched : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.DistributedSchedule.IDistributedSched");
-    virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
-        int32_t requestCode) = 0;
-    virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant, OHOS::AAFwk::Want& innerWant,
-        int32_t requestCode) = 0;
+    enum {
+        SAME_ACCOUNT_TYPE = 0,
+        DIFF_ACCOUNT_TYPE,
+    };
+    struct AccountInfo {
+        int32_t accountType = SAME_ACCOUNT_TYPE;
+        std::vector<std::string> groupIdList;
+    };
+    enum {
+        CALLER_TYPE_NONE = 0,
+        CALLER_TYPE_HARMONY = 1,
+    };
+    struct CallerInfo {
+        int32_t uid = -1;
+        int32_t pid = -1;
+        int32_t callerType = CALLER_TYPE_NONE;
+        std::string sourceDeviceId;
+        int32_t duid = -1;
+        std::string callerAppId;
+        std::vector<std::string> bundleNames;
+    };
+    virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant,
+        const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode) = 0;
+    virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
+        const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode, const CallerInfo& callerInfo,
+        const AccountInfo& accountInfo) = 0;
     enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
