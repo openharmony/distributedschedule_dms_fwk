@@ -107,6 +107,33 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
     return err;
 }
 
+int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& userWant,
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken)
+{
+    return 0;
+}
+
+void DistributedSchedService::NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess)
+{
+}
+
+int32_t DistributedSchedService::NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess)
+{
+    return 0;
+}
+
+int32_t DistributedSchedService::RegisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return 0;
+}
+
+int32_t DistributedSchedService::UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return 0;
+}
+
 sptr<IDistributedSched> DistributedSchedService::GetRemoteDms(const std::string& remoteDeviceId)
 {
     if (remoteDeviceId.empty()) {

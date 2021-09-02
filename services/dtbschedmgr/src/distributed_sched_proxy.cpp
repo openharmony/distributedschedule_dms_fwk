@@ -63,6 +63,33 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& u
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
 }
+
+int32_t DistributedSchedProxy::StartContinuation(const OHOS::AAFwk::Want& userWant,
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken)
+{
+    return 0;
+}
+
+void DistributedSchedProxy::NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess)
+{
+}
+
+int32_t DistributedSchedProxy::NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess)
+{
+    return 0;
+}
+
+int32_t DistributedSchedProxy::RegisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return 0;
+}
+
+int32_t DistributedSchedProxy::UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return 0;
+}
 } // namespace DistributedSchedule
 } // namespace OHOS
 

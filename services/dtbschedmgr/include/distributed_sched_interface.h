@@ -39,6 +39,14 @@ public:
     virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
         const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo) = 0;
+    virtual int32_t StartContinuation(const OHOS::AAFwk::Want& userWant,
+        const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken) = 0;
+    virtual void NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess) = 0;
+    virtual int32_t NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess) = 0;
+    virtual int32_t RegisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+        const sptr<IRemoteObject>& continuationCallback) = 0;
+    virtual int32_t UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+        const sptr<IRemoteObject>& continuationCallback) = 0;
     enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
