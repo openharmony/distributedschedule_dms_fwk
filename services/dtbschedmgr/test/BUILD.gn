@@ -13,28 +13,26 @@
 
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("//build/test.gni")
 
-group("unittest") {
-  testonly = true
-  deps = [ "test:unittest" ]
-}
+module_output_path = "dmsfwk/distributedschedsvrtest"
 
-config("distributed_sched_config") {
-  visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+ohos_unittest("distributedschedsvrtest") {
+  module_out_path = module_output_path
 
-  cflags_cc = [ "-fexceptions" ]
-}
-
-ohos_shared_library("distributedschedsvr") {
-  install_enable = true
   sources = [
-    "src/distributed_sched_proxy.cpp",
-    "src/distributed_sched_service.cpp",
-    "src/distributed_sched_stub.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_proxy.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_service.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_stub.cpp",
+    "unittest/distributed_sched_service_test.cpp",
   ]
 
-  configs = [ ":distributed_sched_config" ]
+  include_dirs = [
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
+    "//foundation/distributedschedule/dmsfwk/interfaces",
+  ]
+
+  configs = [ "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributed_sched_config" ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
@@ -46,14 +44,21 @@ ohos_shared_library("distributedschedsvr") {
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
 
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-  ]
+  if (is_standard_system) {
+    external_deps = [
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "permission_standard:libpermissionsdk_standard",
+    ]
+    public_deps = [ "//third_party/libxml2:libxml2" ]
+  }
+}
 
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+group("unittest") {
+  testonly = true
+  deps = [ ":distributedschedsvrtest" ]
 }
