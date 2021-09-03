@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "distributed_sched_service.h"
 #include "distributed_sched_proxy.h"
+#include "distributed_sched_service.h"
 #include "dtbschedmgr_log.h"
 #include "gtest/gtest.h"
 #include "if_system_ability_manager.h"
