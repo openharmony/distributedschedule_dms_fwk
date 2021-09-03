@@ -109,7 +109,7 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     PARCEL_READ_HELPER(data, Int32, requestCode);
     int32_t result = StartAbilityFromRemote(*userWant, *spAbilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("DistributedSchedStub:: StartAbilityFromRemoteInner result = %{public}d", result);
-    return ERR_NONE;
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
 bool DistributedSchedStub::EnforceInterfaceToken(MessageParcel& data)

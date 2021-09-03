@@ -19,7 +19,9 @@
                 "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
             ],
             "system_kits": [],
-            "test_list": []
+            "test_list": [
+                "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:unittest"
+            ]
         }
     },
     "subsystem": "distributedschedule"
