@@ -15,10 +15,11 @@
 
 #include <memory>
 
+#include "distributed_sched_service.h"
+
 #include "ability_info.h"
 #include "distributed_sched_interface.h"
 #include "distributed_sched_proxy.h"
-#include "distributed_sched_service.h"
 #include "dtbschedmgr_log.h"
 #include "gtest/gtest.h"
 #include "if_system_ability_manager.h"
