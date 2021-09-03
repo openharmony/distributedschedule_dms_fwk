@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#include <memory>
-
 #include "distributed_sched_service.h"
 
 #include "ability_info.h"
