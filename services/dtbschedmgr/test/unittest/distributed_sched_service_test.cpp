@@ -51,7 +51,7 @@ public:
     sptr<IDistributedSched> proxy_;
 
 protected:
-    enum LoopTime {
+    enum class LoopTime : int32_t {
         LOOP_TIME = 10,
         LOOP_PRESSURE_TIME = 100,
     };
@@ -336,7 +336,7 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_003, TestSize.Level
      * @tc.steps: step2. StartAbilityFromRemote for pressure test
      * @tc.expected: step2. StartAbilityFromRemote for result
      */
-    for (int index = 0; index < LOOP_TIME; index++) {
+    for (int index = 0; index < static_cast<int32_t>(LoopTime::LOOP_TIME); index++) {
         int result = proxy->StartAbilityFromRemote(want, abilityInfo, 0, callerInfo, accountInfo);
         DTEST_LOG << "pressure" + to_string(index) + " result is " << result << std::endl;
     }
