@@ -101,7 +101,7 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
 {
     std::string deviceId = userWant.GetElement().GetDeviceID();
     if (deviceId.empty()) {
-        HILOGE("StartRemoteAbility check deviceId fail");
+        HILOGE("StartAbilityFromRemote check deviceId fail");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
