@@ -25,15 +25,17 @@ class DistributedSchedStub : public IRemoteStub<IDistributedSched> {
 public:
     DistributedSchedStub();
     ~DistributedSchedStub();
-    int32_t OnRemoteRequest(uint32_t code,
-        MessageParcel& data, MessageParcel& reply, MessageOption &option) override;
+    int32_t OnRemoteRequest(uint32_t code, MessageParcel& data,
+        MessageParcel& reply, MessageOption& option) override;
+
 private:
-    bool EnforceInterfaceToken(MessageParcel& data);
     int32_t StartRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t StartAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    bool EnforceInterfaceToken(MessageParcel& data);
+
     using DistributedSchedFunc = int32_t(DistributedSchedStub::*)(MessageParcel& data, MessageParcel& reply);
-    std::map<uint32_t, DistributedSchedFunc> memberFuncMap_;
-    std::map<uint32_t, DistributedSchedFunc> localMemberFuncMap_;
+    std::map<uint32_t, DistributedSchedFunc> remoteFuncsMap_;
+    std::map<uint32_t, DistributedSchedFunc> localFuncsMap_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

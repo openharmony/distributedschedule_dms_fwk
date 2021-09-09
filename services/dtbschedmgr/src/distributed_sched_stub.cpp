@@ -14,65 +14,68 @@
  */
 
 #include "distributed_sched_stub.h"
+
+#include "ability_info.h"
+#include "caller_info.h"
 #include "dtbschedmgr_log.h"
+
+#include "datetime_ex.h"
 #include "ipc_skeleton.h"
 #include "message_parcel.h"
 #include "parcel_helper.h"
 
-using namespace std;
-
 namespace OHOS {
 namespace DistributedSchedule {
+using namespace std;
 using namespace AAFwk;
 using namespace AppExecFwk;
+
 namespace {
-    const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
+const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 }
+
 DistributedSchedStub::DistributedSchedStub()
 {
-    localMemberFuncMap_[START_REMOTE_ABILITY] = &DistributedSchedStub::StartRemoteAbilityInner;
-    memberFuncMap_[START_ABILITY_FROM_REMOTE] = &DistributedSchedStub::StartAbilityFromRemoteInner;
+    localFuncsMap_[START_REMOTE_ABILITY] = &DistributedSchedStub::StartRemoteAbilityInner;
+
+    remoteFuncsMap_[START_ABILITY_FROM_REMOTE] = &DistributedSchedStub::StartAbilityFromRemoteInner;
 }
 
 DistributedSchedStub::~DistributedSchedStub()
 {
-    memberFuncMap_.clear();
-    localMemberFuncMap_.clear();
+    remoteFuncsMap_.clear();
+    localFuncsMap_.clear();
 }
 
 int32_t DistributedSchedStub::OnRemoteRequest(uint32_t code,
     MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     bool IsLocalCalling = IPCSkeleton::IsLocalCalling();
-    HILOGI("DistributedSchedStub::OnReceived, code = %{public}d, flags = %{public}d IsLocalCalling = %{public}d.", code,
-        option.GetFlags(), IsLocalCalling);
-    auto localFuncIt = localMemberFuncMap_.find(code);
-    if (localFuncIt != localMemberFuncMap_.end()) {
-        auto memberFunc = localFuncIt->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
+    HILOGI("DistributedSchedStub::OnRemoteRequest, code = %{public}d, flags = %{public}d, IsLocalCalling = %{public}d.",
+        code, option.GetFlags(), IsLocalCalling);
+
+    const auto& funcsMap = IsLocalCalling ? localFuncsMap_ : remoteFuncsMap_;
+    auto iter = funcsMap.find(code);
+    if (iter != funcsMap.end()) {
+        auto func = iter->second;
+        if (!EnforceInterfaceToken(data)) {
+            HILOGW("DistributedSchedStub::OnRemoteRequest interface token check failed!");
+            return DMS_PERMISSION_DENIED;
+        }
+        if (func != nullptr) {
+            return (this->*func)(data, reply);
         }
     }
-    auto distributedFuncIt = memberFuncMap_.find(code);
-    if (distributedFuncIt != memberFuncMap_.end()) {
-        auto memberFunc = distributedFuncIt->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
-    }
-    HILOGW("DistributedSchedStub: default case, need check.");
+
+    HILOGW("DistributedSchedStub::OnRemoteRequest default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
-    if (!EnforceInterfaceToken(data)) {
-        HILOGW("DistributedSchedStub:: StartRemoteAbilityInner interface token check failed!");
-        return DMS_PERMISSION_DENIED;
-    }
-    shared_ptr<AAFwk::Want> userWant(data.ReadParcelable<AAFwk::Want>());
-    if (userWant == nullptr) {
-        HILOGW("DistributedSchedStub:: START_ABILITY userWant readParcelable failed!");
+    shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOGW("DistributedSchedStub:: START_ABILITY want readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
     unique_ptr<AbilityInfo> spAbilityInfo(data.ReadParcelable<AbilityInfo>());
@@ -82,20 +85,16 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
     }
     int32_t requestCode = 0;
     PARCEL_READ_HELPER(data, Int32, requestCode);
-    int32_t result = StartRemoteAbility(*userWant, *spAbilityInfo, requestCode);
+    int32_t result = StartRemoteAbility(*want, *spAbilityInfo, requestCode);
     HILOGI("DistributedSchedStub:: StartRemoteAbilityInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
 int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply)
 {
-    if (!EnforceInterfaceToken(data)) {
-        HILOGW("DistributedSchedStub:: StartAbilityFromRemoteInner interface token check failed!");
-        return DMS_PERMISSION_DENIED;
-    }
-    shared_ptr<AAFwk::Want> userWant(data.ReadParcelable<AAFwk::Want>());
-    if (userWant == nullptr) {
-        HILOGW("DistributedSchedStub:: StartAbilityFromRemoteInner userWant readParcelable failed!");
+    shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOGW("DistributedSchedStub:: StartAbilityFromRemoteInner want readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
     unique_ptr<AbilityInfo> spAbilityInfo(data.ReadParcelable<AbilityInfo>());
@@ -107,7 +106,7 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     CallerInfo callerInfo;
     AccountInfo accountInfo;
     PARCEL_READ_HELPER(data, Int32, requestCode);
-    int32_t result = StartAbilityFromRemote(*userWant, *spAbilityInfo, requestCode, callerInfo, accountInfo);
+    int32_t result = StartAbilityFromRemote(*want, *spAbilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("DistributedSchedStub:: StartAbilityFromRemoteInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }

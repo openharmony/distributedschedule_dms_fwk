@@ -21,9 +21,15 @@ ohos_unittest("distributedschedsvrtest") {
   module_out_path = module_output_path
 
   sources = [
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/adapter/dnetwork_adapter.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/bundle/bundle_manager_internal.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/deviceManager/dms_device_info.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_device_node_listener.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_adapter.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_proxy.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_service.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_stub.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
     "unittest/distributed_sched_service_test.cpp",
   ]
 
@@ -41,6 +47,7 @@ ohos_unittest("distributedschedsvrtest") {
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -50,6 +57,7 @@ ohos_unittest("distributedschedsvrtest") {
 
   if (is_standard_system) {
     external_deps = [
+      "dsoftbus_standard:softbus_client",
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_core",
       "permission_standard:libpermissionsdk_standard",
