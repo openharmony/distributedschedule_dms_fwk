@@ -17,6 +17,7 @@
 
 #include "ability_info.h"
 #include "caller_info.h"
+#include "distributed_sched_ability_shell.h"
 #include "dtbschedmgr_log.h"
 
 #include "datetime_ex.h"
@@ -31,14 +32,20 @@ using namespace AAFwk;
 using namespace AppExecFwk;
 
 namespace {
+constexpr int32_t HID_HAP = 10000; /* first hap user */
 const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 }
 
 DistributedSchedStub::DistributedSchedStub()
 {
     localFuncsMap_[START_REMOTE_ABILITY] = &DistributedSchedStub::StartRemoteAbilityInner;
-
+    localFuncsMap_[START_CONTINUATION] = &DistributedSchedStub::StartContinuationInner;
+    localFuncsMap_[NOTIFY_COMPLETE_CONTINUATION] = &DistributedSchedStub::NotifyCompleteContinuationInner;
+    localFuncsMap_[REGISTER_ABILITY_TOKEN] = &DistributedSchedStub::RegisterAbilityTokenInner;
+    localFuncsMap_[UNREGISTER_ABILITY_TOKEN] = &DistributedSchedStub::UnregisterAbilityTokenInner;
     remoteFuncsMap_[START_ABILITY_FROM_REMOTE] = &DistributedSchedStub::StartAbilityFromRemoteInner;
+    remoteFuncsMap_[NOTIFY_CONTINUATION_RESULT_FROM_REMOTE] =
+        &DistributedSchedStub::NotifyContinuationResultFromRemoteInner;
 }
 
 DistributedSchedStub::~DistributedSchedStub()
@@ -109,6 +116,80 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     int32_t result = StartAbilityFromRemote(*want, *spAbilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("DistributedSchedStub:: StartAbilityFromRemoteInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, MessageParcel& reply)
+{
+    shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOGW("DistributedSchedStub: StartContinuationInner want readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    unique_ptr<AbilityInfo> spAbilityInfo(data.ReadParcelable<AbilityInfo>());
+    if (spAbilityInfo == nullptr) {
+        HILOGW("DistributedSchedStub: StartContinuationInner AbilityInfo readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
+    int32_t result = StartContinuation(*want, *spAbilityInfo, abilityToken);
+    HILOGI("DistributedSchedStub: StartContinuationInner result = %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::NotifyCompleteContinuationInner(MessageParcel& data,
+    [[maybe_unused]] MessageParcel& reply)
+{
+    u16string devId = data.ReadString16();
+    if (devId.empty()) {
+        HILOGE("DistributedSchedStub: NotifyCompleteContinuationInner devId empty!");
+        return INVALID_PARAMETERS_ERR;
+    }
+    int32_t sessionId = 0;
+    PARCEL_READ_HELPER(data, Int32, sessionId);
+    bool continuationResult = false;
+    PARCEL_READ_HELPER(data, Bool, continuationResult);
+    NotifyCompleteContinuation(devId, sessionId, continuationResult);
+    return ERR_OK;
+}
+
+int32_t DistributedSchedStub::NotifyContinuationResultFromRemoteInner(MessageParcel& data,
+    [[maybe_unused]] MessageParcel& reply)
+{
+    if (!CheckDmsRequestPermission()) {
+        HILOGW("DistributedSchedStub: NotifyContinuationResultFromRemoteInner request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
+
+    int32_t sessionId = 0;
+    PARCEL_READ_HELPER(data, Int32, sessionId);
+    bool continuationResult = false;
+    PARCEL_READ_HELPER(data, Bool, continuationResult);
+    return NotifyContinuationResultFromRemote(sessionId, continuationResult);
+}
+
+int32_t DistributedSchedStub::RegisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply)
+{
+    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
+    sptr<IRemoteObject> continuationCallback = data.ReadRemoteObject();
+    int32_t result = RegisterAbilityToken(abilityToken, continuationCallback);
+    HILOGI("DistributedSchedStub: RegisterAbilityTokenInner result = %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::UnregisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply)
+{
+    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
+    sptr<IRemoteObject> continuationCallback = data.ReadRemoteObject();
+    int32_t result = UnregisterAbilityToken(abilityToken, continuationCallback);
+    HILOGI("DistributedSchedStub: UnregisterAbilityTokenInner result = %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+bool DistributedSchedStub::CheckDmsRequestPermission()
+{
+    // never allow non-system uid distributed request
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    return (callingUid < HID_HAP);
 }
 
 bool DistributedSchedStub::EnforceInterfaceToken(MessageParcel& data)
