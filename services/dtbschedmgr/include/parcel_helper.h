@@ -18,6 +18,8 @@
 
 #include <cinttypes>
 
+#include "dtbschedmgr_log.h"
+
 namespace OHOS {
 namespace DistributedSchedule {
 #define PARCEL_WRITE_HELPER(parcel, type, value) \
@@ -86,30 +88,6 @@ namespace DistributedSchedule {
         return result; \
     } while (0)
 
-#define PARCEL_TRANSACT_SYNC_DFX(remote, code, data, reply) \
-    do { \
-        MessageOption option; \
-        int32_t error = remote->SendRequest(code, data, reply, option); \
-        if (error != ERR_NONE) { \
-            HILOGE("%{public}s transact failed, error: %{public}d", __func__, error); \
-            return error; \
-        } \
-        int32_t result = 0; \
-        PARCEL_READ_HELPER(reply, Int32, result); \
-        int64_t timeTick = 0; \
-        PARCEL_READ_HELPER(reply, Int64, timeTick); \
-        std::string package; \
-        PARCEL_READ_HELPER(reply, String, package); \
-        std::string deviceId; \
-        PARCEL_READ_HELPER_NORET(reply, String, deviceId); \
-        std::string message = "#ARG1:" + package + "#ARG2:" + std::to_string(timeTick) + "#PDVID:" + deviceId; \
-        OHOS::DevTools::JankLog::BetaDebug(JLID_LOCAL_DMS_START_ABILITY_RECV, message); \
-        OHOS::DevTools::JankLog::Debug(JLID_LOCAL_DMS_CONTINUATION_RECV, "packageName=%s, recvTime=%" PRIu64, \
-            package.c_str(), timeTick); \
-        HILOGD("%{public}s get result from server data = %{public}d", __func__, result); \
-        return result; \
-    } while (0)
-
 #define PARCEL_TRANSACT_SYNC_NORET(remote, code, data, reply) \
     do { \
         MessageOption option; \
@@ -119,28 +97,6 @@ namespace DistributedSchedule {
             return; \
         } \
         HILOGD("%{public}s transact success!", __func__); \
-    } while (0)
-
-#define PARCEL_TRANSACT_SYNC_JANKLOG(remote, code, data, reply, type) \
-    do { \
-        MessageOption option; \
-        int32_t error = remote->SendRequest(code, data, reply, option); \
-        if (error != ERR_NONE) { \
-            HILOGE("%{public}s transact failed, error: %{public}d", __func__, error); \
-            return error; \
-        } \
-        int32_t result = 0; \
-        PARCEL_READ_HELPER(reply, Int32, result); \
-        int64_t timeTick = 0; \
-        PARCEL_READ_HELPER_NORET(reply, Int64, timeTick); \
-        std::string package; \
-        PARCEL_READ_HELPER_NORET(reply, String, package); \
-        std::string deviceId; \
-        PARCEL_READ_HELPER_NORET(reply, String, deviceId); \
-        std::string message = "#ARG1:" + package + "#ARG2:" + std::to_string(timeTick) + "#PDVID:" + deviceId; \
-        OHOS::DevTools::JankLog::BetaDebug(type, message); \
-        HILOGD("%{public}s get result from server data = %{public}d", __func__, result); \
-        return result; \
     } while (0)
 
 #define PARCEL_WRITE_REPLY_NOERROR(reply, type, result) \
