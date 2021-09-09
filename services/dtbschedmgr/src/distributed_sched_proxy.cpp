@@ -70,28 +70,103 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& w
 int32_t DistributedSchedProxy::StartContinuation(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken)
 {
-    return 0;
+    if (abilityToken == nullptr) {
+        HILOGE("StartContinuation abilityToken null!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("StartContinuation remote service null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
+    PARCEL_WRITE_HELPER(data, RemoteObject, abilityToken);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_CONTINUATION, data, reply);
 }
 
 void DistributedSchedProxy::NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess)
 {
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("NotifyCompleteContinuation remote service null");
+        return;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return;
+    }
+    PARCEL_WRITE_HELPER_NORET(data, String16, devId);
+    PARCEL_WRITE_HELPER_NORET(data, Int32, sessionId);
+    PARCEL_WRITE_HELPER_NORET(data, Bool, isSuccess);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_NORET(remote, NOTIFY_COMPLETE_CONTINUATION, data, reply);
 }
 
 int32_t DistributedSchedProxy::NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess)
 {
-    return 0;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("NotifyContinuationResultFromRemote remote service null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, sessionId);
+    PARCEL_WRITE_HELPER(data, Bool, isSuccess);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, NOTIFY_CONTINUATION_RESULT_FROM_REMOTE, data, reply);
 }
 
 int32_t DistributedSchedProxy::RegisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
     const sptr<IRemoteObject>& continuationCallback)
 {
-    return 0;
+    if (abilityToken == nullptr || continuationCallback == nullptr) {
+        HILOGE("RegisterAbilityToken paramter null!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("RegisterAbilityToken remote service null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, abilityToken);
+    PARCEL_WRITE_HELPER(data, RemoteObject, continuationCallback);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, REGISTER_ABILITY_TOKEN, data, reply);
 }
 
 int32_t DistributedSchedProxy::UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
     const sptr<IRemoteObject>& continuationCallback)
 {
-    return 0;
+    if (abilityToken == nullptr || continuationCallback == nullptr) {
+        HILOGE("UnregisterAbilityToken paramter null!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("UnregisterAbilityToken remote service null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, abilityToken);
+    PARCEL_WRITE_HELPER(data, RemoteObject, continuationCallback);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, UNREGISTER_ABILITY_TOKEN, data, reply);
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
