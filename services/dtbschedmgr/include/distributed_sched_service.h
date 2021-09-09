@@ -21,13 +21,12 @@
 #include <set>
 #include <unordered_map>
 
-#include "ability_connect_callback_interface.h"
-#include "system_ability.h"
 #include "distributed_sched_stub.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "nocopyable.h"
 #include "single_instance.h"
+#include "system_ability.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -35,9 +34,9 @@ enum class ServiceRunningState {
     STATE_NO_START,
     STATE_RUNNING
 };
+
 enum class TargetComponent {
     HARMONY_COMPONENT,
-    DEF_COMPONENT,
 };
 
 class DistributedSchedService : public SystemAbility, public DistributedSchedStub {
@@ -49,12 +48,12 @@ public:
     ~DistributedSchedService() = default;
     void OnStart() override;
     void OnStop() override;
-    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
+    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& want, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         int32_t requestCode) override;
-    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
+    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
         const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo) override;
-    int32_t StartContinuation(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
+    int32_t StartContinuation(const OHOS::AAFwk::Want& want, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         const sptr<IRemoteObject>& abilityToken) override;
     void NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess) override;
     int32_t NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess) override;
@@ -66,7 +65,6 @@ private:
     DistributedSchedService();
     bool Init();
     sptr<IDistributedSched> GetRemoteDms(const std::string& remoteDeviceId);
-    bool registerToService_ = false;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

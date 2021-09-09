@@ -13,25 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_CALLER_INFO_H
-#define OHOS_DISTRIBUTED_CALLER_INFO_H
+#ifndef OHOS_DISTRIBUTED_BUNDLE_MANANGER_INTERNAL_H
+#define OHOS_DISTRIBUTED_BUNDLE_MANANGER_INTERNAL_H
+
+#include <string>
+
+#include "bundlemgr/bundle_mgr_interface.h"
+#include "bundlemgr/bundle_mgr_proxy.h"
+#include "single_instance.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-enum {
-    CALLER_TYPE_NONE = 0,
-    CALLER_TYPE_HARMONY = 1,
-};
+class BundleManagerInternal {
+    DECLARE_SINGLE_INSTANCE(BundleManagerInternal);
 
-struct CallerInfo {
-    int32_t uid = -1;
-    int32_t pid = -1;
-    int32_t callerType = CALLER_TYPE_NONE;
-    std::string sourceDeviceId;
-    int32_t duid = -1;
-    std::string callerAppId;
-    std::vector<std::string> bundleNames;
+public:
+    static bool GetCallerAppIdFromBms(int32_t callingUid, std::string& appId);
+    static sptr<AppExecFwk::IBundleMgr> GetBundleManager();
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_CALLER_INFO_H
+#endif /* OHOS_DISTRIBUTED_BUNDLE_MANANGER_INTERNAL_H */

@@ -221,7 +221,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_004, TestSize.Level0)
  * @tc.desc: call StartAbilityFromRemote with illegal param
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level0)
+HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level1)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_001 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
