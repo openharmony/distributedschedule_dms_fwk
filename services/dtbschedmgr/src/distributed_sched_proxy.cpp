@@ -14,20 +14,23 @@
  */
 
 #include "distributed_sched_proxy.h"
+
 #include "dtbschedmgr_log.h"
+
 #include "ipc_types.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 
-using namespace std;
-using namespace OHOS::AAFwk;
-
 namespace OHOS {
 namespace DistributedSchedule {
+using namespace std;
+using namespace AAFwk;
+
 namespace {
 const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 }
-int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userWant,
+
+int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
 {
     sptr<IRemoteObject> remote = Remote();
@@ -38,14 +41,14 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& userW
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
-    PARCEL_WRITE_HELPER(data, Parcelable, &userWant);
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
     PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY, data, reply);
 }
 
-int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
+int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode,
     const CallerInfo& callerInfo, const AccountInfo& accountInfo)
 {
@@ -57,14 +60,14 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& u
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
-    PARCEL_WRITE_HELPER(data, Parcelable, &userWant);
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
     PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
 }
 
-int32_t DistributedSchedProxy::StartContinuation(const OHOS::AAFwk::Want& userWant,
+int32_t DistributedSchedProxy::StartContinuation(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken)
 {
     return 0;

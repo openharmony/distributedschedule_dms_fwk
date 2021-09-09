@@ -29,9 +29,15 @@ config("distributed_sched_config") {
 ohos_shared_library("distributedschedsvr") {
   install_enable = true
   sources = [
+    "src/adapter/dnetwork_adapter.cpp",
+    "src/bundle/bundle_manager_internal.cpp",
+    "src/deviceManager/dms_device_info.cpp",
+    "src/distributed_device_node_listener.cpp",
+    "src/distributed_sched_adapter.cpp",
     "src/distributed_sched_proxy.cpp",
     "src/distributed_sched_service.cpp",
     "src/distributed_sched_stub.cpp",
+    "src/dtbschedmgr_device_info_storage.cpp",
   ]
 
   configs = [ ":distributed_sched_config" ]
@@ -43,6 +49,7 @@ ohos_shared_library("distributedschedsvr") {
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -50,6 +57,7 @@ ohos_shared_library("distributedschedsvr") {
   ]
 
   external_deps = [
+    "dsoftbus_standard:softbus_client",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

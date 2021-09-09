@@ -18,22 +18,31 @@
 #include <cinttypes>
 #include <unistd.h>
 
-#include "ability_manager_client.h"
+#include "adapter/dnetwork_adapter.h"
+#include "distributed_sched_adapter.h"
 #include "dtbschedmgr_log.h"
+
+#include "ability_manager_client.h"
+#include "datetime_ex.h"
 #include "element_name.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "parcel_helper.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+
+#include "distributed_sched_adapter.h"
+#include "dtbschedmgr_device_info_storage.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
 using namespace AAFwk;
 using namespace AppExecFwk;
+
 namespace {
-    const std::string PARAM_CALLING_UID = "dms.extra.param.key.callingUid";
-    const std::string PARAM_CALLING_PID = "dms.extra.param.key.callingPid";
-    const std::string PARAM_CALLING_NETWORK_ID = "dms.extra.param.key.srcNetworkId";
+const std::string PARAM_CALLING_UID = "dms.extra.param.key.callingUid";
+const std::string PARAM_CALLING_PID = "dms.extra.param.key.callingPid";
+const std::string PARAM_CALLING_NETWORK_ID = "dms.extra.param.key.srcNetworkId";
 }
 
 IMPLEMENT_SINGLE_INSTANCE(DistributedSchedService);
@@ -56,28 +65,31 @@ void DistributedSchedService::OnStart()
 bool DistributedSchedService::Init()
 {
     HILOGD("DistributedSchedService::Init ready to init.");
-    if (!registerToService_) {
-        bool ret = Publish(this);
-        if (!ret) {
-            HILOGE("DistributedSchedService::Init Publish failed!");
-            return false;
-        }
-        registerToService_ = true;
+
+    bool ret = Publish(this);
+    if (!ret) {
+        HILOGE("DistributedSchedService::Init Publish failed!");
+        return false;
+    }
+
+    if (!DtbschedmgrDeviceInfoStorage::GetInstance().Init()) {
+        HILOGE("DistributedSchedService::Init DtbschedmgrDeviceInfoStorage init failed.");
     }
     HILOGD("DistributedSchedService::Init init success.");
+    DistributedSchedAdapter::GetInstance().Init();
+    DnetworkAdapter::GetInstance()->Init();
     return true;
 }
 
 void DistributedSchedService::OnStop()
 {
     HILOGD("DistributedSchedService::OnStop ready to stop service.");
-    registerToService_ = false;
 }
 
-int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& userWant,
+int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
 {
-    std::string deviceId = userWant.GetElement().GetDeviceID();
+    std::string deviceId = want.GetElement().GetDeviceID();
     if (deviceId.empty()) {
         HILOGE("StartRemoteAbility check deviceId fail");
         return INVALID_PARAMETERS_ERR;
@@ -90,16 +102,16 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& use
     CallerInfo callerInfo;
     AccountInfo accountInfo;
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact begin");
-    int32_t result = remoteDms->StartAbilityFromRemote(userWant, abilityInfo, requestCode, callerInfo, accountInfo);
+    int32_t result = remoteDms->StartAbilityFromRemote(want, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact end");
     return result;
 }
 
-int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
+int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode,
     const CallerInfo& callerInfo, const AccountInfo& accountInfo)
 {
-    std::string deviceId = userWant.GetElement().GetDeviceID();
+    std::string deviceId = want.GetElement().GetDeviceID();
     if (deviceId.empty()) {
         HILOGE("StartAbilityFromRemote check deviceId fail");
         return INVALID_REMOTE_PARAMETERS_ERR;
@@ -109,14 +121,14 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
         HILOGE("StartAbilityFromRemote connect ability server failed %{public}d", err);
         return err;
     }
-    err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(userWant, requestCode);
+    err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
     if (err != ERR_OK) {
         HILOGE("StartAbilityFromRemote is failed %{public}d", err);
     }
     return err;
 }
 
-int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& userWant,
+int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken)
 {
     return 0;
