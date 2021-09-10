@@ -37,6 +37,7 @@ ohos_shared_library("distributedschedsvr") {
     "src/distributed_sched_ability_shell.cpp",
     "src/distributed_sched_adapter.cpp",
     "src/distributed_sched_continuation.cpp",
+    "src/distributed_sched_permission.cpp",
     "src/distributed_sched_proxy.cpp",
     "src/distributed_sched_service.cpp",
     "src/distributed_sched_stub.cpp",

@@ -21,6 +21,7 @@
 #include "adapter/dnetwork_adapter.h"
 #include "distributed_sched_adapter.h"
 #include "distributed_sched_ability_shell.h"
+#include "distributed_sched_permission.h"
 #include "dtbschedmgr_device_info_storage.h"
 #include "dtbschedmgr_log.h"
 
@@ -124,7 +125,13 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
         HILOGE("StartAbilityFromRemote check deviceId fail");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
+    ErrCode err = permissionInstance.CheckDPermission(want, callerInfo, accountInfo, abilityInfo, deviceId);
+    if (err != ERR_OK) {
+        HILOGE("StartAbilityFromRemote CheckDPermission denied!!");
+        return err;
+    }
+    err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (err != ERR_OK) {
         HILOGE("StartAbilityFromRemote connect ability server failed %{public}d", err);
         return err;

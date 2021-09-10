@@ -29,11 +29,13 @@ ohos_unittest("distributedschedsvrtest") {
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_ability_shell.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_adapter.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_continuation.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_permission.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_proxy.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_service.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/distributed_sched_stub.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
     "unittest/distributed_sched_continuation_test.cpp",
+    "unittest/distributed_sched_permission_test.cpp",
     "unittest/distributed_sched_service_test.cpp",
   ]
 
