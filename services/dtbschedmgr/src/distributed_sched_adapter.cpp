@@ -89,6 +89,21 @@ void DistributedSchedAdapter::DeviceOffline(const std::string& deviceId)
     }
 }
 
+bool DistributedSchedAdapter::QueryAbilityInfo(const OHOS::AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo)
+{
+    auto bundleMgr = BundleManagerInternal::GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOGE("QueryAbilityInfo failed to get bms");
+        return false;
+    }
+    bool result = bundleMgr->QueryAbilityInfo(want, abilityInfo);
+    if (!result) {
+        HILOGE("QueryAbilityInfo fail");
+        return false;
+    }
+    return true;
+}
+
 int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid,
     std::vector<std::u16string>& u16BundleNameList)
 {

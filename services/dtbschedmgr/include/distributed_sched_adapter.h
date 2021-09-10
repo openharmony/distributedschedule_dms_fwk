@@ -37,6 +37,7 @@ public:
 
     void DeviceOnline(const std::string& deviceId);
     void DeviceOffline(const std::string& deviceId);
+    bool QueryAbilityInfo(const OHOS::AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo);
     int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::u16string>& u16BundleNameList);
     int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::string>& bundleNameList);
 
