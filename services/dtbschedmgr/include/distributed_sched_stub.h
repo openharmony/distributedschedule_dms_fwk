@@ -31,6 +31,12 @@ public:
 private:
     int32_t StartRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t StartAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    int32_t StartContinuationInner(MessageParcel& data, MessageParcel& reply);
+    int32_t NotifyCompleteContinuationInner(MessageParcel& data, MessageParcel& reply);
+    int32_t NotifyContinuationResultFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    int32_t RegisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply);
+    int32_t UnregisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply);
+    bool CheckDmsRequestPermission();
     bool EnforceInterfaceToken(MessageParcel& data);
 
     using DistributedSchedFunc = int32_t(DistributedSchedStub::*)(MessageParcel& data, MessageParcel& reply);
