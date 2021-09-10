@@ -219,7 +219,7 @@ void DtbschedmgrDeviceInfoStorage::OnDeviceInfoChanged(const std::string& device
 
 void DnetServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
-    HILOGE("DnetServiceDeathRecipient::OnRemoteDied dnetwork service died");
+    HILOGI("DnetServiceDeathRecipient::OnRemoteDied dnetwork service died");
     DtbschedmgrDeviceInfoStorage::GetInstance().Init();
 }
 }

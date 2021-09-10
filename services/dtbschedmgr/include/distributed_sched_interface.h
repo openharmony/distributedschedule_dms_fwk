@@ -34,6 +34,7 @@ public:
         int32_t accountType = SAME_ACCOUNT_TYPE;
         std::vector<std::string> groupIdList;
     };
+
     virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& want,
         const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode) = 0;
     virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
@@ -47,6 +48,14 @@ public:
         const sptr<IRemoteObject>& continuationCallback) = 0;
     virtual int32_t UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
         const sptr<IRemoteObject>& continuationCallback) = 0;
+    virtual int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& connect) = 0;
+    virtual int32_t DisconnectRemoteAbility(const sptr<IRemoteObject>& connect) = 0;
+    virtual int32_t ConnectAbilityFromRemote(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo, const AccountInfo& accountInfo) = 0;
+    virtual int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
+        int32_t uid, const std::string& sourceDeviceId) = 0;
+    virtual int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) = 0;
 
     enum {
         START_REMOTE_ABILITY = 1,
