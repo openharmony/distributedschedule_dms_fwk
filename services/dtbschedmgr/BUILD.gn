@@ -31,9 +31,12 @@ ohos_shared_library("distributedschedsvr") {
   sources = [
     "src/adapter/dnetwork_adapter.cpp",
     "src/bundle/bundle_manager_internal.cpp",
+    "src/continuation_callback_death_recipient.cpp",
     "src/deviceManager/dms_device_info.cpp",
     "src/distributed_device_node_listener.cpp",
+    "src/distributed_sched_ability_shell.cpp",
     "src/distributed_sched_adapter.cpp",
+    "src/distributed_sched_continuation.cpp",
     "src/distributed_sched_proxy.cpp",
     "src/distributed_sched_service.cpp",
     "src/distributed_sched_stub.cpp",

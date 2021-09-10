@@ -22,6 +22,7 @@
 #include <unordered_map>
 
 #include "distributed_sched_stub.h"
+#include "distributed_sched_continuation.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "nocopyable.h"
@@ -64,7 +65,10 @@ public:
 private:
     DistributedSchedService();
     bool Init();
+    bool GetLocalDeviceId(std::string& localDeviceId);
     sptr<IDistributedSched> GetRemoteDms(const std::string& remoteDeviceId);
+    void NotifyContinuationCallbackResult(const sptr<IRemoteObject>& abilityToken, int32_t isSuccess);
+    std::shared_ptr<DSchedContinuation> dschedContinuation_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
