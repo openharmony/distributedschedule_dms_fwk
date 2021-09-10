@@ -18,7 +18,6 @@
 
 #include "ability_info.h"
 #include "ability_manager_client.h"
-
 #include "caller_info.h"
 #include "event_handler.h"
 #include "if_system_ability_manager.h"
@@ -35,13 +34,19 @@ public:
     void Init();
     void UnInit();
 
+    int32_t ConnectAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+        const sptr<IRemoteObject>& callerToken);
+    int32_t DisconnectAbility(const sptr<IRemoteObject>& connect);
     void DeviceOnline(const std::string& deviceId);
     void DeviceOffline(const std::string& deviceId);
     bool QueryAbilityInfo(const OHOS::AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo);
+    void ProcessConnectDied(const sptr<IRemoteObject>& connect);
     int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::u16string>& u16BundleNameList);
     int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::string>& bundleNameList);
 
 private:
+    void ProcessDeviceOffline(const std::string& deviceId);
+
     std::shared_ptr<AppExecFwk::EventHandler> dmsAdapterHandler_;
     friend class BundleManagerInternal;
 };

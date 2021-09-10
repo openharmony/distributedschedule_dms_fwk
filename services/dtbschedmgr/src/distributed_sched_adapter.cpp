@@ -55,6 +55,33 @@ void DistributedSchedAdapter::UnInit()
     dmsAdapterHandler_ = nullptr;
 }
 
+int32_t DistributedSchedAdapter::ConnectAbility(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, const sptr<IRemoteObject>& callerToken)
+{
+    HILOGD("DistributedSchedAdapter ConnectAbility");
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("DistributedSchedAdapter connect ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want,
+        iface_cast<AAFwk::IAbilityConnection>(connect), callerToken);
+    return ret;
+}
+
+int32_t DistributedSchedAdapter::DisconnectAbility(const sptr<IRemoteObject>& connect)
+{
+    HILOGD("DistributedSchedAdapter DisconnectAbility");
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("DistributedSchedAdapter connect ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(
+        iface_cast<AAFwk::IAbilityConnection>(connect));
+    return ret;
+}
+
 void DistributedSchedAdapter::DeviceOnline(const std::string& deviceId)
 {
     if (dmsAdapterHandler_ == nullptr) {
@@ -83,6 +110,7 @@ void DistributedSchedAdapter::DeviceOffline(const std::string& deviceId)
     }
     HILOGD("process DeviceOffline deviceId is %s", deviceId.c_str());
     auto callback = [deviceId, this] () {
+        ProcessDeviceOffline(deviceId);
     };
     if (!dmsAdapterHandler_->PostTask(callback, deviceId, DEVICE_OFFLINE_DELAY_TIME)) {
         HILOGW("DeviceOffline PostTask failed");
@@ -102,6 +130,32 @@ bool DistributedSchedAdapter::QueryAbilityInfo(const OHOS::AAFwk::Want& want, Ap
         return false;
     }
     return true;
+}
+
+void DistributedSchedAdapter::ProcessDeviceOffline(const std::string& deviceId)
+{
+    HILOGD("ProcessDeviceOffline");
+    DistributedSchedService::GetInstance().ProcessDeviceOffline(deviceId);
+}
+
+void DistributedSchedAdapter::ProcessConnectDied(const sptr<IRemoteObject>& connect)
+{
+    if (dmsAdapterHandler_ == nullptr) {
+        HILOGE("ProcessConnectDied dmsAdapterHandler is null");
+        return;
+    }
+
+    if (connect == nullptr) {
+        HILOGE("ProcessConnectDied connect is null");
+        return;
+    }
+    HILOGD("process connect died");
+    auto callback = [connect] () {
+        DistributedSchedService::GetInstance().ProcessConnectDied(connect);
+    };
+    if (!dmsAdapterHandler_->PostTask(callback)) {
+        HILOGW("ProcessConnectDied PostTask failed");
+    }
 }
 
 int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid,

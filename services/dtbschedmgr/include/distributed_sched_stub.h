@@ -37,6 +37,12 @@ private:
     int32_t RegisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply);
     int32_t UnregisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply);
     bool CheckDmsRequestPermission();
+    int32_t ConnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
+    int32_t DisconnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
+    int32_t ConnectAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    int32_t DisconnectAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    int32_t NotifyProcessDiedFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    bool CheckCallingUid();
     bool EnforceInterfaceToken(MessageParcel& data);
 
     using DistributedSchedFunc = int32_t(DistributedSchedStub::*)(MessageParcel& data, MessageParcel& reply);
