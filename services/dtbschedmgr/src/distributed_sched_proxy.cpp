@@ -168,6 +168,125 @@ int32_t DistributedSchedProxy::UnregisterAbilityToken(const sptr<IRemoteObject>&
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, UNREGISTER_ABILITY_TOKEN, data, reply);
 }
+
+int32_t DistributedSchedProxy::ConnectRemoteAbility(const OHOS::AAFwk::Want& want,
+    const AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& connect)
+{
+    if (connect == nullptr) {
+        HILOGE("ConnectRemoteAbility connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("ConnectRemoteAbility remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_REMOTE_ABILITY, data, reply);
+}
+
+int32_t DistributedSchedProxy::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect)
+{
+    if (connect == nullptr) {
+        HILOGE("DisconnectRemoteAbility connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("DisconnectRemoteAbility remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, DISCONNECT_REMOTE_ABILITY, data, reply);
+}
+
+int32_t DistributedSchedProxy::ConnectAbilityFromRemote(const OHOS::AAFwk::Want& want,
+    const AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& connect,
+    const CallerInfo& callerInfo, const AccountInfo& accountInfo)
+{
+    if (connect == nullptr) {
+        HILOGE("ConnectAbilityFromRemote connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("ConnectAbilityFromRemote remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.pid);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
+    PARCEL_WRITE_HELPER(data, Int32, accountInfo.accountType);
+    PARCEL_WRITE_HELPER(data, StringVector, accountInfo.groupIdList);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.callerAppId);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_ABILITY_FROM_REMOTE, data, reply);
+}
+
+int32_t DistributedSchedProxy::DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
+    int32_t uid, const std::string& sourceDeviceId)
+{
+    if (connect == nullptr) {
+        HILOGE("DisconnectAbilityFromRemote connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("DisconnectAbilityFromRemote remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    PARCEL_WRITE_HELPER(data, Int32, uid);
+    PARCEL_WRITE_HELPER(data, String, sourceDeviceId);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, DISCONNECT_ABILITY_FROM_REMOTE, data, reply);
+}
+
+int32_t DistributedSchedProxy::NotifyProcessDiedFromRemote(const CallerInfo& callerInfo)
+{
+    HILOGD("DistributedSchedProxy::NotifyProcessDiedFromRemote called");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("NotifyProcessDiedFromRemote remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.pid);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, NOTIFY_PROCESS_DIED_FROM_REMOTE, data, reply);
+}
 } // namespace DistributedSchedule
 } // namespace OHOS
 
