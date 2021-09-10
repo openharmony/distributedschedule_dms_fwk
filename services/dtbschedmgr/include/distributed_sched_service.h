@@ -31,6 +31,8 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
+class ConnectAbilitySession;
+
 enum class ServiceRunningState {
     STATE_NO_START,
     STATE_RUNNING
@@ -38,6 +40,11 @@ enum class ServiceRunningState {
 
 enum class TargetComponent {
     HARMONY_COMPONENT,
+};
+
+struct ConnectInfo {
+    CallerInfo callerInfo;
+    sptr<IRemoteObject> callbackWrapper;
 };
 
 class DistributedSchedService : public SystemAbility, public DistributedSchedStub {
@@ -62,13 +69,93 @@ public:
         const sptr<IRemoteObject>& continuationCallback) override;
     int32_t UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
         const sptr<IRemoteObject>& continuationCallback) override;
+    int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& connect) override;
+    int32_t DisconnectRemoteAbility(const sptr<IRemoteObject>& connect) override;
+    int32_t ConnectAbilityFromRemote(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo, const AccountInfo& accountInfo) override;
+    int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
+        int32_t uid, const std::string& sourceDeviceId) override;
+    int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) override;
+    void ProcessConnectDied(const sptr<IRemoteObject>& connect);
+    void ProcessDeviceOffline(const std::string& deviceId);
+    int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
+    void DumpConnectInfo(std::string& info);
+    void DumpSessionsLocked(const std::list<ConnectAbilitySession>& sessionsList, std::string& info);
+    void DumpElementLocked(const std::list<AppExecFwk::ElementName>& elementsList, std::string& info);
+
 private:
     DistributedSchedService();
     bool Init();
-    bool GetLocalDeviceId(std::string& localDeviceId);
-    sptr<IDistributedSched> GetRemoteDms(const std::string& remoteDeviceId);
     void NotifyContinuationCallbackResult(const sptr<IRemoteObject>& abilityToken, int32_t isSuccess);
+    void RemoteConnectAbilityMappingLocked(const sptr<IRemoteObject>& connect, const std::string& localDeviceId,
+        const std::string& remoteDeviceId, const AppExecFwk::ElementName& element, const CallerInfo& callerInfo,
+        TargetComponent targetComponent);
+    int32_t DisconnectEachRemoteAbilityLocked(const std::string& localDeviceId,
+        const std::string& remoteDeviceId, const sptr<IRemoteObject>& connect);
+    sptr<IDistributedSched> GetRemoteDms(const std::string& remoteDeviceId);
+    static bool GetLocalDeviceId(std::string& localDeviceId);
+    bool CheckDeviceId(const std::string& localDeviceId, const std::string& remoteDeviceId);
+    bool CheckDeviceIdFromRemote(const std::string& localDeviceId,
+        const std::string& remoteDeviceId, const std::string& sourceDeviceId);
+    void NotifyDeviceOfflineToAppLocked(const sptr<IRemoteObject>& connect, const ConnectAbilitySession& session);
+    int32_t NotifyApp(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName& element, int32_t errCode);
+    void NotifyProcessDiedLocked(const std::string& remoteDeviceId, const CallerInfo& callerInfo,
+        TargetComponent targetComponent);
+    int32_t CheckDistributedConnectLocked(const CallerInfo& callerInfo) const;
+    void DecreaseConnectLocked(int32_t uid);
+    static int32_t GetUidLocked(const std::list<ConnectAbilitySession>& sessionList);
+    int32_t TryConnectRemoteAbility(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo);
+
     std::shared_ptr<DSchedContinuation> dschedContinuation_;
+    std::map<sptr<IRemoteObject>, std::list<ConnectAbilitySession>> distributedConnectAbilityMap_;
+    std::map<sptr<IRemoteObject>, ConnectInfo> connectAbilityMap_;
+    std::unordered_map<int32_t, uint32_t> trackingUidMap_;
+    std::mutex distributedLock_;
+    sptr<IRemoteObject::DeathRecipient> connectDeathRecipient_;
+};
+
+class ConnectAbilitySession {
+public:
+    ConnectAbilitySession(const std::string& sourceDeviceId, const std::string& destinationDeviceId,
+        const CallerInfo& callerInfo, TargetComponent targetComponent = TargetComponent::HARMONY_COMPONENT);
+    ~ConnectAbilitySession() = default;
+
+    const std::string& GetSourceDeviceId() const
+    {
+        return sourceDeviceId_;
+    }
+
+    const std::string& GetDestinationDeviceId() const
+    {
+        return destinationDeviceId_;
+    }
+
+    std::list<AppExecFwk::ElementName> GetElementsList() const
+    {
+        return elementsList_;
+    }
+
+    CallerInfo GetCallerInfo() const
+    {
+        return callerInfo_;
+    }
+
+    TargetComponent GetTargetComponent() const
+    {
+        return targetComponent_;
+    }
+
+    bool IsSameCaller(const CallerInfo& callerInfo);
+    void AddElement(const AppExecFwk::ElementName& element);
+
+private:
+    std::string sourceDeviceId_;
+    std::string destinationDeviceId_;
+    std::list<AppExecFwk::ElementName> elementsList_;
+    CallerInfo callerInfo_;
+    TargetComponent targetComponent_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
