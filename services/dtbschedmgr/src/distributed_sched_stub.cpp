@@ -110,18 +110,34 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
         HILOGW("DistributedSchedStub:: StartAbilityFromRemoteInner want readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
-    unique_ptr<AbilityInfo> spAbilityInfo(data.ReadParcelable<AbilityInfo>());
-    if (spAbilityInfo == nullptr) {
+    unique_ptr<CompatibleAbilityInfo> cmpAbilityInfo(data.ReadParcelable<CompatibleAbilityInfo>());
+    if (cmpAbilityInfo == nullptr) {
         HILOGW("DistributedSchedStub: StartAbilityFromRemoteInner AbilityInfo readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
+    AbilityInfo abilityInfo;
+    cmpAbilityInfo->ConvertToAbilityInfo(abilityInfo);
+    std::string package = abilityInfo.bundleName;
+    std::string deviceId = abilityInfo.deviceId;
+    int64_t begin = GetTickCount();
     int32_t requestCode = 0;
-    CallerInfo callerInfo;
-    AccountInfo accountInfo;
     PARCEL_READ_HELPER(data, Int32, requestCode);
-    int32_t result = StartAbilityFromRemote(*want, *spAbilityInfo, requestCode, callerInfo, accountInfo);
+    CallerInfo callerInfo;
+    PARCEL_READ_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_READ_HELPER(data, String, callerInfo.sourceDeviceId);
+    callerInfo.callerType = CALLER_TYPE_HARMONY;
+    AccountInfo accountInfo;
+    accountInfo.accountType = data.ReadInt32();
+    PARCEL_READ_HELPER(data, StringVector, &accountInfo.groupIdList);
+    callerInfo.callerAppId = data.ReadString();
+    int32_t result = StartAbilityFromRemote(*want, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("DistributedSchedStub:: StartAbilityFromRemoteInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+    int64_t end = GetTickCount();
+    PARCEL_WRITE_HELPER(reply, Int64, end - begin);
+    PARCEL_WRITE_HELPER(reply, String, package);
+    PARCEL_WRITE_HELPER(reply, String, deviceId);
+    return ERR_NONE;
 }
 
 int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, MessageParcel& reply)
@@ -229,11 +245,13 @@ int32_t DistributedSchedStub::ConnectAbilityFromRemoteInner(MessageParcel& data,
         HILOGW("DistributedSchedStub::ConnectAbilityFromRemoteInner want readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
-    unique_ptr<AppExecFwk::AbilityInfo> abilityInfo(data.ReadParcelable<AppExecFwk::AbilityInfo>());
-    if (abilityInfo == nullptr) {
+    unique_ptr<CompatibleAbilityInfo> cmpAbilityInfo(data.ReadParcelable<CompatibleAbilityInfo>());
+    if (cmpAbilityInfo == nullptr) {
         HILOGW("DistributedSchedStub::ConnectAbilityFromRemoteInner abilityInfo readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
+    AbilityInfo abilityInfo;
+    cmpAbilityInfo->ConvertToAbilityInfo(abilityInfo);
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
     CallerInfo callerInfo;
     PARCEL_READ_HELPER(data, Int32, callerInfo.uid);
@@ -244,10 +262,10 @@ int32_t DistributedSchedStub::ConnectAbilityFromRemoteInner(MessageParcel& data,
     accountInfo.accountType = data.ReadInt32();
     PARCEL_READ_HELPER(data, StringVector, &accountInfo.groupIdList);
     callerInfo.callerAppId = data.ReadString();
-    std::string package = abilityInfo->bundleName;
-    std::string deviceId = abilityInfo->deviceId;
+    std::string package = abilityInfo.bundleName;
+    std::string deviceId = abilityInfo.deviceId;
     int64_t begin = GetTickCount();
-    int32_t result = ConnectAbilityFromRemote(*want, *abilityInfo, connect, callerInfo, accountInfo);
+    int32_t result = ConnectAbilityFromRemote(*want, abilityInfo, connect, callerInfo, accountInfo);
     HILOGW("DistributedSchedStub::ConnectAbilityFromRemoteInner result = %{public}d", result);
     int64_t end = GetTickCount();
     PARCEL_WRITE_HELPER(reply, Int32, result);
