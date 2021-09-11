@@ -221,7 +221,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_004, TestSize.Level0)
  * @tc.desc: call StartAbilityFromRemote with illegal param
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level0)
+HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level1)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_001 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
@@ -251,8 +251,8 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level
         "com.ohos.distributedmusicplayer", "192.168.43.101", abilityInfo);
     int result2 = proxy->StartAbilityFromRemote(want, abilityInfo, 0, callerInfo, accountInfo);
     DTEST_LOG << "result2:" << result2 << std::endl;
-    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result1);
-    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result2);
+    EXPECT_EQ(static_cast<int>(INVALID_REMOTE_PARAMETERS_ERR), result1);
+    EXPECT_EQ(static_cast<int>(INVALID_REMOTE_PARAMETERS_ERR), result2);
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_001 end" << std::endl;
 }
 

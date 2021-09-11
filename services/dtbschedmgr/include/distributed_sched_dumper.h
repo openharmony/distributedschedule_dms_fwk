@@ -13,25 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_CALLER_INFO_H
-#define OHOS_DISTRIBUTED_CALLER_INFO_H
+#ifndef OHOS_DISTRIBUTED_SCHED_DUMPER_H
+#define OHOS_DISTRIBUTED_SCHED_DUMPER_H
+
+#include <string>
+#include <vector>
 
 namespace OHOS {
 namespace DistributedSchedule {
-enum {
-    CALLER_TYPE_NONE = 0,
-    CALLER_TYPE_HARMONY = 1,
-};
+class DistributedSchedDumper {
+public:
+    static bool Dump(const std::vector<std::string>& args, std::string& result);
 
-struct CallerInfo {
-    int32_t uid = -1;
-    int32_t pid = -1;
-    int32_t callerType = CALLER_TYPE_NONE;
-    std::string sourceDeviceId;
-    int32_t duid = -1;
-    std::string callerAppId;
-    std::vector<std::string> bundleNames;
+private:
+    DistributedSchedDumper() = default;
+    ~DistributedSchedDumper() = default;
+
+    static void ShowHelp(std::string& result);
+    static void IllegalInput(std::string& result);
+    static void ShowConnectRemoteAbility(std::string& result);
+    static bool CanDump();
+    static bool DumpDefault(std::string& result);
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_CALLER_INFO_H
+#endif // OHOS_DISTRIBUTED_SCHED_DUMPER_H

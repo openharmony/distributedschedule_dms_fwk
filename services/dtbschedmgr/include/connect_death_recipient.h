@@ -13,25 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_CALLER_INFO_H
-#define OHOS_DISTRIBUTED_CALLER_INFO_H
+#ifndef OHOS_DISTRIBUTED_CONNECT_DEATH_RECIPIENT_H
+#define OHOS_DISTRIBUTED_CONNECT_DEATH_RECIPIENT_H
+
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-enum {
-    CALLER_TYPE_NONE = 0,
-    CALLER_TYPE_HARMONY = 1,
-};
+class ConnectDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    ConnectDeathRecipient() = default;
+    ~ConnectDeathRecipient() override = default;
 
-struct CallerInfo {
-    int32_t uid = -1;
-    int32_t pid = -1;
-    int32_t callerType = CALLER_TYPE_NONE;
-    std::string sourceDeviceId;
-    int32_t duid = -1;
-    std::string callerAppId;
-    std::vector<std::string> bundleNames;
+    void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_CALLER_INFO_H
+#endif // OHOS_DISTRIBUTED_CONNECT_DEATH_RECIPIENT_H
