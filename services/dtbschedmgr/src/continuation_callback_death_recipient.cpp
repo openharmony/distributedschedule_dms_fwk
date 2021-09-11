@@ -13,25 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_CALLER_INFO_H
-#define OHOS_DISTRIBUTED_CALLER_INFO_H
+#include "continuation_callback_death_recipient.h"
+#include "distributed_sched_ability_shell.h"
+#include "dtbschedmgr_log.h"
+#include "iremote_proxy.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-enum {
-    CALLER_TYPE_NONE = 0,
-    CALLER_TYPE_HARMONY = 1,
-};
-
-struct CallerInfo {
-    int32_t uid = -1;
-    int32_t pid = -1;
-    int32_t callerType = CALLER_TYPE_NONE;
-    std::string sourceDeviceId;
-    int32_t duid = -1;
-    std::string callerAppId;
-    std::vector<std::string> bundleNames;
-};
+void ContinuationCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
+{
+    HILOGI("%s called", __func__);
+    DistributedSchedAbilityShell::GetInstance().RemoveContinuationCallback(remote.promote());
+}
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_CALLER_INFO_H

@@ -4,7 +4,6 @@
 -   [系统架构](#section13587185873516)
 -   [目录](#section161941989596)
 -   [约束](#section119744591305)
--   [说明](#section1312121216216)
 -   [使用](#section10729231131110)
 -   [相关仓](#section1371113476307)
 
@@ -13,6 +12,7 @@
 分布式任务调度模块负责跨设备组件管理，提供访问和控制远程组件的能力，支持分布式场景下的应用协同。主要功能如下：
 
 -   远程启动FA：跨设备拉起远端设备上指定FA。
+-   远程迁移FA：将FA跨设备迁移到远端。
 
 
 ## 系统架构<a name="section13587185873516"></a>
@@ -32,6 +32,9 @@
 ├── service                                 # 核心代码
 |   ├── include
 |   |   ├── caller_info.h                   # 调用方信息
+|   |   ├── continuation_callback_death_recipient.h # 迁移回调死亡监听接口
+|   |   ├── distributed_sched_ability_shell.h       # 迁移回调管理接口
+|   |   ├── distributed_sched_continuation.h        # 迁移token管理接口
 |   |   ├── distributed_sched_interface.h   # 对外接口
 |   |   ├── distributed_sched_proxy.h       # 客户端接口
 |   |   ├── distributed_sched_service.h     # 服务端接口
@@ -40,6 +43,9 @@
 |   |   ├── parcel_helper.h                 # 分布式消息解析模块
 |   |   ├── uri.h                           # uri接口头文件
 |   ├── src
+|   |   ├── continuation_callback_death_recipient.cpp # 迁移回调死亡监听实现
+|   |   ├── distributed_sched_ability_shell.cpp       # 迁移回调管理实现
+|   |   ├── distributed_sched_continuation.h          # 迁移token管理实现
 |   |   ├── distributed_sched_proxy.cpp     # 客户端实现
 |   |   ├── distributed_sched_service.cpp   # 服务端实现
 |   |   ├── distributed_sched_stub.cpp      # 服务端父类实现
@@ -53,16 +59,6 @@
 
 -   组网设备需在同一局域网中。
 -   组网之前，需先完成设备绑定，绑定流程参见安全子系统中说明。
-
-## 说明<a name="section1312121216216"></a>
-
--   **分布式任务调度主要流程**   
-
-![](figures/dms-transaction_zh.png)
-
-
-**图 1**  分布式调度流转时序图<a name="fig4960722185514"></a> 
-
 
 ## 使用<a name="section10729231131110"></a>
 

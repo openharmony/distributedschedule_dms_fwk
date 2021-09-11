@@ -26,12 +26,12 @@ public:
     explicit DistributedSchedProxy(const sptr<IRemoteObject>& impl)
         : IRemoteProxy<IDistributedSched>(impl) {}
     ~DistributedSchedProxy() {}
-    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
+    int32_t StartRemoteAbility(const OHOS::AAFwk::Want& want, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         int32_t requestCode) override;
-    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& userWant,
+    int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
         const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo) override;
-    int32_t StartContinuation(const OHOS::AAFwk::Want& userWant, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
+    int32_t StartContinuation(const OHOS::AAFwk::Want& want, const OHOS::AppExecFwk::AbilityInfo& abilityInfo,
         const sptr<IRemoteObject>& abilityToken) override;
     void NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess) override;
     int32_t NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess) override;
@@ -39,6 +39,15 @@ public:
         const sptr<IRemoteObject>& continuationCallback) override;
     int32_t UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
         const sptr<IRemoteObject>& continuationCallback) override;
+    int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& connect) override;
+    int32_t DisconnectRemoteAbility(const sptr<IRemoteObject>& connect) override;
+    int32_t ConnectAbilityFromRemote(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo, const AccountInfo& accountInfo) override;
+    int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
+        int32_t uid, const std::string& sourceDeviceId) override;
+    int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) override;
+
 private:
     static inline BrokerDelegator<DistributedSchedProxy> delegator_;
 };
