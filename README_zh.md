@@ -19,7 +19,6 @@
 
 ![](figures/dms-architecture_zh.png)
 
-
 **图 1**  分布式调度组件架构图<a name="fig4460722185514"></a> 
 
 ## 目录<a name="section161941989596"></a>
