@@ -19,7 +19,6 @@
 
 ![](figures/dms-architecture_zh.png)
 
-
 **图 1**  分布式调度组件架构图<a name="fig4460722185514"></a> 
 
 ## 目录<a name="section161941989596"></a>
@@ -71,35 +70,8 @@ foundation/distributedschedule/dmsfwk
 ```
 
 
--   **主设备程序开发**（以拉起FA为例）
-
-构造意图参数want，设置需要启动的远端设备ID，包名，元能力类名信息
-
-```
-import ohos.aafwk.ability.Ability;
-import ohos.aafwk.content.Want;
-import ohos.bundle.ElementName;
-
-// 构造want参数
-Want want = new Want();
-ElementName name = new ElementName(remote_device_id, "ohos.dms.remote_bundle_name", "remote_ability_name"); 
-want.setElement(name); // 将待启动的FA信息添加到Want中
-
-// 启动远程设备FA
-startAbility(want); // 按照Want启动指定FA，want参数命名以实际开发平台API为准
-```
-
--   **预置条件**
-
-从设备侧需安装对应包名的FA
-
--   **运行**（以拉起FA为例）
-
-执行主设备侧的startAbility即可拉起从设备FA
-
-
 ## 相关仓<a name="section1371113476307"></a>
 
 分布式任务调度子系统
 
-[dms\_fwk](https://https://gitee.com/openharmony/distributedschedule_dms_fwk)
+[distributedschedule\_dms\_fwk](https://https://gitee.com/openharmony/distributedschedule_dms_fwk)
