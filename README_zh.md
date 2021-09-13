@@ -75,4 +75,4 @@ foundation/distributedschedule/dmsfwk
 
 分布式任务调度子系统
 
-[dms\_fwk](https://https://gitee.com/openharmony/distributedschedule_dms_fwk)
+[distributedschedule\_dms\_fwk](https://https://gitee.com/openharmony/distributedschedule_dms_fwk)
