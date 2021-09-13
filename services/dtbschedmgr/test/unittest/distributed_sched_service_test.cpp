@@ -221,7 +221,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_004, TestSize.Level0)
  * @tc.desc: call StartAbilityFromRemote with illegal param
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level1)
+HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level0)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_001 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
@@ -251,8 +251,8 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level
         "com.ohos.distributedmusicplayer", "192.168.43.101", abilityInfo);
     int result2 = proxy->StartAbilityFromRemote(want, abilityInfo, 0, callerInfo, accountInfo);
     DTEST_LOG << "result2:" << result2 << std::endl;
-    EXPECT_EQ(static_cast<int>(INVALID_REMOTE_PARAMETERS_ERR), result1);
-    EXPECT_EQ(static_cast<int>(INVALID_REMOTE_PARAMETERS_ERR), result2);
+    EXPECT_EQ(static_cast<int>(IPC_STUB_UNKNOW_TRANS_ERR), result1);
+    EXPECT_EQ(static_cast<int>(IPC_STUB_UNKNOW_TRANS_ERR), result2);
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_001 end" << std::endl;
 }
 
@@ -344,7 +344,7 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_003, TestSize.Level
  * @tc.desc: call StartAbilityFromRemote with dms
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_004, TestSize.Level1)
+HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_004, TestSize.Level0)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_004 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
@@ -381,6 +381,8 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_004, TestSize.Level
     int result2 = DistributedSchedService::GetInstance().StartAbilityFromRemote(want,
         abilityInfo, 0, callerInfo, accountInfo);
     DTEST_LOG << "result2:" << result2 << std::endl;
+    EXPECT_EQ(static_cast<int>(INVALID_REMOTE_PARAMETERS_ERR), result1);
+    EXPECT_EQ(static_cast<int>(INVALID_REMOTE_PARAMETERS_ERR), result2);
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_004 end" << std::endl;
 }
 
