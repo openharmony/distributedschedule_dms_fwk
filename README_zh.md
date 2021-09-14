@@ -11,9 +11,9 @@
 
 分布式任务调度模块负责跨设备组件管理，提供访问和控制远程组件的能力，支持分布式场景下的应用协同。主要功能如下：
 
--   远程启动FA：跨设备拉起远端设备上指定FA。
--   远程迁移FA：将FA跨设备迁移到远端。
--   远程绑定AA：跨设备绑定远端设备上指定AA。
+-   远程启动元能力：跨设备拉起远端设备上指定元能力。
+-   远程迁移元能力：将元能力跨设备迁移到远端。
+-   远程绑定元能力：跨设备绑定远端设备上指定元能力。
 
 
 ## 系统架构<a name="section13587185873516"></a>
@@ -102,4 +102,4 @@ foundation/distributedschedule/dmsfwk
 
 分布式任务调度子系统
 
-[distributedschedule\_dms\_fwk](https://https://gitee.com/openharmony/distributedschedule_dms_fwk)
+[distributedschedule\_dms\_fwk](https://gitee.com/openharmony/distributedschedule_dms_fwk)
