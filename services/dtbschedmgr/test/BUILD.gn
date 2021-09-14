@@ -84,7 +84,11 @@ ohos_unittest("distributedschedsvrtest") {
 ohos_unittest("dschedcontinuetest") {
   module_out_path = module_output_path
 
-  sources = [ "unittest/distributed_sched_continuation_test.cpp" ]
+  sources = [
+    "unittest/distributed_sched_ability_shell_test.cpp",
+    "unittest/distributed_sched_continuation_test.cpp",
+    "unittest/mock_distributed_sched.cpp",
+  ]
   sources += dtbschedmgr_sources
   configs = dsched_configs
   deps = dsched_deps
