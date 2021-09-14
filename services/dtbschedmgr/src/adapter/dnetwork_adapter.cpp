@@ -71,7 +71,7 @@ void DnetworkAdapter::OnNodeOnline(NodeBasicInfo* info)
             listener->OnDeviceOnline(&info);
         }
     };
-    if(!dnetworkHandler_->PostTask(onlineNotifyTask)) {
+    if (!dnetworkHandler_->PostTask(onlineNotifyTask)) {
         HILOGE("OnNodeOnline post task failed");
         return;
     }
@@ -91,7 +91,7 @@ void DnetworkAdapter::OnNodeOffline(NodeBasicInfo* info)
             listener->OnDeviceOffline(&info);
         }
     };
-    if(!dnetworkHandler_->PostTask(offlineNotifyTask)) {
+    if (!dnetworkHandler_->PostTask(offlineNotifyTask)) {
         HILOGE("OnNodeOffline post task failed");
         return;
     }
@@ -138,7 +138,7 @@ bool DnetworkAdapter::AddDeviceChangeListener(const std::shared_ptr<DeviceListen
         HILOGI("AddDeviceChangeListener %{public}s", (errCode == ERR_OK) ? "success" : "timeout");
     };
 
-    if(!dnetworkHandler_->PostTask(registerTask)) {
+    if (!dnetworkHandler_->PostTask(registerTask)) {
         HILOGE("AddDeviceChangeListener post task failed");
         return false;
     }

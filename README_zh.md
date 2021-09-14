@@ -11,14 +11,14 @@
 
 分布式任务调度模块负责跨设备组件管理，提供访问和控制远程组件的能力，支持分布式场景下的应用协同。主要功能如下：
 
--   远程启动FA：跨设备拉起远端设备上指定FA。
--   远程迁移FA：将FA跨设备迁移到远端。
+-   远程启动元能力：跨设备拉起远端设备上指定元能力。
+-   远程迁移元能力：将元能力跨设备迁移到远端。
+-   远程绑定元能力：跨设备绑定远端设备上指定元能力。
 
 
 ## 系统架构<a name="section13587185873516"></a>
 
 ![](figures/dms-architecture_zh.png)
-
 
 **图 1**  分布式调度组件架构图<a name="fig4460722185514"></a> 
 
@@ -28,28 +28,55 @@
 
 ```
 /foundation/distributedschedule/dmsfwk
-├── interfaces                              # 接口代码
-├── service                                 # 核心代码
-|   ├── include
-|   |   ├── caller_info.h                   # 调用方信息
-|   |   ├── continuation_callback_death_recipient.h # 迁移回调死亡监听接口
-|   |   ├── distributed_sched_ability_shell.h       # 迁移回调管理接口
-|   |   ├── distributed_sched_continuation.h        # 迁移token管理接口
-|   |   ├── distributed_sched_interface.h   # 对外接口
-|   |   ├── distributed_sched_proxy.h       # 客户端接口
-|   |   ├── distributed_sched_service.h     # 服务端接口
-|   |   ├── distributed_sched_stub.h        # 服务端接口父类
-|   |   ├── dtbschedmgr_log.h               # 日志模块
-|   |   ├── parcel_helper.h                 # 分布式消息解析模块
-|   |   ├── uri.h                           # uri接口头文件
-|   ├── src
-|   |   ├── continuation_callback_death_recipient.cpp # 迁移回调死亡监听实现
-|   |   ├── distributed_sched_ability_shell.cpp       # 迁移回调管理实现
-|   |   ├── distributed_sched_continuation.h          # 迁移token管理实现
-|   |   ├── distributed_sched_proxy.cpp     # 客户端实现
-|   |   ├── distributed_sched_service.cpp   # 服务端实现
-|   |   ├── distributed_sched_stub.cpp      # 服务端父类实现
-|   ├── BUILD.gn
+├── interfaces                              # 接口定义
+├── services                                # 核心功能
+│   └── dtbschedmgr
+│       ├── include
+│       │   ├── ability_connection_wrapper_stub.h  # 绑定回调封装类
+│       │   ├── adapter
+│       │   │   └── dnetwork_adapter.h             # 软总线适配层
+│       │   ├── bundle
+│       │   │   └── bundle_manager_internal.h      # bms功能封装接口
+│       │   ├── caller_info.h                      # 调用方基本信息
+│       │   ├── connect_death_recipient.h          # 绑定回调死亡监听接口
+│       │   ├── continuation_callback_death_recipient.h # 迁移回调死亡监听接口
+│       │   ├── deviceManager
+│       │   │   └── dms_device_info.h              # 设备信息定义和获取接口
+│       │   ├── distributed_device_node_listener.h # 设备上下线监听接口
+│       │   ├── distributed_sched_ability_shell.h  # 迁移回调管理接口
+│       │   ├── distributed_sched_adapter.h        # dms适配层
+│       │   ├── distributed_sched_continuation.h   # 迁移token管理接口
+│       │   ├── distributed_sched_dumper.h         # dump接口
+│       │   ├── distributed_sched_interface.h      # 对外接口
+│       │   ├── distributed_sched_permission.h     # 权限校验接口
+│       │   ├── distributed_sched_proxy.h          # proxy端接口
+│       │   ├── distributed_sched_service.h        # 服务端接口
+│       │   ├── distributed_sched_stub.h           # stub端接口
+│       │   ├── dtbschedmgr_device_info_storage.h  # 设备信息存储管理
+│       │   ├── dtbschedmgr_log.h                  # 日志模块
+│       │   ├── parcel_helper.h                    # 序列化/反序列化辅助宏定义
+│       │   └── uri.h
+│       ├── src
+│       │   ├── ability_connection_wrapper_stub.cpp  # 绑定回调封装类实现
+│       │   ├── adapter
+│       │   │   └── dnetwork_adapter.cpp             # 软总线适配层
+│       │   ├── bundle
+│       │   │   └── bundle_manager_internal.cpp      # bms功能封装实现
+│       │   ├── connect_death_recipient.cpp          # 绑定回调死亡监听实现
+│       │   ├── continuation_callback_death_recipient.cpp # 迁移回调死亡监听实现
+│       │   ├── deviceManager
+│       │   │   └── dms_device_info.cpp              # 设备信息获取接口实现
+│       │   ├── distributed_device_node_listener.cpp # 设备上下线监听实现
+│       │   ├── distributed_sched_ability_shell.cpp  # 迁移回调管理实现
+│       │   ├── distributed_sched_adapter.cpp        # dms适配层实现
+│       │   ├── distributed_sched_continuation.cpp   # 迁移token管理实现
+│       │   ├── distributed_sched_dumper.cpp         # dump实现
+│       │   ├── distributed_sched_permission.cpp     # 权限校验实现
+│       │   ├── distributed_sched_proxy.cpp          # proxy端实现
+│       │   ├── distributed_sched_service.cpp        # 服务端实现
+│       │   ├── distributed_sched_stub.cpp           # stub端实现
+│       │   └── dtbschedmgr_device_info_storage.cpp  # 设备信息存储管理实现
+│       └──── BUILD.gn
 ├── sa_profile
 ├── utils
 ├── LICENSE
@@ -71,35 +98,8 @@ foundation/distributedschedule/dmsfwk
 ```
 
 
--   **主设备程序开发**（以拉起FA为例）
-
-构造意图参数want，设置需要启动的远端设备ID，包名，元能力类名信息
-
-```
-import ohos.aafwk.ability.Ability;
-import ohos.aafwk.content.Want;
-import ohos.bundle.ElementName;
-
-// 构造want参数
-Want want = new Want();
-ElementName name = new ElementName(remote_device_id, "ohos.dms.remote_bundle_name", "remote_ability_name"); 
-want.setElement(name); // 将待启动的FA信息添加到Want中
-
-// 启动远程设备FA
-startAbility(want); // 按照Want启动指定FA，want参数命名以实际开发平台API为准
-```
-
--   **预置条件**
-
-从设备侧需安装对应包名的FA
-
--   **运行**（以拉起FA为例）
-
-执行主设备侧的startAbility即可拉起从设备FA
-
-
 ## 相关仓<a name="section1371113476307"></a>
 
 分布式任务调度子系统
 
-[dms\_fwk](https://https://gitee.com/openharmony/distributedschedule_dms_fwk)
+[distributedschedule\_dms\_fwk](https://gitee.com/openharmony/distributedschedule_dms_fwk)
