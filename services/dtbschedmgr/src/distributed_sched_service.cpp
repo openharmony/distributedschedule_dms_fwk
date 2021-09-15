@@ -338,7 +338,8 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
     const AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& connect)
 {
     std::string localDeviceId;
-    if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, abilityInfo.deviceId)) {
+    std::string remoteDeviceId = want.GetElement().GetDeviceID();
+    if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, remoteDeviceId)) {
         HILOGE("ConnectRemoteAbility check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
@@ -363,11 +364,6 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
         return INVALID_PARAMETERS_ERR;
     }
 
-    if (abilityInfo.type == AppExecFwk::AbilityType::UNKNOWN) {
-        HILOGE("ConnectRemoteAbility AbilityType error");
-        return INVALID_PARAMETERS_ERR;
-    }
-
     HILOGD("[PerformanceTest] DistributedSchedService::ConnectRemoteAbility begin");
     int32_t result = TryConnectRemoteAbility(want, abilityInfo, connect, callerInfo);
     if (result != ERR_OK) {
@@ -381,7 +377,8 @@ int32_t DistributedSchedService::TryConnectRemoteAbility(const OHOS::AAFwk::Want
     const AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo)
 {
     AccountInfo accountInfo;
-    sptr<IDistributedSched> remoteDms = GetRemoteDms(abilityInfo.deviceId);
+    std::string remoteDeviceId = want.GetElement().GetDeviceID();
+    sptr<IDistributedSched> remoteDms = GetRemoteDms(remoteDeviceId);
     if (remoteDms == nullptr || connect == nullptr) {
         HILOGE("TryConnectRemoteAbility invalid parameters");
         return INVALID_PARAMETERS_ERR;
@@ -395,7 +392,7 @@ int32_t DistributedSchedService::TryConnectRemoteAbility(const OHOS::AAFwk::Want
         result = remoteDms->ConnectAbilityFromRemote(want, abilityInfo, connect, callerInfo, accountInfo);
         HILOGD("[PerformanceTest] ConnectRemoteAbility end");
         if (result == ERR_OK) {
-            RemoteConnectAbilityMappingLocked(connect, callerInfo.sourceDeviceId, abilityInfo.deviceId,
+            RemoteConnectAbilityMappingLocked(connect, callerInfo.sourceDeviceId, remoteDeviceId,
                 want.GetElement(), callerInfo, TargetComponent::HARMONY_COMPONENT);
             break;
         }
@@ -453,23 +450,23 @@ bool DistributedSchedService::CheckDeviceId(const std::string& localDeviceId, co
 }
 
 bool DistributedSchedService::CheckDeviceIdFromRemote(const std::string& localDeviceId,
-    const std::string& remoteDeviceId, const std::string& sourceDeviceId)
+    const std::string& destinationDeviceId, const std::string& sourceDeviceId)
 {
-    if (localDeviceId.empty() || remoteDeviceId.empty() || sourceDeviceId.empty()) {
+    if (localDeviceId.empty() || destinationDeviceId.empty() || sourceDeviceId.empty()) {
         HILOGE("CheckDeviceIdFromRemote failed");
         return false;
     }
-    // remoteDeviceId set by remote must be same with localDeviceId
-    if (localDeviceId != remoteDeviceId) {
-        HILOGE("remoteDeviceId is not same with localDeviceId");
+    // destinationDeviceId set by remote must be same with localDeviceId
+    if (localDeviceId != destinationDeviceId) {
+        HILOGE("destinationDeviceId is not same with localDeviceId");
         return false;
     }
     HILOGD("CheckDeviceIdFromRemote sourceDeviceId %s", sourceDeviceId.c_str());
     HILOGD("CheckDeviceIdFromRemote localDeviceId %s", localDeviceId.c_str());
-    HILOGD("CheckDeviceIdFromRemote remoteDeviceId %s", remoteDeviceId.c_str());
+    HILOGD("CheckDeviceIdFromRemote destinationDeviceId %s", destinationDeviceId.c_str());
 
-    if (sourceDeviceId == remoteDeviceId || sourceDeviceId == localDeviceId) {
-        HILOGE("sourceDeviceId is different with localDeviceId and remoteDeviceId");
+    if (sourceDeviceId == destinationDeviceId || sourceDeviceId == localDeviceId) {
+        HILOGE("destinationDeviceId is different with localDeviceId and destinationDeviceId");
         return false;
     }
     return true;
@@ -486,8 +483,9 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
     }
     HILOGD("ConnectAbilityFromRemote uid is %d, pid is %d", callerInfo.uid, callerInfo.pid);
     std::string localDeviceId;
+    std::string destinationDeviceId = want.GetElement().GetDeviceID();
     if (!GetLocalDeviceId(localDeviceId) ||
-        !CheckDeviceIdFromRemote(localDeviceId, abilityInfo.deviceId, callerInfo.sourceDeviceId)) {
+        !CheckDeviceIdFromRemote(localDeviceId, destinationDeviceId, callerInfo.sourceDeviceId)) {
         HILOGE("ConnectAbilityFromRemote check deviceId failed");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
