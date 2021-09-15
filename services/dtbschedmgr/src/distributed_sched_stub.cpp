@@ -132,7 +132,7 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     callerInfo.callerAppId = data.ReadString();
     int32_t result = StartAbilityFromRemote(*want, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("DistributedSchedStub:: StartAbilityFromRemoteInner result = %{public}d", result);
-    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+    PARCEL_WRITE_HELPER(reply, Int32, result);
     int64_t end = GetTickCount();
     PARCEL_WRITE_HELPER(reply, Int64, end - begin);
     PARCEL_WRITE_HELPER(reply, String, package);
