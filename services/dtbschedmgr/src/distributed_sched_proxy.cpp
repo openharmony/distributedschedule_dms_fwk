@@ -61,8 +61,15 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& w
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
-    PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
+    AppExecFwk::CompatibleAbilityInfo compatibleAbilityInfo;
+    abilityInfo.ConvertToCompatiableAbilityInfo(compatibleAbilityInfo);
+    PARCEL_WRITE_HELPER(data, Parcelable, &compatibleAbilityInfo);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
+    PARCEL_WRITE_HELPER(data, Int32, accountInfo.accountType);
+    PARCEL_WRITE_HELPER(data, StringVector, accountInfo.groupIdList);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.callerAppId);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
 }
@@ -233,7 +240,9 @@ int32_t DistributedSchedProxy::ConnectAbilityFromRemote(const OHOS::AAFwk::Want&
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
-    PARCEL_WRITE_HELPER(data, Parcelable, &abilityInfo);
+    AppExecFwk::CompatibleAbilityInfo compatibleAbilityInfo;
+    abilityInfo.ConvertToCompatiableAbilityInfo(compatibleAbilityInfo);
+    PARCEL_WRITE_HELPER(data, Parcelable, &compatibleAbilityInfo);
     PARCEL_WRITE_HELPER(data, RemoteObject, connect);
     PARCEL_WRITE_HELPER(data, Int32, callerInfo.uid);
     PARCEL_WRITE_HELPER(data, Int32, callerInfo.pid);
