@@ -59,12 +59,12 @@ void DnetworkAdapter::Init()
 
 void DnetworkAdapter::OnNodeOnline(NodeBasicInfo* info)
 {
-    HILOGI("OnNodeOnline netwokId = %{public}s", AnonymizeDeviceId(info->networkId).c_str());
     if (info == nullptr) {
         HILOGE("OnNodeOnline invalid parameter");
         return;
     }
 
+    HILOGI("OnNodeOnline netwokId = %{public}s", AnonymizeDeviceId(info->networkId).c_str());
     auto onlineNotifyTask = [info = *info]() {
         std::lock_guard<std::mutex> autoLock(listenerSetMutex_);
         for (auto& listener : listenerSet_) {
@@ -79,12 +79,12 @@ void DnetworkAdapter::OnNodeOnline(NodeBasicInfo* info)
 
 void DnetworkAdapter::OnNodeOffline(NodeBasicInfo* info)
 {
-    HILOGI("OnNodeOffline networkId = %{public}s", AnonymizeDeviceId(info->networkId).c_str());
     if (info == nullptr) {
         HILOGE("OnNodeOffline invalid parameter");
         return;
     }
 
+    HILOGI("OnNodeOffline networkId = %{public}s", AnonymizeDeviceId(info->networkId).c_str());
     auto offlineNotifyTask = [info = *info]() {
         std::lock_guard<std::mutex> autoLock(listenerSetMutex_);
         for (auto& listener : listenerSet_) {
