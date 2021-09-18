@@ -97,7 +97,7 @@ private:
     static bool GetLocalDeviceId(std::string& localDeviceId);
     bool CheckDeviceId(const std::string& localDeviceId, const std::string& remoteDeviceId);
     bool CheckDeviceIdFromRemote(const std::string& localDeviceId,
-        const std::string& remoteDeviceId, const std::string& sourceDeviceId);
+        const std::string& destinationDeviceId, const std::string& sourceDeviceId);
     void NotifyDeviceOfflineToAppLocked(const sptr<IRemoteObject>& connect, const ConnectAbilitySession& session);
     int32_t NotifyApp(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName& element, int32_t errCode);
     void NotifyProcessDiedLocked(const std::string& remoteDeviceId, const CallerInfo& callerInfo,
