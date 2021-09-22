@@ -15,6 +15,7 @@
 
 #include "distributed_sched_proxy.h"
 #include "distributed_sched_service.h"
+#include "dtbschedmgr_device_info_storage.h"
 #include "dtbschedmgr_log.h"
 #include "gtest/gtest.h"
 #include "if_system_ability_manager.h"
@@ -102,7 +103,7 @@ void DistributedSchedServiceTest::GetAbilityInfo(const std::string& package, con
  * @tc.desc: call StartRemoteAbility with illegal params
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_001, TestSize.Level0)
+HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_001, TestSize.Level1)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_001 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
@@ -134,7 +135,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_001, TestSize.Level0)
 
 /**
  * @tc.name: StartRemoteAbility_002
- * @tc.desc: call StartRemoteAbility
+ * @tc.desc: call StartRemoteAbility with dms with wrong deviceId and local deviceId
  * @tc.type: FUNC
  */
 HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_002, TestSize.Level0)
@@ -153,12 +154,17 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_002, TestSize.Level0)
         "com.ohos.distributedmusicplayer.MainAbility");
     want.SetElement(element);
     AppExecFwk::AbilityInfo abilityInfo;
-    GetAbilityInfo("com.ohos.distributedmusicplayer", "com.ohos.distributedmusicplayer.MainAbility",
-        "com.ohos.distributedmusicplayer", "192.168.43.101", abilityInfo);
-    int result = proxy->StartRemoteAbility(want, abilityInfo, 0);
-    DTEST_LOG << "result:" << result << std::endl;
-
-    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result);
+    int result1 = DistributedSchedService::GetInstance().StartRemoteAbility(want, abilityInfo, 0);
+    DTEST_LOG << "result:" << result1 << std::endl;
+    std::string deviceId;
+    DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(deviceId);
+    AppExecFwk::ElementName element1(deviceId, "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbility");
+    want.SetElement(element1);
+    int result2 = DistributedSchedService::GetInstance().StartRemoteAbility(want, abilityInfo, 0);
+    DTEST_LOG << "result:" << result2 << std::endl;
+    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result1);
+    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result2);
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_002 end" << std::endl;
 }
 
@@ -167,7 +173,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_002, TestSize.Level0)
  * @tc.desc: call StartRemoteAbility with dms
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_003, TestSize.Level1)
+HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_003, TestSize.Level0)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_003 start" << std::endl;
     /**
@@ -192,7 +198,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_003, TestSize.Level1)
  * @tc.desc: call StartRemoteAbility
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_004, TestSize.Level0)
+HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_004, TestSize.Level1)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_004 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
@@ -261,7 +267,7 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_001, TestSize.Level
  * @tc.desc: call StartAbilityFromRemote
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_002, TestSize.Level0)
+HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_002, TestSize.Level1)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_002 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
@@ -307,7 +313,7 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_002, TestSize.Level
  * @tc.desc: call StartAbilityFromRemote for pressure test
  * @tc.type: FUNC
  */
-HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_003, TestSize.Level0)
+HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_003, TestSize.Level1)
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_003 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
