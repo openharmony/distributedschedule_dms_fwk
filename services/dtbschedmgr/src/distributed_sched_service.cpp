@@ -103,9 +103,10 @@ void DistributedSchedService::OnStop()
 int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
 {
+    std::string localDeviceId;
     std::string deviceId = want.GetElement().GetDeviceID();
-    if (deviceId.empty()) {
-        HILOGE("StartRemoteAbility check deviceId fail");
+    if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, deviceId)) {
+        HILOGE("StartRemoteAbility check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
     sptr<IDistributedSched> remoteDms = GetRemoteDms(deviceId);
@@ -114,6 +115,7 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& wan
         return INVALID_PARAMETERS_ERR;
     }
     CallerInfo callerInfo;
+    callerInfo.sourceDeviceId = localDeviceId;
     AccountInfo accountInfo;
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact begin");
     int32_t result = remoteDms->StartAbilityFromRemote(want, abilityInfo, requestCode, callerInfo, accountInfo);
@@ -125,9 +127,11 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
     const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode,
     const CallerInfo& callerInfo, const AccountInfo& accountInfo)
 {
+    std::string localDeviceId;
     std::string deviceId = want.GetElement().GetDeviceID();
-    if (deviceId.empty()) {
-        HILOGE("StartAbilityFromRemote check deviceId fail");
+    if (!GetLocalDeviceId(localDeviceId) ||
+        !CheckDeviceIdFromRemote(localDeviceId, deviceId, callerInfo.sourceDeviceId)) {
+        HILOGE("StartAbilityFromRemote check deviceId failed");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
     DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
