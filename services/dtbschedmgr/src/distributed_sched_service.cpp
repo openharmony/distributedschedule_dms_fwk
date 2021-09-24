@@ -731,7 +731,7 @@ void DistributedSchedService::ProcessConnectDied(const sptr<IRemoteObject>& conn
             }
             DecreaseConnectLocked(callerInfo.uid);
             if (itConnect->first != nullptr) {
-                itConnect->first ->RemoveDeathRecipient(connectDeathRecipient_);
+                itConnect->first->RemoveDeathRecipient(connectDeathRecipient_);
             }
             distributedConnectAbilityMap_.erase(itConnect++);
         } else {
