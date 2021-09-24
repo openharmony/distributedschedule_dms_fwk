@@ -18,27 +18,27 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
-#define DECLARE_SINGLE_INSTANCE_BASE(className)      \
-public:                                              \
-    static className& GetInstance();                 \
-private:                                             \
-    className(const className&) = delete;            \
-    className& operator= (const className&) = delete;\
-    className(className&&) = delete;                 \
-    className& operator= (className&&) = delete;     \
+#define DECLARE_SINGLE_INSTANCE_BASE(className)       \
+public:                                               \
+    static className& GetInstance();                  \
+private:                                              \
+    className(const className&) = delete;             \
+    className& operator= (const className&) = delete; \
+    className(className&&) = delete;                  \
+    className& operator= (className&&) = delete;      \
 
 
-#define DECLARE_SINGLE_INSTANCE(className) \
-    DECLARE_SINGLE_INSTANCE_BASE(className)\
-private:                                   \
-    className() = default;                 \
-    ~className() = default;                \
+#define DECLARE_SINGLE_INSTANCE(className)  \
+    DECLARE_SINGLE_INSTANCE_BASE(className) \
+private:                                    \
+    className() = default;                  \
+    ~className() = default;                 \
 
-#define IMPLEMENT_SINGLE_INSTANCE(className)\
-className& className::GetInstance()         \
-{                                           \
-    static auto instance = new className(); \
-    return *instance;                       \
+#define IMPLEMENT_SINGLE_INSTANCE(className) \
+className& className::GetInstance()          \
+{                                            \
+    static auto instance = new className();  \
+    return *instance;                        \
 }
 }; // namespace DistributedSchedule
 }; // namespace OHOS
