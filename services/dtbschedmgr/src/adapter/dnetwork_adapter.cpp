@@ -137,7 +137,6 @@ bool DnetworkAdapter::AddDeviceChangeListener(const std::shared_ptr<DeviceListen
         }
         HILOGI("AddDeviceChangeListener %{public}s", (errCode == ERR_OK) ? "success" : "timeout");
     };
-
     if (!dnetworkHandler_->PostTask(registerTask)) {
         HILOGE("AddDeviceChangeListener post task failed");
         return false;
