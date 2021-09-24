@@ -44,10 +44,11 @@ int32_t AbilityConnectionWrapperStub::OnRemoteRequest(uint32_t code, MessageParc
         HILOGE("AbilityConnectionWrapperStub element is null");
         return ERR_INVALID_VALUE;
     }
+    int32_t resultCode = ERR_NONE;
     switch (code) {
         case IAbilityConnection::ON_ABILITY_CONNECT_DONE: {
             if (auto remoteObject = data.ReadParcelable<IRemoteObject>()) {
-                auto resultCode = data.ReadInt32();
+                resultCode = data.ReadInt32();
                 OnAbilityConnectDone(*element, remoteObject, resultCode);
                 return ERR_NONE;
             }
@@ -55,7 +56,7 @@ int32_t AbilityConnectionWrapperStub::OnRemoteRequest(uint32_t code, MessageParc
             return ERR_INVALID_DATA;
         }
         case IAbilityConnection::ON_ABILITY_DISCONNECT_DONE: {
-            auto resultCode = data.ReadInt32();
+            resultCode = data.ReadInt32();
             OnAbilityDisconnectDone(*element, resultCode);
             return ERR_NONE;
         }

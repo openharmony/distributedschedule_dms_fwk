@@ -57,7 +57,6 @@ bool DtbschedmgrDeviceInfoStorage::Init()
             std::this_thread::sleep_for(1s);
         }
     };
-
     if (!initHandler_->PostTask(func)) {
         HILOGE("DtbschedmgrDeviceInfoStorage::Init handler postTask failed");
         return false;
