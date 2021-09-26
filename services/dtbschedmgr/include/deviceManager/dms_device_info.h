@@ -43,7 +43,6 @@ public:
     const std::string& GetDeviceId() const;
     int32_t GetDeviceType() const;
     int32_t GetDeviceState() const;
-    
     bool Marshalling(Parcel& parcel) const override;
 
 private:
