@@ -22,12 +22,16 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
+namespace {
+const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
+}
+
 void AbilityConnectionWrapperProxy::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
     const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
     HILOGD("AbilityConnectionWrapperProxy::OnAbilityConnectDone called");
     MessageParcel data;
-    if (!data.WriteInterfaceToken(IAbilityConnection::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(CONNECTION_CALLBACK_INTERFACE_TOKEN)) {
         return;
     }
 
@@ -45,7 +49,7 @@ void AbilityConnectionWrapperProxy::OnAbilityDisconnectDone(const AppExecFwk::El
 {
     HILOGD("AbilityConnectionWrapperProxy::OnAbilityDisconnectDone called");
     MessageParcel data;
-    if (!data.WriteInterfaceToken(IAbilityConnection::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(CONNECTION_CALLBACK_INTERFACE_TOKEN)) {
         return;
     }
 
