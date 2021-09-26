@@ -22,8 +22,6 @@ group("unittest") {
 config("distributed_sched_config") {
   visibility = [ ":*" ]
   include_dirs = [ "include" ]
-
-  cflags_cc = [ "-fexceptions" ]
 }
 
 ohos_shared_library("distributedschedsvr") {
