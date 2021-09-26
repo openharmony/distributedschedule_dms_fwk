@@ -45,6 +45,8 @@ using namespace AAFwk;
 using namespace AppExecFwk;
 
 namespace {
+const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
+
 constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
@@ -690,7 +692,7 @@ int32_t DistributedSchedService::NotifyApp(const sptr<IRemoteObject>& connect,
         return OBJECT_NULL;
     }
     MessageParcel data;
-    if (!data.WriteInterfaceToken(IAbilityConnection::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(CONNECTION_CALLBACK_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &element);
