@@ -128,5 +128,69 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_004, TestSize.Level0)
     EXPECT_TRUE(ret == INVALID_PARAMETERS_ERR);
     DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_004 end ret:" << ret << std::endl;
 }
+
+/**
+ * @tc.name: CheckDPermission_005
+ * @tc.desc: call CheckDPermission with illegal parameter
+ * @tc.type: FUNC
+ * @tc.require: #I4CGU4
+ */
+HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_005, TestSize.Level0)
+{
+    DTEST_LOG << "CheckDPermission_005 begin" << std::endl;
+    AAFwk::Want want;
+    CallerInfo callerInfo;
+    callerInfo.callerType = CALLER_TYPE_HARMONY;
+    IDistributedSched::AccountInfo accountInfo;
+    AppExecFwk::AbilityInfo abilityInfo;
+    string localDeviceId;
+    int32_t ret = DistributedSchedPermission::GetInstance().CheckDPermission(want, callerInfo, accountInfo, abilityInfo,
+        localDeviceId);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "CheckDPermission_005 end result:" << ret << std::endl;
+}
+
+/**
+ * @tc.name: CheckDPermission_006
+ * @tc.desc: call CheckDPermission with different account type
+ * @tc.type: FUNC
+ * @tc.require: #I4CGU4
+ */
+HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_006, TestSize.Level1)
+{
+    DTEST_LOG << "CheckDPermission_006 begin" << std::endl;
+    AAFwk::Want want;
+    CallerInfo callerInfo;
+    IDistributedSched::AccountInfo accountInfo;
+    accountInfo.accountType = IDistributedSched::DIFF_ACCOUNT_TYPE;
+    AppExecFwk::AbilityInfo abilityInfo;
+    string localDeviceId = "255.255.255.255";
+    int32_t ret = DistributedSchedPermission::GetInstance().CheckDPermission(want, callerInfo, accountInfo, abilityInfo,
+        localDeviceId);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "CheckDPermission_006 end result:" << ret << std::endl;
+}
+
+/**
+ * @tc.name: CheckDPermission_007
+ * @tc.desc: call CheckDPermission with illegal ability info
+ * @tc.type: FUNC
+ * @tc.require: #I4CGU4
+ */
+HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_007, TestSize.Level0)
+{
+    DTEST_LOG << "CheckDPermission_007 begin" << std::endl;
+    AAFwk::Want want;
+    CallerInfo callerInfo;
+    callerInfo.callerType = CALLER_TYPE_HARMONY;
+    IDistributedSched::AccountInfo accountInfo;
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.visible = true;
+    string localDeviceId;
+    int32_t ret = DistributedSchedPermission::GetInstance().CheckDPermission(want, callerInfo, accountInfo, abilityInfo,
+        localDeviceId);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "CheckDPermission_007 end result:" << ret << std::endl;
+}
 } // namespace DistributedSchedule
 } // namespace OHOS

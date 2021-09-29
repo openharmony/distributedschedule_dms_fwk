@@ -117,7 +117,9 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& wan
         return INVALID_PARAMETERS_ERR;
     }
     CallerInfo callerInfo;
+    callerInfo.uid = IPCSkeleton::GetCallingUid();
     callerInfo.sourceDeviceId = localDeviceId;
+    callerInfo.callerType = CALLER_TYPE_HARMONY;
     AccountInfo accountInfo;
     HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact begin");
     int32_t result = remoteDms->StartAbilityFromRemote(want, abilityInfo, requestCode, callerInfo, accountInfo);
