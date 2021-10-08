@@ -21,7 +21,10 @@ group("unittest") {
 
 config("distributed_sched_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "base/security/permission/interfaces/innerkits/permission_standard/distributedpermission/main/cpp/include",
+  ]
 }
 
 ohos_shared_library("distributedschedsvr") {
@@ -50,6 +53,7 @@ ohos_shared_library("distributedschedsvr") {
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/security/permission/interfaces/innerkits/permission_standard/distributedpermission:distributed_permission_innerkits",
     "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
