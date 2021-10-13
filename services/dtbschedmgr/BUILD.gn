@@ -30,7 +30,6 @@ config("distributed_sched_config") {
 ohos_shared_library("distributedschedsvr") {
   install_enable = true
   sources = [
-    "src/ability_connection_wrapper_proxy.cpp",
     "src/ability_connection_wrapper_stub.cpp",
     "src/adapter/dnetwork_adapter.cpp",
     "src/bundle/bundle_manager_internal.cpp",
