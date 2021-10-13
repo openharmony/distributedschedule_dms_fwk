@@ -50,7 +50,6 @@ dsched_public_deps = [
 ]
 
 dtbschedmgr_sources = [
-  "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_proxy.cpp",
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/adapter/dnetwork_adapter.cpp",
   "${distributed_service}/dtbschedmgr/src/bundle/bundle_manager_internal.cpp",
