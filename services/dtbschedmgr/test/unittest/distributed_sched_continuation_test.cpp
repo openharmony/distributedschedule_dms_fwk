@@ -122,7 +122,7 @@ HWTEST_F(DSchedContinuationTest, StartContinuation_002, TestSize.Level1)
 {
     DTEST_LOG << "DSchedContinuationTest StartContinuation_002 start" << std::endl;
     /**
-     * @tc.steps: step1. intent not set continuation flags.
+     * @tc.steps: step1. want not set continuation flags.
      * @tc.expected: step1. return false.
      */
     int32_t ret = StartContinuation(GetDSchedService(), 0);
