@@ -23,6 +23,10 @@ enum {
     CALLER_TYPE_HARMONY = 1,
 };
 
+enum {
+    VERSION_BASE = 200, // begin for 200 and step for 200
+    VERSION = VERSION_BASE,
+};
 struct CallerInfo {
     int32_t uid = -1;
     int32_t pid = -1;
@@ -31,6 +35,7 @@ struct CallerInfo {
     int32_t duid = -1;
     std::string callerAppId;
     std::vector<std::string> bundleNames;
+    int32_t dmsVersion = -1;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

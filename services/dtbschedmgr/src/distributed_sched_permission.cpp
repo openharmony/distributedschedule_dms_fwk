@@ -28,6 +28,7 @@ using namespace OHOS::Security;
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
+const std::string TAG = "DistributedSchedPermission";
 constexpr int32_t ERROR_DUID = -1;
 constexpr int32_t PERMISSION_GRANTED = 0;
 }
@@ -39,13 +40,13 @@ bool DistributedSchedPermission::CheckCustomPermission(const AppExecFwk::Ability
 {
     const auto& permissions = abilityInfo.permissions;
     if (permissions.empty()) {
-        HILOGI("CheckCustomPermission no need any permission, so granted!");
+        HILOGI("no need any permission, so granted!");
         return true;
     }
     int32_t duid = callerInfo.duid;
     if (callerInfo.callerType == CALLER_TYPE_HARMONY) {
         duid = AllocateDuid(callerInfo.uid, callerInfo.sourceDeviceId);
-        HILOGD("CheckCustomPermission AllocateDuid uid = %{public}d, duid = %{public}d", callerInfo.uid, duid);
+        HILOGD("AllocateDuid uid = %{public}d, duid = %{public}d", callerInfo.uid, duid);
     }
     if (duid < 0) {
         HILOGE("CheckCustomPermission duid invalid!");
@@ -61,7 +62,7 @@ bool DistributedSchedPermission::CheckCustomPermission(const AppExecFwk::Ability
                 duid, permission.c_str());
             return true;
         }
-        HILOGI("CheckCustomPermission duid:%{public}d, permission:%{public}s check failed!",
+        HILOGI("duid:%{public}d, permission:%{public}s check failed!",
             duid, permission.c_str());
     }
     return false;
@@ -76,7 +77,7 @@ int32_t DistributedSchedPermission::AllocateDuid(int32_t rUid, const std::string
     int64_t begin = GetTickCount();
     auto duid = Permission::DistributedPermissionKit::AllocateDuid(deviceId, rUid);
     int64_t end = GetTickCount();
-    HILOGI("DistributedSchedPermission::AllocateDuid spend:%{public}" PRId64 " ms", (end - begin));
+    HILOGI("AllocateDuid spend:%{public}" PRId64 " ms", (end - begin));
     return duid;
 }
 
@@ -113,7 +114,7 @@ bool DistributedSchedPermission::getTargetAbility(const AAFwk::Want& want,
     const AppExecFwk::AbilityInfo& abilityInfo, const std::string& localDeviceId,
     AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const
 {
-    HILOGD("DistributedSchedPermission::getTargetAbility");
+    HILOGD("getTargetAbility");
     bool result = DistributedSchedAdapter::GetInstance().QueryAbilityInfo(want, targetAbility);
     if (!result) {
         HILOGE("getTargetAbility QueryAbilityInfo fail");

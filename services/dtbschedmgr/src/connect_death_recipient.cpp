@@ -21,9 +21,12 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
+namespace {
+const std::string TAG = "ConnectDeathRecipient";
+}
 void ConnectDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
-    HILOGI("ConnectDeathRecipient::OnRemoteDied called");
+    HILOGI("OnRemoteDied called");
     DistributedSchedAdapter::GetInstance().ProcessConnectDied(remote.promote());
 }
 } // namespace DistributedSchedule

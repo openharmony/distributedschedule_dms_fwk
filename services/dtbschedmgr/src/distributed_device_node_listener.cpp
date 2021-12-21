@@ -21,10 +21,13 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
+namespace {
+const std::string TAG = "DistributedDeviceNodeListener";
+}
 void DistributedDeviceNodeListener::OnDeviceOnline(const NodeBasicInfo* nodeBasicInfo)
 {
     if (nodeBasicInfo == nullptr) {
-        HILOGE("DistributedDeviceNodeListener::OnDeviceOnline null nodeBasicInfo");
+        HILOGE("OnDeviceOnline null nodeBasicInfo");
         return;
     }
     auto dmsDeviceInfo = std::make_shared<DmsDeviceInfo>(
@@ -35,7 +38,7 @@ void DistributedDeviceNodeListener::OnDeviceOnline(const NodeBasicInfo* nodeBasi
 void DistributedDeviceNodeListener::OnDeviceOffline(const NodeBasicInfo* nodeBasicInfo)
 {
     if (nodeBasicInfo == nullptr) {
-        HILOGE("DistributedDeviceNodeListener::OnDeviceOffline null nodeBasicInfo");
+        HILOGE("OnDeviceOffline null nodeBasicInfo");
         return;
     }
     DtbschedmgrDeviceInfoStorage::GetInstance().DeviceOfflineNotify(nodeBasicInfo->networkId);
