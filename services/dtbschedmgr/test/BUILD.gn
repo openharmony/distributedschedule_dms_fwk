@@ -22,6 +22,12 @@ distributed_service = "//foundation/distributedschedule/dmsfwk/services"
 dsched_configs =
     [ "${distributed_service}/dtbschedmgr:distributed_sched_config" ]
 
+config("test_config") {
+  visibility = [ ":*" ]
+  include_dirs =
+      [ "//foundation/distributedschedule/dmsfwk/utils/native/include" ]
+}
+
 dsched_deps = [
   "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
   "//base/security/permission/interfaces/innerkits/permission_standard/distributedpermission:distributed_permission_innerkits",
@@ -73,7 +79,8 @@ ohos_unittest("distributedschedsvrtest") {
 
   sources = [ "unittest/distributed_sched_service_test.cpp" ]
   sources += dtbschedmgr_sources
-  configs = dsched_configs
+  configs = [ ":test_config" ]
+  configs += dsched_configs
   deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
@@ -90,7 +97,8 @@ ohos_unittest("dschedcontinuetest") {
     "unittest/mock_distributed_sched.cpp",
   ]
   sources += dtbschedmgr_sources
-  configs = dsched_configs
+  configs = [ ":test_config" ]
+  configs += dsched_configs
   deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
@@ -103,7 +111,8 @@ ohos_unittest("dschedconnecttest") {
 
   sources = [ "unittest/distributed_sched_connect_test.cpp" ]
   sources += dtbschedmgr_sources
-  configs = dsched_configs
+  configs = [ ":test_config" ]
+  configs += dsched_configs
   deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
@@ -116,7 +125,8 @@ ohos_unittest("dschedpermissiontest") {
 
   sources = [ "unittest/distributed_sched_permission_test.cpp" ]
   sources += dtbschedmgr_sources
-  configs = dsched_configs
+  configs = [ ":test_config" ]
+  configs += dsched_configs
   deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
