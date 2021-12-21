@@ -23,20 +23,22 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
+namespace {
+const std::string TAG = "BundleManagerInternal";
+}
 IMPLEMENT_SINGLE_INSTANCE(BundleManagerInternal);
-
 bool BundleManagerInternal::GetCallerAppIdFromBms(int32_t callingUid, std::string& appId)
 {
     std::vector<std::string> bundleNameList;
     int32_t ret = DistributedSchedAdapter::GetInstance().GetBundleNameListFromBms(callingUid, bundleNameList);
     if (ret != ERR_OK || bundleNameList.empty()) {
-        HILOGE("BundleManagerInternal::GetCallerAppIdFromBms error");
+        HILOGE("GetBundleNameListFromBms error");
         return false;
     }
 
     auto bundleMgr = GetBundleManager();
     if (bundleMgr == nullptr) {
-        HILOGE("BundleManagerInternal::GetCallerAppIdFromBms failed to get bms");
+        HILOGE("failed to get bms");
         return false;
     }
 
@@ -44,7 +46,7 @@ bool BundleManagerInternal::GetCallerAppIdFromBms(int32_t callingUid, std::strin
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     appId = bundleMgr->GetAppIdByBundleName(bundleNameList.front(), callingUid);
     IPCSkeleton::SetCallingIdentity(identity);
-    HILOGD("BundleManagerInternal::GetCallerAppIdFromBms appId:%s", appId.c_str());
+    HILOGD("appId:%s", appId.c_str());
     return true;
 }
 
@@ -55,7 +57,7 @@ sptr<AppExecFwk::IBundleMgr> BundleManagerInternal::GetBundleManager()
         return iface_cast<AppExecFwk::IBundleMgr>(
             samgrClient->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
     } else {
-        HILOGE("DistributedSchedAdapter::GetBundleManager failed to get samgr");
+        HILOGE("failed to get samgr");
         return nullptr;
     }
 }
