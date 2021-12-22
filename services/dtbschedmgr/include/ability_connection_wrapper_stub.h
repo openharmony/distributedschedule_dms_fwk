@@ -26,11 +26,6 @@ namespace OHOS {
 namespace DistributedSchedule {
 class AbilityConnectionWrapperStub : public IRemoteStub<AAFwk::IAbilityConnection> {
 public:
-    enum {
-        ON_ABILITY_CONNECT_DONE = 1,
-        ON_ABILITY_DISCONNECT_DONE = 2
-    };
-
     explicit AbilityConnectionWrapperStub(sptr<IRemoteObject> connection);
     virtual ~AbilityConnectionWrapperStub() = default;
 
@@ -43,7 +38,6 @@ public:
 
 private:
     DISALLOW_COPY_AND_MOVE(AbilityConnectionWrapperStub);
-
     sptr<IRemoteObject> distributedConnection_;
 };
 } // namespace DistributedSchedule

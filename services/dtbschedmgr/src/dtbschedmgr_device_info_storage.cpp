@@ -25,17 +25,18 @@
 #include "ipc_object_proxy.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "mission/distributed_sched_mission_manager.h"
 #include "system_ability_definition.h"
 
+using namespace std;
 namespace OHOS {
 namespace DistributedSchedule {
 using namespace std::chrono_literals;
 
 namespace {
 constexpr int32_t RETRY_TIMES = 30;
-constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
-const std::string EMPTY_DEVICE_ID = "";
 constexpr int32_t CONNECT_SOFTBUS_RETRY_TIMES = 60;
+const std::string TAG = "DtbschedmgrDeviceInfoStorage";
 }
 
 IMPLEMENT_SINGLE_INSTANCE(DtbschedmgrDeviceInfoStorage);
@@ -48,17 +49,18 @@ bool DtbschedmgrDeviceInfoStorage::Init()
     }
 
     auto func = [this]() {
-        HILOGI("DtbschedmgrDeviceInfoStorage begin connect softbus");
+        HILOGI("begin connect softbus");
         for (int32_t retryTimes = 0; retryTimes <= CONNECT_SOFTBUS_RETRY_TIMES; retryTimes++) {
             if (ConnectSoftbus()) {
                 return;
             }
-            HILOGE("DtbschedmgrDeviceInfoStorage retry connect softbus %{public}d times", retryTimes);
+            HILOGE("retry connect softbus %{public}d times", retryTimes);
             std::this_thread::sleep_for(1s);
         }
+        HILOGE("connect softbus 60times * 30s, error!!");
     };
     if (!initHandler_->PostTask(func)) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::Init handler postTask failed");
+        HILOGE("Init handler postTask failed");
         return false;
     }
     return true;
@@ -66,35 +68,36 @@ bool DtbschedmgrDeviceInfoStorage::Init()
 
 bool DtbschedmgrDeviceInfoStorage::ConnectSoftbus()
 {
+    ClearAllDevices();
     bool isReady = WaitForDnetworkReady();
     if (!isReady) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::ConnectSoftbus wait Dnetwork failed!");
+        HILOGE("ConnectSoftbus wait Dnetwork failed!");
         return false;
     }
     std::shared_ptr<DnetworkAdapter> dnetworkAdapter = DnetworkAdapter::GetInstance();
     if (dnetworkAdapter == nullptr) {
-        HILOGE("DtbschedmgrDeviceInfoStorage DnetworkAdapter::GetInstance() null");
+        HILOGE("DnetworkAdapter::GetInstance() null");
         return false;
     }
-    if (!InitNodeIdManager(dnetworkAdapter)) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::InitNodeIdManager failed");
+    if (!InitNetworkIdManager(dnetworkAdapter)) {
+        HILOGE("InitNetworkIdManager failed");
         return false;
     }
-    HILOGI("DtbschedmgrDeviceInfoStorage::ConnectSoftbus success");
+    HILOGI("ConnectSoftbus success");
     return true;
 }
 
-bool DtbschedmgrDeviceInfoStorage::InitNodeIdManager(std::shared_ptr<DnetworkAdapter> dnetworkAdapter)
+bool DtbschedmgrDeviceInfoStorage::InitNetworkIdManager(std::shared_ptr<DnetworkAdapter> dnetworkAdapter)
 {
-    if (nodeIdMgrHandler_ == nullptr) {
-        auto runner = AppExecFwk::EventRunner::Create("DmsNodeIdManager");
-        nodeIdMgrHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
+    if (networkIdMgrHandler_ == nullptr) {
+        auto runner = AppExecFwk::EventRunner::Create("DmsNetworkIdManager");
+        networkIdMgrHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
     }
 
     deviceNodeListener_ = std::make_shared<DistributedDeviceNodeListener>();
     if (!dnetworkAdapter->AddDeviceChangeListener(deviceNodeListener_)) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::AddDeviceChangeListener failed");
         deviceNodeListener_ = nullptr;
+        HILOGE("AddDeviceChangeListener failed!");
         return false;
     }
     return true;
@@ -102,9 +105,10 @@ bool DtbschedmgrDeviceInfoStorage::InitNodeIdManager(std::shared_ptr<DnetworkAda
 
 void DtbschedmgrDeviceInfoStorage::Stop()
 {
+    ClearAllDevices();
     if (deviceNodeListener_ != nullptr) {
         DnetworkAdapter::GetInstance()->RemoveDeviceChangeListener(deviceNodeListener_);
-        deviceNodeListener_= nullptr;
+        deviceNodeListener_ = nullptr;
     }
 }
 
@@ -125,14 +129,41 @@ bool DtbschedmgrDeviceInfoStorage::WaitForDnetworkReady()
                 return true;
             }
         }
-        HILOGI("DtbschedmgrDeviceInfoStorage::Waiting for dnentwork service...");
+        HILOGI("Waiting for dnentwork service...");
         std::this_thread::sleep_for(1s);
         if (--retryTimeout <= 0) {
-            HILOGI("DtbschedmgrDeviceInfoStorage::Waiting for dnentwork service timeout(30)s");
+            HILOGI("Waiting for dnentwork service timeout(30)s");
             return false;
         }
     } while (true);
     return false;
+}
+
+void DtbschedmgrDeviceInfoStorage::RegisterUuidNetworkIdMap(const std::string& networkId)
+{
+    std::string uuid = DnetworkAdapter::GetInstance()->GetUuidByNetworkId(networkId);
+    {
+        std::lock_guard<std::mutex> autoLock(uuidNetworkIdLock_);
+        uuidNetworkIdMap_[uuid] = networkId;
+    }
+}
+
+void DtbschedmgrDeviceInfoStorage::UnregisterUuidNetworkIdMap(const std::string& networkId)
+{
+    std::string uuid = DnetworkAdapter::GetInstance()->GetUuidByNetworkId(networkId);
+    {
+        std::lock_guard<std::mutex> autoLock(uuidNetworkIdLock_);
+        uuidNetworkIdMap_.erase(uuid);
+    }
+}
+
+void DtbschedmgrDeviceInfoStorage::GetDeviceIdSet(std::set<std::string>& deviceIdSet)
+{
+    deviceIdSet.clear();
+    lock_guard<mutex> autoLock(deviceLock_);
+    for (const auto& device : remoteDevices_) {
+        deviceIdSet.emplace(device.first);
+    }
 }
 
 bool DtbschedmgrDeviceInfoStorage::GetLocalDeviceId(std::string& deviceId)
@@ -144,81 +175,142 @@ bool DtbschedmgrDeviceInfoStorage::GetLocalDeviceFromDnet(std::string& deviceId)
 {
     auto dnetworkAdapter = DnetworkAdapter::GetInstance();
     if (dnetworkAdapter == nullptr) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::GetLocalDeviceFromDnet dnetworkAdapter null");
+        HILOGE("GetLocalDeviceFromDnet dnetworkAdapter null");
         return false;
     }
     std::shared_ptr<NodeBasicInfo> localNode = dnetworkAdapter->GetLocalBasicInfo();
     if (localNode != nullptr) {
         deviceId = localNode->networkId;
         HILOGI("get local deviceId from DnetworkAdapter, deviceId = %{public}s",
-            AnonymizeDeviceId(deviceId).c_str());
+            DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
         return true;
     }
-    HILOGE("DtbschedmgrDeviceInfoStorage::GetLocalDeviceFromDnet localNode null");
+    HILOGE("GetLocalDeviceFromDnet localNode null");
     return false;
 }
 
-std::string DtbschedmgrDeviceInfoStorage::AnonymizeDeviceId(const std::string& deviceId)
+void DtbschedmgrDeviceInfoStorage::ClearAllDevices()
 {
-    if (deviceId.length() < NON_ANONYMIZE_LENGTH) {
-        return EMPTY_DEVICE_ID;
-    }
-    std::string anonDeviceId = deviceId.substr(0, NON_ANONYMIZE_LENGTH);
-    anonDeviceId.append("******");
-    return anonDeviceId;
+    lock_guard<mutex> autoLock(deviceLock_);
+    remoteDevices_.clear();
 }
 
+std::shared_ptr<DmsDeviceInfo> DtbschedmgrDeviceInfoStorage::GetDeviceInfoById(const string& deviceId)
+{
+    lock_guard<mutex> autoLock(deviceLock_);
+    auto iter = remoteDevices_.find(deviceId);
+    if (iter == remoteDevices_.end()) {
+        return nullptr;
+    }
+    return iter->second;
+}
+
+std::string DtbschedmgrDeviceInfoStorage::GetUuidByNetworkId(const std::string& networkId)
+{
+    if (networkId.empty()) {
+        HILOGW("GetUuidByNetworkId networkId empty!");
+        return "";
+    }
+    {
+        std::lock_guard<std::mutex> autoLock(uuidNetworkIdLock_);
+        auto iter = uuidNetworkIdMap_.begin();
+        while (iter != uuidNetworkIdMap_.end()) {
+            if (iter->second == networkId) {
+                return iter->first;
+            } else {
+                ++iter;
+            }
+        }
+    }
+    std::string uuid = DnetworkAdapter::GetInstance()->GetUuidByNetworkId(networkId);
+    return uuid;
+}
+
+std::string DtbschedmgrDeviceInfoStorage::GetNetworkIdByUuid(const std::string& uuid)
+{
+    if (uuid.empty()) {
+        HILOGW("GetNetworkIdByUuid uuid empty!");
+        return "";
+    }
+    {
+        std::lock_guard<std::mutex> autoLock(uuidNetworkIdLock_);
+        auto iter = uuidNetworkIdMap_.find(uuid);
+        if (iter != uuidNetworkIdMap_.end()) {
+            return iter->second;
+        }
+        return "";
+    }
+}
 void DtbschedmgrDeviceInfoStorage::DeviceOnlineNotify(const std::shared_ptr<DmsDeviceInfo> devInfo)
 {
     if (devInfo == nullptr) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::DeviceOnlineNotify devInfo null");
+        HILOGE("DeviceOnlineNotify devInfo null");
         return;
     }
     std::string devId = devInfo->GetDeviceId();
-    HILOGE("DtbschedmgrDeviceInfoStorage::DeviceOnlineNotify deviceId = %{public}s",
-        AnonymizeDeviceId(devId).c_str());
+    HILOGI("DeviceOnlineNotify deviceId = %{public}s",
+        DnetworkAdapter::AnonymizeDeviceId(devId).c_str());
 
-    if (nodeIdMgrHandler_ == nullptr) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::DeviceOnlineNotify nodeIdMgrHandler null");
+    if (networkIdMgrHandler_ == nullptr) {
+        HILOGE("DeviceOnlineNotify networkIdMgrHandler null");
         return;
     }
     auto nodeOnline = [this, devInfo]() {
-        HILOGI("DtbschedmgrDeviceInfoStorage::DeviceOnlineNotify called");
         std::string deviceId = devInfo->GetDeviceId();
+        RegisterUuidNetworkIdMap(deviceId);
+        std::string uuid = GetUuidByNetworkId(deviceId);
+        HILOGI("DeviceOnlineNotify process deviceId = %{public}s, uuid = %{public}s, deviceName = %{public}s",
+            DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str(),
+            DnetworkAdapter::AnonymizeDeviceId(uuid).c_str(), devInfo->GetDeviceName().c_str());
         DistributedSchedAdapter::GetInstance().DeviceOnline(deviceId);
+        DistributedSchedMissionManager::GetInstance().UpdateConnCapSupportOsd(deviceId);
+        DistributedSchedMissionManager::GetInstance().DeviceOnlineNotify(deviceId);
+        {
+            lock_guard<mutex> autoLock(deviceLock_);
+            remoteDevices_[deviceId] = devInfo;
+        }
+        DistributedSchedMissionManager::GetInstance().UpdateSwitchValueToRemote();
     };
-    if (!nodeIdMgrHandler_->PostTask(nodeOnline)) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::DeviceOnlineNotify handler postTask failed");
+    if (!networkIdMgrHandler_->PostTask(nodeOnline)) {
+        HILOGE("DeviceOnlineNotify handler postTask failed");
     }
 }
 
 void DtbschedmgrDeviceInfoStorage::DeviceOfflineNotify(const std::string& deviceId)
 {
     if (deviceId.empty()) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::DeviceOfflineNotify deviceId empty");
+        HILOGE("DeviceOfflineNotify deviceId empty");
         return;
     }
-    if (nodeIdMgrHandler_ == nullptr) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::DeviceOfflineNotify nodeIdMgrHandler null");
+    HILOGI("DeviceOfflineNotify deviceId = %{public}s",
+        DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
+    if (networkIdMgrHandler_ == nullptr) {
+        HILOGE("DeviceOfflineNotify networkIdMgrHandler null");
         return;
     }
     auto nodeOffline = [this, deviceId]() {
-        HILOGI("DtbschedmgrDeviceInfoStorage::DeviceOfflineNotify called");
+        std::string uuid = GetUuidByNetworkId(deviceId);
+        HILOGI("DeviceOfflineNotify process deviceId = %{public}s, uuid = %{public}s",
+            DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str(), DnetworkAdapter::AnonymizeDeviceId(uuid).c_str());
         DistributedSchedAdapter::GetInstance().DeviceOffline(deviceId);
+        DistributedSchedMissionManager::GetInstance().DeviceOfflineNotify(deviceId);
+        UnregisterUuidNetworkIdMap(deviceId);
+        lock_guard<mutex> autoLock(deviceLock_);
+        remoteDevices_.erase(deviceId);
     };
-    if (!nodeIdMgrHandler_->PostTask(nodeOffline)) {
-        HILOGE("DtbschedmgrDeviceInfoStorage::DeviceOfflineNotify handler postTask failed");
+    if (!networkIdMgrHandler_->PostTask(nodeOffline)) {
+        HILOGE("DeviceOfflineNotify handler postTask failed");
     }
 }
 
 void DtbschedmgrDeviceInfoStorage::OnDeviceInfoChanged(const std::string& deviceId, DeviceInfoType type)
 {
-    HILOGI("DtbschedmgrDeviceInfoStorage::OnDeviceInfoChanged called");
+    HILOGI("OnDeviceInfoChanged called");
 }
 
 void DnetServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
-    HILOGI("DnetServiceDeathRecipient::OnRemoteDied dnetwork service died");
+    HILOGI("OnRemoteDied dnetwork service died");
     DtbschedmgrDeviceInfoStorage::GetInstance().Init();
 }
 }

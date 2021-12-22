@@ -22,6 +22,8 @@
 #include "ability_manager_client.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
+#include "mission/distributed_sched_mission_manager.h"
+#include "mission/mission_info_converter.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 
@@ -34,6 +36,7 @@ using namespace AppExecFwk;
 namespace {
 // set a non-zero value on need later
 constexpr int64_t DEVICE_OFFLINE_DELAY_TIME = 0;
+const std::string TAG = "DistributedSchedAdapter";
 }
 
 IMPLEMENT_SINGLE_INSTANCE(DistributedSchedAdapter);
@@ -43,7 +46,7 @@ void DistributedSchedAdapter::Init()
     if (dmsAdapterHandler_ == nullptr) {
         shared_ptr<EventRunner> runner = EventRunner::Create("dmsAdapter");
         if (runner == nullptr) {
-            HILOGE("DistributedSchedAdapter create runner failed");
+            HILOGE("create runner failed");
             return;
         }
         dmsAdapterHandler_ = make_shared<EventHandler>(runner);
@@ -58,10 +61,10 @@ void DistributedSchedAdapter::UnInit()
 int32_t DistributedSchedAdapter::ConnectAbility(const OHOS::AAFwk::Want& want,
     const sptr<IRemoteObject>& connect, const sptr<IRemoteObject>& callerToken)
 {
-    HILOGD("DistributedSchedAdapter ConnectAbility");
+    HILOGD("ConnectAbility");
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
-        HILOGE("DistributedSchedAdapter connect ability server failed, errCode=%{public}d", errCode);
+        HILOGE("connect ability server failed, errCode=%{public}d", errCode);
         return errCode;
     }
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want,
@@ -71,10 +74,10 @@ int32_t DistributedSchedAdapter::ConnectAbility(const OHOS::AAFwk::Want& want,
 
 int32_t DistributedSchedAdapter::DisconnectAbility(const sptr<IRemoteObject>& connect)
 {
-    HILOGD("DistributedSchedAdapter DisconnectAbility");
+    HILOGD("DisconnectAbility");
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
-        HILOGE("DistributedSchedAdapter connect ability server failed, errCode=%{public}d", errCode);
+        HILOGE("connect ability server failed, errCode=%{public}d", errCode);
         return errCode;
     }
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(
@@ -164,7 +167,7 @@ int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid,
     vector<string> bundleNameList;
     int32_t ret = GetBundleNameListFromBms(uid, bundleNameList);
     if (ret != ERR_OK) {
-        HILOGE("DistributedSchedAdapter::GetBundleNameListFromBms failed");
+        HILOGE("GetBundleNameListFromBms failed");
         return ret;
     }
     for (const string& bundleName : bundleNameList) {
@@ -177,14 +180,54 @@ int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid, std::vect
 {
     auto bundleMgr = BundleManagerInternal::GetBundleManager();
     if (bundleMgr == nullptr) {
-        HILOGE("DistributedSchedAdapter::GetBundleNameListFromBms failed to get bms");
+        HILOGE("GetBundleNameListFromBms failed to get bms");
         return OBJECT_NULL;
     }
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     bool result = bundleMgr->GetBundlesForUid(uid, bundleNameList);
     IPCSkeleton::SetCallingIdentity(identity);
-    HILOGD("DistributedSchedAdapter::GetBundleNameListFromBms %{public}d", result);
+    HILOGD("GetBundleNameListFromBms %{public}d", result);
     return result ? ERR_OK : BUNDLE_MANAGER_SERVICE_ERR;
+}
+
+int32_t DistributedSchedAdapter::GetLocalMissionInfos(int32_t numMissions, std::vector<MissionInfo>& missionInfos)
+{
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("get ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+    std::vector<AbilityMissionInfo> abilityMissions;
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->GetRecentMissions(numMissions,
+        RECENT_WITH_EXCLUDED, abilityMissions);
+    if (ret != ERR_OK) {
+        HILOGE("GetRecentMissions failed, ret=%{public}d", ret);
+        return ret;
+    }
+    return MissionInfoConverter::ConvertToMissionInfos(abilityMissions, missionInfos);
+}
+
+bool DistributedSchedAdapter::AllowMissionUid(int32_t uid)
+{
+    if (uid < 0) {
+        HILOGE("AllowMissionUid invalid params!");
+        return false;
+    }
+    return true;
+}
+
+int32_t DistributedSchedAdapter::RegisterMissionChange(bool willRegister)
+{
+    return ERR_NONE;
+}
+
+int32_t DistributedSchedAdapter::GetOsdSwitch()
+{
+    return MISSION_OSD_ENABLED;
+}
+
+void DistributedSchedAdapter::OnOsdEventOccur(int32_t flag)
+{
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
