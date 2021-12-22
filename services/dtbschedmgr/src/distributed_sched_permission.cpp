@@ -13,73 +13,18 @@
  * limitations under the License.
  */
 
-#include <cinttypes>
-
 #include "distributed_sched_permission.h"
 
 #include "caller_info.h"
-#include "datetime_ex.h"
-#include "distributed_permission_kit.h"
 #include "distributed_sched_adapter.h"
 #include "dtbschedmgr_log.h"
-
-using namespace OHOS::Security;
 
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
 const std::string TAG = "DistributedSchedPermission";
-constexpr int32_t ERROR_DUID = -1;
-constexpr int32_t PERMISSION_GRANTED = 0;
 }
-
 IMPLEMENT_SINGLE_INSTANCE(DistributedSchedPermission);
-
-bool DistributedSchedPermission::CheckCustomPermission(const AppExecFwk::AbilityInfo& abilityInfo,
-    const CallerInfo& callerInfo)
-{
-    const auto& permissions = abilityInfo.permissions;
-    if (permissions.empty()) {
-        HILOGI("no need any permission, so granted!");
-        return true;
-    }
-    int32_t duid = callerInfo.duid;
-    if (callerInfo.callerType == CALLER_TYPE_HARMONY) {
-        duid = AllocateDuid(callerInfo.uid, callerInfo.sourceDeviceId);
-        HILOGD("AllocateDuid uid = %{public}d, duid = %{public}d", callerInfo.uid, duid);
-    }
-    if (duid < 0) {
-        HILOGE("CheckCustomPermission duid invalid!");
-        return false;
-    }
-    for (const auto& permission : permissions) {
-        if (permission.empty()) {
-            continue;
-        }
-        auto result = Permission::DistributedPermissionKit::CheckDPermission(duid, permission);
-        if (result == PERMISSION_GRANTED) {
-            HILOGD("CheckCustomPermission duid:%{public}d, permission:%{public}s GRANTED!",
-                duid, permission.c_str());
-            return true;
-        }
-        HILOGI("duid:%{public}d, permission:%{public}s check failed!",
-            duid, permission.c_str());
-    }
-    return false;
-}
-
-int32_t DistributedSchedPermission::AllocateDuid(int32_t rUid, const std::string& deviceId)
-{
-    if (rUid < 0 || deviceId.empty()) {
-        HILOGE("DistributedSchedPermission::AllocateDuid invalid parameters!");
-        return ERROR_DUID;
-    }
-    int64_t begin = GetTickCount();
-    auto duid = Permission::DistributedPermissionKit::AllocateDuid(deviceId, rUid);
-    int64_t end = GetTickCount();
-    HILOGI("AllocateDuid spend:%{public}" PRId64 " ms", (end - begin));
-    return duid;
-}
 
 int32_t DistributedSchedPermission::CheckDPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
     const AccountInfo& accountInfo, const AppExecFwk::AbilityInfo& abilityInfo, const std::string& localDeviceId)
@@ -99,11 +44,6 @@ int32_t DistributedSchedPermission::CheckDPermission(const AAFwk::Want& want, co
     // 2.check component access permission, when the ability is not visible.
     if (!CheckComponentAccessPermission(targetAbility, callerInfo, accountInfo, want)) {
         HILOGE("CheckComponentAccessPermission denied or failed! the caller component do not have permission");
-        return DMS_COMPONENT_ACCESS_PERMISSION_DENIED;
-    }
-    // 3.check application custom permissions.
-    if (!CheckCustomPermission(targetAbility, callerInfo)) {
-        HILOGE("CheckCustomPermission denied or failed! the caller component do not have permission!");
         return DMS_COMPONENT_ACCESS_PERMISSION_DENIED;
     }
     HILOGI("CheckDPermission success!!");

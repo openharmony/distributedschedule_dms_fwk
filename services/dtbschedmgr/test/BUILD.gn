@@ -30,7 +30,6 @@ config("test_config") {
 
 dsched_deps = [
   "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-  "//base/security/permission/interfaces/innerkits/permission_standard/distributedpermission:distributed_permission_innerkits",
   "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
   "//foundation/aafwk/standard/interfaces/innerkits/base:base",
   "//foundation/aafwk/standard/interfaces/innerkits/want:want",
@@ -49,7 +48,6 @@ dsched_external_deps = [
   "dsoftbus_standard:softbus_client",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
-  "permission_standard:libpermissionsdk_standard",
 ]
 
 dsched_public_deps = [

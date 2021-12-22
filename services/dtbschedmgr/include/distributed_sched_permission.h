@@ -36,8 +36,6 @@ public:
         const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
 
 private:
-    bool CheckCustomPermission(const AppExecFwk::AbilityInfo& abilityInfo, const CallerInfo& callerInfo);
-    int32_t AllocateDuid(int32_t rUid, const std::string& deviceId);
     bool getTargetAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
         const std::string& localDeviceId, AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const;
 };
