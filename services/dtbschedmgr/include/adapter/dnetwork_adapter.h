@@ -38,7 +38,7 @@ public:
 
     virtual void OnDeviceOnline(const NodeBasicInfo* nodeBasicInfo) = 0;
     virtual void OnDeviceOffline(const NodeBasicInfo* nodeBasicInfo) = 0;
-    virtual void OnDeviceInfoChanged(const std::string& nodeId, DeviceInfoType type) = 0;
+    virtual void OnDeviceInfoChanged(const std::string& networkId, DeviceInfoType type) = 0;
 };
 
 class DnetworkAdapter {
@@ -49,8 +49,8 @@ public:
     void Init();
     bool AddDeviceChangeListener(const std::shared_ptr<DeviceListener>& listener);
     void RemoveDeviceChangeListener(const std::shared_ptr<DeviceListener>& listener);
-    std::string GetUdidByNodeId(const std::string& nodeId);
-    std::string GetUuidByNodeId(const std::string& nodeId);
+    std::string GetUdidByNetworkId(const std::string& networkId);
+    std::string GetUuidByNetworkId(const std::string& networkId);
     std::shared_ptr<NodeBasicInfo> GetLocalBasicInfo();
 
     static std::string AnonymizeDeviceId(const std::string& deviceId);
@@ -59,7 +59,7 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(DnetworkAdapter);
 
-    std::string GetUuidOrUdidByNodeId(const std::string& nodeId, NodeDeivceInfoKey keyType);
+    std::string GetUuidOrUdidByNetworkId(const std::string& networkId, NodeDeivceInfoKey keyType);
     static void OnNodeOnline(NodeBasicInfo* info);
     static void OnNodeOffline(NodeBasicInfo* info);
     static void OnNodeBasicInfoChanged(NodeBasicInfoType type, NodeBasicInfo* info);
