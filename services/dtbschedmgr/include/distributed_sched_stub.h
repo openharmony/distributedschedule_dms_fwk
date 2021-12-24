@@ -18,7 +18,6 @@
 
 #include "distributed_sched_interface.h"
 #include "iremote_stub.h"
-#include "mission/snapshot.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -28,11 +27,6 @@ public:
     ~DistributedSchedStub();
     int32_t OnRemoteRequest(uint32_t code, MessageParcel& data,
         MessageParcel& reply, MessageOption& option) override;
-protected:
-    virtual std::unique_ptr<Snapshot> GetRemoteSnapshotInfo(const std::u16string& deviceId, int32_t missionId)
-    {
-        return nullptr;
-    }
 
 private:
     int32_t StartRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
@@ -40,32 +34,17 @@ private:
     int32_t StartContinuationInner(MessageParcel& data, MessageParcel& reply);
     int32_t NotifyCompleteContinuationInner(MessageParcel& data, MessageParcel& reply);
     int32_t NotifyContinuationResultFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    int32_t RegisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply);
+    int32_t UnregisterAbilityTokenInner(MessageParcel& data, MessageParcel& reply);
     bool CheckDmsRequestPermission();
     int32_t ConnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t DisconnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t ConnectAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     int32_t DisconnectAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     int32_t NotifyProcessDiedFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    int32_t CheckSupportOsdInner(MessageParcel& data, MessageParcel& reply);
-    int32_t GetCachedOsdSwitchInner(MessageParcel& data, MessageParcel& reply);
-    int32_t GetMissionInfosInner(MessageParcel& data, MessageParcel& reply);
-    int32_t GetOsdSwitchValueFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    int32_t StoreSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
-    int32_t RemoveSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
-    int32_t GetRemoteSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
-    int32_t RegisterRemoteMissionListenerInner(MessageParcel& data, MessageParcel& reply);
-    int32_t PrepareAndSyncMissionsFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    int32_t UnRegisterRemoteMissionListenerInner(MessageParcel& data, MessageParcel& reply);
-    int32_t UnRegisterMissionListenerFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    int32_t NotifyLocalMissionsChangedInner(MessageParcel& data, MessageParcel& reply);
-    int32_t NotifyMissionsChangedFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    int32_t PrepareAndSyncMissionsInner(MessageParcel& data, MessageParcel& reply);
     bool CheckCallingUid();
-    int32_t NotifyOsdSwitchChangedInner(MessageParcel& data, MessageParcel& reply);
-    int32_t UpdateOsdSwitchValueFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     bool EnforceInterfaceToken(MessageParcel& data);
 
-    bool CallerInfoUnmarshalling(CallerInfo& callerInfo, MessageParcel& data);
     using DistributedSchedFunc = int32_t(DistributedSchedStub::*)(MessageParcel& data, MessageParcel& reply);
     std::map<uint32_t, DistributedSchedFunc> remoteFuncsMap_;
     std::map<uint32_t, DistributedSchedFunc> localFuncsMap_;

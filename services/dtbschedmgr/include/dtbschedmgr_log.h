@@ -44,14 +44,11 @@ static constexpr OHOS::HiviewDFX::HiLogLabel DSCHED_SERVICE_LABEL = {LOG_CORE, 0
 #undef HILOGI
 #endif
 
-#define DMS_LOG(level, fmt, ...) HiviewDFX::HiLog::level(DSCHED_SERVICE_LABEL, \
-    "%{public}s::%{public}s " fmt, TAG.c_str(), __FUNCTION__, ##__VA_ARGS__)
-
-#define HILOGF(fmt, ...) DMS_LOG(Fatal, fmt, ##__VA_ARGS__)
-#define HILOGE(fmt, ...) DMS_LOG(Error, fmt, ##__VA_ARGS__)
-#define HILOGW(fmt, ...) DMS_LOG(Warn,  fmt, ##__VA_ARGS__)
-#define HILOGI(fmt, ...) DMS_LOG(Info,  fmt, ##__VA_ARGS__)
-#define HILOGD(fmt, ...) DMS_LOG(Debug, fmt, ##__VA_ARGS__)
+#define HILOGD(...) (void)OHOS::HiviewDFX::HiLog::Debug(DSCHED_SERVICE_LABEL, __VA_ARGS__)
+#define HILOGE(...) (void)OHOS::HiviewDFX::HiLog::Error(DSCHED_SERVICE_LABEL, __VA_ARGS__)
+#define HILOGF(...) (void)OHOS::HiviewDFX::HiLog::Fatal(DSCHED_SERVICE_LABEL, __VA_ARGS__)
+#define HILOGI(...) (void)OHOS::HiviewDFX::HiLog::Info(DSCHED_SERVICE_LABEL, __VA_ARGS__)
+#define HILOGW(...) (void)OHOS::HiviewDFX::HiLog::Warn(DSCHED_SERVICE_LABEL, __VA_ARGS__)
 
 enum {
     /**
@@ -209,9 +206,9 @@ enum {
      */
     SEND_REQUEST_DEF_FAIL = 29360163,
     /**
-     * Result(29360164) for BMS can not find the specified ability.
+     * Result(29360164) for BMS can not find the specified AA.
      */
-    CAN_NOT_FOUND_ABILITY_ERR = 29360164,
+    CAN_NOT_FOUND_AA_ERR = 29360164,
     /**
      * Result(29360165) for DMS can not register device state callback.
      */
@@ -221,9 +218,9 @@ enum {
      */
     UNREGISTER_DEVICE_STATE_CALLBACK_ERR = 29360166,
     /**
-     * Result(29360167) for DMS can not start auxiliary device FA.
+     * Result(29360167) for DMS can not start slave device FA.
      */
-    START_AUXILIARY_FA_ERR = 29360167,
+    START_SLAVE_FA_ERR = 29360167,
     /**
      * Result(29360168) for DMS can not get dmsproxy handle.
      */
@@ -267,63 +264,47 @@ enum {
     /**
      * Result(29360178) for osd function not support.
      */
-    MISSION_OSD_NOT_SUPPORTED = 29360178,
+    TASK_OSD_NOT_SUPPORTED = 29360178,
     /**
      * Result(29360179) for osd switch is off.
      */
-    MISSION_OSD_NOT_ENABLED = 29360179,
+    TASK_OSD_NOT_ENABLED = 29360179,
     /**
      * Result(29360180) for osd switch is on.
      */
-    MISSION_OSD_ENABLED = 29360180,
+    TASK_OSD_ENABLED = 29360180,
     /**
      * Result(29360181) for front app check failed.
      */
     CHECK_FRONT_APP_FAIL = 29360181,
-    /*
-     * Result(29360184) for notify mission change listener failed.
+    /**
+     * Result(29360182) for ble connected.
      */
-    MISSION_NOTIFY_CHANGE_LISTENER_ERR = 29360184,
+    BLE_CONNECTED = 29360182,
+    /**
+     * Result(29360183) for open p2p session failed.
+     */
+    OPENP2PSESSION_FAILED = 29360183,
+    /**
+     * Result(29360184) for notify task change listener failed.
+     */
+    TASK_NOTIFY_CHANGE_LISTENER_ERR = 29360184,
     /**
      * Result(29360185) for subscribe data storage change failed.
      */
-    MISSION_SUBSCRIBE_DATA_STORAGE_ERR = 29360185,
+    TASK_SUBSCRIBE_DATA_STORAGE_ERR = 29360185,
     /**
      * Result(29360186) for sync snapshot failed.
      */
-    MISSION_SYNC_SNAPSHOT_ERR = 29360186,
+    TASK_SYNC_SNAPSHOT_ERR = 29360186,
     /**
-     * Result(29360187) for sync mission info list failed.
+     * Result(29360187) for sync task info list failed.
      */
-    MISSION_SYNC_MISSION_INFO_LIST_ERR = 29360187,
+    TASK_SYNC_TASK_INFO_LIST_ERR = 29360187,
     /**
      * Result(29360188) for distributed  communication permission check failed.
      */
-    REMOTE_DISTRIBUTED_COMMUNICATION_PERMISSION_DENIED = 29360188,
-    /*
-     * Result(29360191) for blur snapshot failed.
-     */
-    MISSION_BLUR_SNAPSHOT_ERR = 29360191,
-    /*
-     * Result(29360192) for take foreground snapshot failed.
-     */
-    MISSION_TAKE_FOREGROUND_SNAPSHOT_ERR = 29360192,
-    /*
-     * Result(29360193) for ccm switch not support.
-     */
-    MISSION_OSD_CCM_NOT_SUPPORTED = 29360193,
-    /*
-     * Result(29360194) for wifi switch is off.
-     */
-    MISSION_OSD_WIFI_OFF = 29360194,
-    /*
-     * Result(29360195) for child mode is on.
-     */
-    MISSION_OSD_CHILDMODE_ON = 29360195,
-    /*
-     * Result(29360196) for cloud switch is off.
-     */
-    MISSION_OSD_CLOUD_SWITCH_OFF = 29360196,
+    REMOTE_DISTRIBUTED_COMMUNICATION_PERMISSION_DENIED = 29360188
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

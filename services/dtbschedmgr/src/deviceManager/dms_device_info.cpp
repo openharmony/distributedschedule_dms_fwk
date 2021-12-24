@@ -21,9 +21,6 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
-namespace {
-const std::string TAG = "DmsDeviceInfo";
-}
 const std::string& DmsDeviceInfo::GetDeviceName() const
 {
     return deviceName_;

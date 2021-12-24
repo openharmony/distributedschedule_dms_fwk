@@ -30,6 +30,7 @@ config("test_config") {
 
 dsched_deps = [
   "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+  "//base/security/permission/interfaces/innerkits/permission_standard/distributedpermission:distributed_permission_innerkits",
   "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
   "//foundation/aafwk/standard/interfaces/innerkits/base:base",
   "//foundation/aafwk/standard/interfaces/innerkits/want:want",
@@ -37,10 +38,8 @@ dsched_deps = [
   "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
   "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
   "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
-  "//foundation/distributeddatamgr/distributeddatamgr/interfaces/innerkits/distributeddata:distributeddata_inner",
   "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
   "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-  "//foundation/multimedia/image_standard/interfaces/innerkits:image_native",
   "//utils/native/base:utils",
 ]
 
@@ -48,6 +47,7 @@ dsched_external_deps = [
   "dsoftbus_standard:softbus_client",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
+  "permission_standard:libpermissionsdk_standard",
 ]
 
 dsched_public_deps = [
@@ -56,13 +56,14 @@ dsched_public_deps = [
 ]
 
 dtbschedmgr_sources = [
-  "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_proxy.cpp",
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/adapter/dnetwork_adapter.cpp",
   "${distributed_service}/dtbschedmgr/src/bundle/bundle_manager_internal.cpp",
   "${distributed_service}/dtbschedmgr/src/connect_death_recipient.cpp",
+  "${distributed_service}/dtbschedmgr/src/continuation_callback_death_recipient.cpp",
   "${distributed_service}/dtbschedmgr/src/deviceManager/dms_device_info.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_device_node_listener.cpp",
+  "${distributed_service}/dtbschedmgr/src/distributed_sched_ability_shell.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_adapter.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_continuation.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_dumper.cpp",
@@ -71,13 +72,6 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/distributed_sched_service.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_data_change_listener.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_data_storage.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_sched_mission_manager.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/mission_changed_notify.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/mission_info.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/mission_info_converter.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/snapshot.cpp",
 ]
 
 ohos_unittest("distributedschedsvrtest") {
@@ -98,6 +92,7 @@ ohos_unittest("dschedcontinuetest") {
   module_out_path = module_output_path
 
   sources = [
+    "unittest/distributed_sched_ability_shell_test.cpp",
     "unittest/distributed_sched_continuation_test.cpp",
     "unittest/mock_distributed_sched.cpp",
   ]
@@ -139,26 +134,12 @@ ohos_unittest("dschedpermissiontest") {
   }
 }
 
-ohos_unittest("dschedmissionmanagertest") {
-  module_out_path = module_output_path
-  sources = [ "unittest/mission/dms_mission_manager_test.cpp" ]
-  configs = [ ":test_config" ]
-  configs += dsched_configs
-  deps = dsched_deps
-  deps += [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
-  if (is_standard_system) {
-    external_deps = dsched_external_deps
-    public_deps = dsched_public_deps
-  }
-}
-
 group("unittest") {
   testonly = true
   deps = [
     ":distributedschedsvrtest",
     ":dschedconnecttest",
     ":dschedcontinuetest",
-    ":dschedmissionmanagertest",
     ":dschedpermissiontest",
   ]
 }

@@ -23,7 +23,6 @@ namespace OHOS {
 namespace DistributedSchedule {
 namespace {
 constexpr int64_t CONTINUATION_DELAY_TIME = 20000;
-const std::string TAG = "DSchedContinuation";
 }
 
 void DSchedContinuation::Init(const FuncContinuationCallback& contCallback)
@@ -35,17 +34,17 @@ void DSchedContinuation::Init(const FuncContinuationCallback& contCallback)
 bool DSchedContinuation::PushAbilityToken(int32_t sessionId, const sptr<IRemoteObject>& abilityToken)
 {
     if (abilityToken == nullptr) {
-        HILOGE("PushAbilityToken abilityToken null!");
+        HILOGE("DSchedContinuation::PushAbilityToken abilityToken null!");
         return false;
     }
 
     if (sessionId <= 0) {
-        HILOGE("PushAbilityToken sessionId invalid!");
+        HILOGE("DSchedContinuation::PushAbilityToken sessionId invalid!");
         return false;
     }
 
     if (continuationHandler_ == nullptr) {
-        HILOGE("PushAbilityToken not initialized!");
+        HILOGE("DSchedContinuation::PushAbilityToken not initialized!");
         return false;
     }
 
@@ -53,13 +52,13 @@ bool DSchedContinuation::PushAbilityToken(int32_t sessionId, const sptr<IRemoteO
     bool ret = true;
     ret = continuationHandler_->SendEvent(sessionId, 0, CONTINUATION_DELAY_TIME);
     if (!ret) {
-        HILOGE("PushAbilityToken SendEvent failed!");
+        HILOGE("DSchedContinuation::PushAbilityToken SendEvent failed!");
         return false;
     }
 
     auto iterSession = continuationMap_.find(sessionId);
     if (iterSession != continuationMap_.end()) {
-        HILOGE("PushAbilityToken sessionId:%{public}d exist!", sessionId);
+        HILOGE("DSchedContinuation::PushAbilityToken sessionId:%{public}d exist!", sessionId);
         return false;
     }
     (void)continuationMap_.emplace(sessionId, abilityToken);
@@ -69,14 +68,14 @@ bool DSchedContinuation::PushAbilityToken(int32_t sessionId, const sptr<IRemoteO
 sptr<IRemoteObject> DSchedContinuation::PopAbilityToken(int32_t sessionId)
 {
     if (sessionId <= 0) {
-        HILOGE("PopAbilityToken sessionId invalid");
+        HILOGE("DSchedContinuation::PopAbilityToken sessionId invalid");
         return nullptr;
     }
 
     lock_guard<mutex> autoLock(continuationLock_);
     auto iter = continuationMap_.find(sessionId);
     if (iter == continuationMap_.end()) {
-        HILOGW("PopAbilityToken not found sessionId:%{public}d", sessionId);
+        HILOGW("DSchedContinuation::PopAbilityToken not found sessionId:%{public}d", sessionId);
         return nullptr;
     }
     sptr<IRemoteObject> abilityToken = iter->second;
@@ -100,26 +99,26 @@ int32_t DSchedContinuation::GenerateSessionId()
 void DSchedContinuation::ContinuationHandler::ProcessEvent(const InnerEvent::Pointer& event)
 {
     if (event == nullptr) {
-        HILOGE("ProcessEvent event nullptr!");
+        HILOGE("ContinuationHandler::ProcessEvent event nullptr!");
         return;
     }
 
     auto dSchedContinuation = continuationObj_.lock();
     if (dSchedContinuation == nullptr) {
-        HILOGE("ProcessEvent continuation object failed!");
+        HILOGE("ContinuationHandler::ProcessEvent continuation object failed!");
         return;
     }
 
     auto eventId = event->GetInnerEventId();
     int32_t sessionId = static_cast<int32_t>(eventId);
     if (sessionId <= 0) {
-        HILOGW("ProcessEvent sessionId invalid!");
+        HILOGW("ContinuationHandler::ProcessEvent sessionId invalid!");
         return;
     }
 
     auto abilityToken = dSchedContinuation->PopAbilityToken(sessionId);
     if (abilityToken == nullptr) {
-        HILOGW("ProcessEvent abilityToken nullptr!");
+        HILOGW("ContinuationHandler::ProcessEvent abilityToken nullptr!");
         return;
     }
 

@@ -24,7 +24,7 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace DistributedSchedule {
 int32_t MockDistributedSched::StartRemoteAbility(const OHOS::AAFwk::Want& want,
-    int32_t callerUid, int32_t requestCode)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
 {
     return 0;
 }
@@ -36,8 +36,8 @@ int32_t MockDistributedSched::StartAbilityFromRemote(const OHOS::AAFwk::Want& wa
     return 0;
 }
 
-int32_t MockDistributedSched::StartContinuation(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& abilityToken,
-    int32_t callerUid)
+int32_t MockDistributedSched::StartContinuation(const OHOS::AAFwk::Want& want,
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken)
 {
     return 0;
 }
@@ -53,8 +53,20 @@ int32_t MockDistributedSched::NotifyContinuationResultFromRemote(int32_t session
     return 0;
 }
 
+int32_t MockDistributedSched::RegisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return 0;
+}
+
+int32_t MockDistributedSched::UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return 0;
+}
+
 int32_t MockDistributedSched::ConnectRemoteAbility(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid)
+    const AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& connect)
 {
     return 0;
 }
@@ -80,79 +92,6 @@ int32_t MockDistributedSched::DisconnectAbilityFromRemote(const sptr<IRemoteObje
 int32_t MockDistributedSched::NotifyProcessDiedFromRemote(const CallerInfo& callerInfo)
 {
     return 0;
-}
-
-int32_t MockDistributedSched::PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::RegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::UnRegisterRemoteMissionListener(const std::u16string& devId,
-    const sptr<IRemoteObject>& obj)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
-    const uint8_t* byteStream, size_t len)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
-    const CallerInfo& callerInfo)
-{
-    expectedTrue_ = false;
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::CheckSupportOsd(const std::string& deviceId)
-{
-    return ERR_NONE;
-}
-
-void MockDistributedSched::GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds,
-    std::vector<int32_t>& values)
-{
-    return;
-}
-
-int32_t MockDistributedSched::GetOsdSwitchValueFromRemote()
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<MissionInfo>& missionInfos)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-    std::vector<MissionInfo>& missionInfos)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
-    const std::string& sourceDeviceId)
-{
-    return ERR_NONE;
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
