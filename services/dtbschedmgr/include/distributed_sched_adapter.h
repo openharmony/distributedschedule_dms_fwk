@@ -22,7 +22,6 @@
 #include "event_handler.h"
 #include "if_system_ability_manager.h"
 #include "iremote_object.h"
-#include "mission/mission_info.h"
 #include "single_instance.h"
 #include "uri.h"
 
@@ -43,12 +42,8 @@ public:
     bool QueryAbilityInfo(const OHOS::AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo);
     void ProcessConnectDied(const sptr<IRemoteObject>& connect);
     int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::u16string>& u16BundleNameList);
-    int32_t GetLocalMissionInfos(int32_t numMissions, std::vector<MissionInfo>& missionInfos);
     int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::string>& bundleNameList);
-    bool AllowMissionUid(int32_t uid);
-    int32_t RegisterMissionChange(bool willRegister);
-    int32_t GetOsdSwitch();
-    void OnOsdEventOccur(int32_t flag);
+
 private:
     void ProcessDeviceOffline(const std::string& deviceId);
 

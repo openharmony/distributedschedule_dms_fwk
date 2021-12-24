@@ -19,24 +19,24 @@
 #include <unistd.h>
 
 #include "ability_connection_wrapper_stub.h"
-#include "ability_manager_client.h"
 #include "adapter/dnetwork_adapter.h"
 #include "bundle/bundle_manager_internal.h"
 #include "connect_death_recipient.h"
-#include "datetime_ex.h"
 #include "distributed_sched_adapter.h"
-#include "distributed_sched_dumper.h"
+#include "distributed_sched_ability_shell.h"
 #include "distributed_sched_permission.h"
 #include "dtbschedmgr_device_info_storage.h"
 #include "dtbschedmgr_log.h"
+#include "distributed_sched_dumper.h"
+
+#include "ability_manager_client.h"
+#include "datetime_ex.h"
 #include "element_name.h"
-#include "file_ex.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "mission/distributed_sched_mission_manager.h"
-#include "mission/mission_info.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
+#include "file_ex.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -45,8 +45,8 @@ using namespace AAFwk;
 using namespace AppExecFwk;
 
 namespace {
-const std::string TAG = "DistributedSchedService";
 const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
+
 constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
@@ -74,24 +74,23 @@ void DistributedSchedService::OnStart()
     };
     dschedContinuation_ = std::make_shared<DSchedContinuation>();
     dschedContinuation_->Init(continuationCallback);
-    HILOGI("OnStart start service success.");
+    HILOGI("DistributedSchedService::OnStart start service success.");
 }
 
 bool DistributedSchedService::Init()
 {
-    HILOGD("Init ready to init.");
+    HILOGD("DistributedSchedService::Init ready to init.");
 
-    DistributedSchedMissionManager::GetInstance().Init();
     bool ret = Publish(this);
     if (!ret) {
-        HILOGE("Init Publish failed!");
+        HILOGE("DistributedSchedService::Init Publish failed!");
         return false;
     }
 
     if (!DtbschedmgrDeviceInfoStorage::GetInstance().Init()) {
-        HILOGE("Init DtbschedmgrDeviceInfoStorage init failed.");
+        HILOGE("DistributedSchedService::Init DtbschedmgrDeviceInfoStorage init failed.");
     }
-    HILOGD("Init init success.");
+    HILOGD("DistributedSchedService::Init init success.");
     DistributedSchedAdapter::GetInstance().Init();
     DnetworkAdapter::GetInstance()->Init();
     connectDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ConnectDeathRecipient());
@@ -100,35 +99,31 @@ bool DistributedSchedService::Init()
 
 void DistributedSchedService::OnStop()
 {
-    HILOGD("OnStop ready to stop service.");
+    HILOGD("DistributedSchedService::OnStop ready to stop service.");
 }
 
 int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& want,
-    int32_t callerUid, int32_t requestCode)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode)
 {
     std::string localDeviceId;
     std::string deviceId = want.GetElement().GetDeviceID();
     if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, deviceId)) {
-        HILOGE("check deviceId failed");
-        return INVALID_PARAMETERS_ERR;
-    }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("check uid failed");
+        HILOGE("StartRemoteAbility check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
     sptr<IDistributedSched> remoteDms = GetRemoteDms(deviceId);
     if (remoteDms == nullptr) {
-        HILOGE("get remoteDms failed");
+        HILOGE("StartRemoteAbility DMS get remoteDms failed");
         return INVALID_PARAMETERS_ERR;
     }
-    AppExecFwk::AbilityInfo abilityInfo;
     CallerInfo callerInfo;
+    callerInfo.uid = IPCSkeleton::GetCallingUid();
     callerInfo.sourceDeviceId = localDeviceId;
-    callerInfo.uid = callerUid;
+    callerInfo.callerType = CALLER_TYPE_HARMONY;
     AccountInfo accountInfo;
-    HILOGI("[PerformanceTest] StartRemoteAbility transact begin");
+    HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact begin");
     int32_t result = remoteDms->StartAbilityFromRemote(want, abilityInfo, requestCode, callerInfo, accountInfo);
-    HILOGI("[PerformanceTest] StartRemoteAbility transact end");
+    HILOGI("[PerformanceTest] DistributedSchedService StartRemoteAbility transact end");
     return result;
 }
 
@@ -140,31 +135,31 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
     std::string deviceId = want.GetElement().GetDeviceID();
     if (!GetLocalDeviceId(localDeviceId) ||
         !CheckDeviceIdFromRemote(localDeviceId, deviceId, callerInfo.sourceDeviceId)) {
-        HILOGE("check deviceId failed");
+        HILOGE("StartAbilityFromRemote check deviceId failed");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
     DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
     ErrCode err = permissionInstance.CheckDPermission(want, callerInfo, accountInfo, abilityInfo, deviceId);
     if (err != ERR_OK) {
-        HILOGE("CheckDPermission denied!!");
+        HILOGE("StartAbilityFromRemote CheckDPermission denied!!");
         return err;
     }
     err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (err != ERR_OK) {
-        HILOGE("connect ability server failed %{public}d", err);
+        HILOGE("StartAbilityFromRemote connect ability server failed %{public}d", err);
         return err;
     }
     err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
     if (err != ERR_OK) {
-        HILOGE("StartAbility failed %{public}d", err);
+        HILOGE("StartAbilityFromRemote is failed %{public}d", err);
     }
     return err;
 }
 
 int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& abilityToken, int32_t callerUid)
+    const OHOS::AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& abilityToken)
 {
-    HILOGD("[PerformanceTest] StartContinuation begin");
+    HILOGD("[PerformanceTest] DistributedSchedService StartContinuation begin");
     if (abilityToken == nullptr) {
         HILOGE("StartContinuation abilityToken is null!");
         return INVALID_REMOTE_PARAMETERS_ERR;
@@ -174,16 +169,7 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
         HILOGE("StartContinuation want continuation flags invalid!");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
-    HILOGD("StartContinuation: devId = %{private}s, bundleName = %{private}s, abilityName = %{private}s",
-        want.GetElement().GetDeviceID().c_str(),
-        want.GetElement().GetBundleName().c_str(),
-        want.GetElement().GetAbilityName().c_str());
 
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    if (uid != SYSTEM_UID) {
-        HILOGE("StartContinuation not allowed!");
-        return INVALID_REMOTE_PARAMETERS_ERR;
-    }
     std::string devId;
     if (!GetLocalDeviceId(devId)) {
         HILOGE("StartContinuation get local deviceId failed!");
@@ -200,9 +186,9 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
     newWant.SetParam("sessionId", sessionId);
     newWant.SetParam("deviceId", devId);
     int32_t result = ERR_OK;
-    result = StartRemoteAbility(newWant, callerUid, 0);
+    result = StartRemoteAbility(newWant, abilityInfo, 0);
     if (result != ERR_OK) {
-        HILOGE("continue ability failed, errorCode = %{public}d", result);
+        HILOGE("DistributedSchedService:continue ability failed, errorCode = %{public}d", result);
         return result;
     }
 
@@ -211,7 +197,7 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
         HILOGW("StartContinuation PushAbilityToken failed!");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
-    HILOGD("[PerformanceTest] StartContinuation end");
+    HILOGD("[PerformanceTest] DistributedSchedService StartContinuation end");
     return result;
 }
 
@@ -264,6 +250,22 @@ void DistributedSchedService::NotifyContinuationCallbackResult(const sptr<IRemot
         HILOGE("NotifyContinuationCallbackResult abilityToken null!");
         return;
     }
+
+    int32_t result = DistributedSchedAbilityShell::GetInstance().ScheduleCompleteContinuation(
+        abilityToken, isSuccess);
+    HILOGD("NotifyContinuationCallbackResult ScheduleCompleteContinuation result:%{public}d", result);
+}
+
+int32_t DistributedSchedService::RegisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return DistributedSchedAbilityShell::GetInstance().RegisterAbilityToken(abilityToken, continuationCallback);
+}
+
+int32_t DistributedSchedService::UnregisterAbilityToken(const sptr<IRemoteObject>& abilityToken,
+    const sptr<IRemoteObject>& continuationCallback)
+{
+    return DistributedSchedAbilityShell::GetInstance().UnregisterAbilityToken(abilityToken, continuationCallback);
 }
 
 void DistributedSchedService::RemoteConnectAbilityMappingLocked(const sptr<IRemoteObject>& connect,
@@ -341,7 +343,7 @@ int32_t DistributedSchedService::GetUidLocked(const std::list<ConnectAbilitySess
 }
 
 int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid)
+    const AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& connect)
 {
     std::string localDeviceId;
     std::string remoteDeviceId = want.GetElement().GetDeviceID();
@@ -349,13 +351,11 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
         HILOGE("ConnectRemoteAbility check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("ConnectRemoteAbility check uid failed");
-        return INVALID_PARAMETERS_ERR;
-    }
 
     std::lock_guard<std::mutex> autoLock(distributedLock_);
-    CallerInfo callerInfo = { callerUid, callerPid, CALLER_TYPE_HARMONY, localDeviceId };
+    CallerInfo callerInfo = {
+        IPCSkeleton::GetCallingUid(), IPCSkeleton::GetCallingPid(), CALLER_TYPE_HARMONY, localDeviceId
+    };
     int32_t checkResult = CheckDistributedConnectLocked(callerInfo);
     if (checkResult != ERR_OK) {
         return checkResult;
@@ -372,19 +372,18 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
         return INVALID_PARAMETERS_ERR;
     }
 
-    HILOGD("[PerformanceTest] ConnectRemoteAbility begin");
-    int32_t result = TryConnectRemoteAbility(want, connect, callerInfo);
+    HILOGD("[PerformanceTest] DistributedSchedService::ConnectRemoteAbility begin");
+    int32_t result = TryConnectRemoteAbility(want, abilityInfo, connect, callerInfo);
     if (result != ERR_OK) {
         HILOGE("ConnectRemoteAbility result is %{public}d", result);
     }
-    HILOGD("[PerformanceTest] ConnectRemoteAbility end");
+    HILOGD("[PerformanceTest] DistributedSchedService::ConnectRemoteAbility end");
     return result;
 }
 
 int32_t DistributedSchedService::TryConnectRemoteAbility(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo)
+    const AppExecFwk::AbilityInfo& abilityInfo, const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo)
 {
-    AppExecFwk::AbilityInfo abilityInfo;
     AccountInfo accountInfo;
     std::string remoteDeviceId = want.GetElement().GetDeviceID();
     sptr<IDistributedSched> remoteDms = GetRemoteDms(remoteDeviceId);
@@ -429,9 +428,9 @@ sptr<IDistributedSched> DistributedSchedService::GetRemoteDms(const std::string&
         HILOGE("GetRemoteDms failed to connect to systemAbilityMgr!");
         return nullptr;
     }
-    HILOGD("[PerformanceTest] GetRemoteDms begin");
+    HILOGD("[PerformanceTest] DistributedSchedService GetRemoteDms begin");
     auto object = samgr->CheckSystemAbility(DISTRIBUTED_SCHED_SA_ID, remoteDeviceId);
-    HILOGD("[PerformanceTest] GetRemoteDms end");
+    HILOGD("[PerformanceTest] DistributedSchedService GetRemoteDms end");
     if (object == nullptr) {
         HILOGE("GetRemoteDms failed to get remote DistributedSched %{private}s", remoteDeviceId.c_str());
         return nullptr;
@@ -520,7 +519,7 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
         }
     }
     int32_t errCode = DistributedSchedAdapter::GetInstance().ConnectAbility(want, callbackWrapper, this);
-    HILOGD("[PerformanceTest] ConnectAbilityFromRemote end");
+    HILOGD("[PerformanceTest] DistributedSchedService ConnectAbilityFromRemote end");
     return errCode;
 }
 
@@ -563,7 +562,7 @@ int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObjec
         DecreaseConnectLocked(uid);
         connect->RemoveDeathRecipient(connectDeathRecipient_);
         distributedConnectAbilityMap_.erase(it);
-        HILOGI("remove connection success");
+        HILOGI("remove connect sucess");
         return ERR_OK;
     }
     return NO_CONNECT_CALLBACK_ERR;
@@ -577,7 +576,7 @@ int32_t DistributedSchedService::DisconnectAbilityFromRemote(const sptr<IRemoteO
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
 
-    HILOGD("[PerformanceTest] DisconnectAbilityFromRemote begin");
+    HILOGD("[PerformanceTest] DistributedSchedService::DisconnectAbilityFromRemote begin");
     std::string localDeviceId;
     AppExecFwk::AbilityInfo abilityInfo;
     if (!GetLocalDeviceId(localDeviceId) || localDeviceId.empty() ||
@@ -601,13 +600,13 @@ int32_t DistributedSchedService::DisconnectAbilityFromRemote(const sptr<IRemoteO
         }
     }
     int32_t result = DistributedSchedAdapter::GetInstance().DisconnectAbility(callbackWrapper);
-    HILOGD("[PerformanceTest] DisconnectAbilityFromRemote end");
+    HILOGD("[PerformanceTest] DistributedSchedService::DisconnectAbilityFromRemote end");
     return result;
 }
 
 int32_t DistributedSchedService::NotifyProcessDiedFromRemote(const CallerInfo& callerInfo)
 {
-    HILOGI("NotifyProcessDiedFromRemote called");
+    HILOGI("DistributedSchedService::NotifyProcessDiedFromRemote called");
     int32_t errCode = ERR_OK;
     {
         std::lock_guard<std::mutex> autoLock(distributedLock_);
@@ -633,7 +632,7 @@ int32_t DistributedSchedService::NotifyProcessDiedFromRemote(const CallerInfo& c
 
 void DistributedSchedService::ProcessDeviceOffline(const std::string& deviceId)
 {
-    HILOGI("ProcessDeviceOffline called");
+    HILOGI("DistributedSchedService::ProcessDeviceOffline called");
     std::string localDeviceId;
     if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, deviceId)) {
         HILOGE("ProcessDeviceOffline check deviceId failed");
@@ -859,89 +858,6 @@ void DistributedSchedService::DumpElementLocked(const std::list<AppExecFwk::Elem
         info += "AbilityName: ";
         info += element.GetAbilityName();
     }
-}
-
-int32_t DistributedSchedService::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<MissionInfo>& missionInfos)
-{
-    return DistributedSchedMissionManager::GetInstance().GetMissionInfos(deviceId, numMissions, missionInfos);
-}
-
-int32_t DistributedSchedService::NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
-    const CallerInfo& callerInfo)
-{
-    return DistributedSchedMissionManager::GetInstance()
-        .NotifyMissionsChangedFromRemote(callerInfo, missionInfos);
-}
-
-std::unique_ptr<Snapshot> DistributedSchedService::GetRemoteSnapshotInfo(const std::u16string& deviceId,
-    int32_t missionId)
-{
-    std::string strDeviceId = Str16ToStr8(deviceId);
-    HILOGI("GetRemoteSnapShot missionId:%{public}d", missionId);
-    return DistributedSchedMissionManager::GetInstance().GetRemoteSnapshotInfo(strDeviceId, missionId);
-}
-
-int32_t DistributedSchedService::CheckSupportOsd(const std::string& deviceId)
-{
-    return DistributedSchedMissionManager::GetInstance().CheckSupportOsd(deviceId);
-}
-
-void DistributedSchedService::GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values)
-{
-    return DistributedSchedMissionManager::GetInstance().GetCachedOsdSwitch(deviceIds, values);
-}
-
-int32_t DistributedSchedService::GetOsdSwitchValueFromRemote()
-{
-    return DistributedSchedMissionManager::GetInstance().GetOsdSwitchValueFromRemote();
-}
-
-int32_t DistributedSchedService::StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
-    const uint8_t* byteStream, size_t len)
-{
-    return DistributedSchedMissionManager::GetInstance().StoreSnapshotInfo(deviceId, missionId, byteStream, len);
-}
-
-int32_t DistributedSchedService::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
-{
-    return DistributedSchedMissionManager::GetInstance().RemoveSnapshotInfo(deviceId, missionId);
-}
-
-int32_t DistributedSchedService::RegisterRemoteMissionListener(const std::u16string& devId,
-    const sptr<IRemoteObject>& obj)
-{
-    return DistributedSchedMissionManager::GetInstance().RegisterRemoteMissionListener(devId, obj);
-}
-
-int32_t DistributedSchedService::UnRegisterRemoteMissionListener(const std::u16string& devId,
-    const sptr<IRemoteObject>& obj)
-{
-    return DistributedSchedMissionManager::GetInstance().UnRegisterRemoteMissionListener(devId, obj);
-}
-
-int32_t DistributedSchedService::PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-    std::vector<MissionInfo>& missionInfos)
-{
-    return DistributedSchedMissionManager::GetInstance().PrepareAndSyncMissionsFromRemote(callerInfo, missionInfos);
-}
-
-int32_t DistributedSchedService::UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo)
-{
-    DistributedSchedMissionManager::GetInstance().UnRegisterMissionListenerFromRemote(callerInfo.sourceDeviceId);
-    return ERR_NONE;
-}
-
-int32_t DistributedSchedService::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
-    const std::string& sourceDeviceId)
-{
-    return DistributedSchedMissionManager::GetInstance()
-        .UpdateOsdSwitchValueFromRemote(switchVal, sourceDeviceId);
-}
-
-int32_t DistributedSchedService::PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag)
-{
-    return DistributedSchedMissionManager::GetInstance().PrepareAndSyncMissions(devId, fixConflict, tag);
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

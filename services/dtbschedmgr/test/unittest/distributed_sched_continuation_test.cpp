@@ -77,14 +77,23 @@ std::shared_ptr<Want> DSchedContinuationTest::MockWant(const string& bundleName,
     return spWant;
 }
 
+std::shared_ptr<AbilityInfo> DSchedContinuationTest::MockAbilityInfo(const string& bundleName, const string& ability,
+    const string& devId)
+{
+    shared_ptr<AbilityInfo> spAbility = make_shared<AbilityInfo>();
+    spAbility->bundleName = bundleName;
+    spAbility->deviceId = devId;
+    return spAbility;
+}
+
 int32_t DSchedContinuationTest::StartContinuation(const sptr<IRemoteObject>& abilityToken, int32_t flags)
 {
     string bundleName = "bundleName";
     string abilityName = "abilityName";
     string devId = "devId";
     shared_ptr<Want> spWant = MockWant(bundleName, abilityName, flags);
-    int callerUid = 0;
-    return DistributedSchedService::GetInstance().StartContinuation(*spWant, abilityToken, callerUid);
+    shared_ptr<AbilityInfo> spAbility = MockAbilityInfo(bundleName, abilityName, devId);
+    return DistributedSchedService::GetInstance().StartContinuation(*spWant, *spAbility, abilityToken);
 }
 
 /**

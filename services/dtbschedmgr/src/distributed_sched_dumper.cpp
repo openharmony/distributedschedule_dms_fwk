@@ -25,7 +25,6 @@ namespace {
 constexpr size_t MIN_ARGS_SIZE = 1;
 const std::string ARGS_HELP = "-h";
 const std::string ARGS_CONNECT_REMOTE_ABILITY = "-connect";
-const std::string TAG = "DistributedSchedDumper";
 constexpr int32_t UID_ROOT = 0;
 }
 

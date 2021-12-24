@@ -46,20 +46,6 @@ public:
         int32_t resultCode) override;
 };
 
-class AbilityConnectionWrapperStubTest : public AAFwk::AbilityConnectionStub {
-public:
-    explicit AbilityConnectionWrapperStubTest(sptr<IRemoteObject> connection) : distributedConnection_(connection) {}
-    ~AbilityConnectionWrapperStubTest() = default;
-
-    void OnAbilityConnectDone(const AppExecFwk::ElementName& element,
-        const sptr<IRemoteObject>& remoteObject, int32_t resultCode) override;
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
-        int32_t resultCode) override;
-
-private:
-    sptr<IRemoteObject> distributedConnection_;
-};
-
 class DistributedSchedConnectTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -68,15 +54,8 @@ public:
     void TearDown();
 
     void AddSession(const sptr<IRemoteObject>& connect, const std::string& localDeviceId,
-        const std::string& remoteDeviceId, const AAFwk::Want& want) const;
-    void RemoveSession(const sptr<IRemoteObject>& connect) const;
-
-    void AddConnectInfo(const sptr<IRemoteObject>& connect, const std::string& localDeviceId,
-        const std::string& remoteDeviceId) const;
-    void RemoveConnectInfo(const sptr<IRemoteObject>& connect) const;
-
-    void AddConnectCount(int32_t uid) const;
-    void DecreaseConnectCount(int32_t uid) const;
+        const std::string& remoteDeviceId, const AAFwk::Want& want);
+    void RemoveSession(const sptr<IRemoteObject>& connect);
 };
 
 void AbilityConnectCallbackTest::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
@@ -85,16 +64,6 @@ void AbilityConnectCallbackTest::OnAbilityConnectDone(const AppExecFwk::ElementN
 }
 
 void AbilityConnectCallbackTest::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
-    int32_t resultCode)
-{
-}
-
-void AbilityConnectionWrapperStubTest::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
-    const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
-{
-}
-
-void AbilityConnectionWrapperStubTest::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
     int32_t resultCode)
 {
 }
@@ -116,7 +85,7 @@ void DistributedSchedConnectTest::TearDown()
 }
 
 void DistributedSchedConnectTest::AddSession(const sptr<IRemoteObject>& connect,
-    const std::string& localDeviceId, const std::string& remoteDeviceId, const AAFwk::Want& want) const
+    const std::string& localDeviceId, const std::string& remoteDeviceId, const AAFwk::Want& want)
 {
     if (connect == nullptr) {
         return;
@@ -132,7 +101,7 @@ void DistributedSchedConnectTest::AddSession(const sptr<IRemoteObject>& connect,
         remoteDeviceId, want.GetElement(), callerInfo, TargetComponent::HARMONY_COMPONENT);
 }
 
-void DistributedSchedConnectTest::RemoveSession(const sptr<IRemoteObject>& connect) const
+void DistributedSchedConnectTest::RemoveSession(const sptr<IRemoteObject>& connect)
 {
     if (connect == nullptr) {
         return;
@@ -140,54 +109,6 @@ void DistributedSchedConnectTest::RemoveSession(const sptr<IRemoteObject>& conne
 
     std::lock_guard<std::mutex> autoLock(DistributedSchedService::GetInstance().distributedLock_);
     DistributedSchedService::GetInstance().distributedConnectAbilityMap_.erase(connect);
-}
-
-void DistributedSchedConnectTest::AddConnectInfo(const sptr<IRemoteObject>& connect,
-    const std::string& localDeviceId, const std::string& remoteDeviceId) const
-{
-    if (connect == nullptr) {
-        return;
-    }
-
-    std::lock_guard<std::mutex> autoLock(DistributedSchedService::GetInstance().distributedLock_);
-    CallerInfo callerInfo;
-    callerInfo.uid = IPCSkeleton::GetCallingUid();
-    callerInfo.pid = IPCSkeleton::GetCallingPid();
-    callerInfo.sourceDeviceId = localDeviceId;
-    callerInfo.callerType = CALLER_TYPE_HARMONY;
-
-    sptr<IRemoteObject> callbackWrapper = new AbilityConnectionWrapperStubTest(connect);
-    ConnectInfo connectInfo {callerInfo, callbackWrapper};
-    DistributedSchedService::GetInstance().connectAbilityMap_.emplace(connect, connectInfo);
-}
-
-void DistributedSchedConnectTest::RemoveConnectInfo(const sptr<IRemoteObject>& connect) const
-{
-    if (connect == nullptr) {
-        return;
-    }
-
-    std::lock_guard<std::mutex> autoLock(DistributedSchedService::GetInstance().distributedLock_);
-    DistributedSchedService::GetInstance().connectAbilityMap_.erase(connect);
-}
-
-void DistributedSchedConnectTest::AddConnectCount(int32_t uid) const
-{
-    if (uid < 0) {
-        return;
-    }
-
-    auto& trackingUidMap = DistributedSchedService::GetInstance().trackingUidMap_;
-    ++trackingUidMap[uid];
-}
-
-void DistributedSchedConnectTest::DecreaseConnectCount(int32_t uid) const
-{
-    if (uid < 0) {
-        return;
-    }
-
-    DistributedSchedService::GetInstance().DecreaseConnectLocked(uid);
 }
 
 /**
@@ -316,81 +237,6 @@ HWTEST_F(DistributedSchedConnectTest, ProcessConnectDied002, TestSize.Level0)
 }
 
 /**
- * @tc.name: ProcessConnectDied003
- * @tc.desc: process connect died and check the trackingUidMap_
- * @tc.type: FUNC
- * @tc.require: AR000GI8IE
- */
-HWTEST_F(DistributedSchedConnectTest, ProcessConnectDied003, TestSize.Level1)
-{
-    DTEST_LOG << "DistributedSchedServiceTest ProcessConnectDied003 start" << std::endl;
-    OHOS::AAFwk::Want want;
-    want.SetElementName("", "ohos.demo.bundleName", "abilityName");
-    sptr<AbilityConnectCallbackTest> connect = new AbilityConnectCallbackTest();
-    AddSession(connect, "123_local_device_id", "123_remote_device_id", want);
-
-    auto& trackingUidMap = DistributedSchedService::GetInstance().trackingUidMap_;
-    /**
-     * @tc.steps: step1. Increase connect count
-     * @tc.expected: step1. connect count increase one
-     */
-
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    uint32_t oldCount = trackingUidMap[uid];
-    AddConnectCount(uid);
-    EXPECT_EQ(trackingUidMap[uid] - oldCount, static_cast<uint32_t>(1));
-
-    /**
-     * @tc.steps: step2. process connect died and then check the trackingUidMap_
-     * @tc.expected: step2. the connect count is decrease
-     */
-    DistributedSchedService::GetInstance().ProcessConnectDied(connect);
-    auto iter = trackingUidMap.find(uid);
-    if (iter != trackingUidMap.end()) {
-        EXPECT_EQ(trackingUidMap[uid], oldCount);
-    }
-
-    RemoveConnectInfo(connect);
-}
-
-/**
- * @tc.name: ProcessConnectDied004
- * @tc.desc: process connect died and check the connectAbilityMap_
- * @tc.type: FUNC
- * @tc.require: AR000GI8IE
- */
-HWTEST_F(DistributedSchedConnectTest, ProcessConnectDied004, TestSize.Level1)
-{
-    DTEST_LOG << "DistributedSchedServiceTest ProcessConnectDied004 start" << std::endl;
-    auto& connectAbilityMap = DistributedSchedService::GetInstance().connectAbilityMap_;
-    auto& distributedLock = DistributedSchedService::GetInstance().distributedLock_;
-
-    /**
-     * @tc.steps: step1. add one connectInfo
-     * @tc.expected: step1. can find the newly-added connectInfo
-     */
-    sptr<AbilityConnectCallbackTest> connect = new AbilityConnectCallbackTest();
-    AddConnectInfo(connect, "123_local_device_id", "123_remote_device_id");
-    {
-        std::lock_guard<std::mutex> autoLock(distributedLock);
-        EXPECT_EQ(connectAbilityMap.size(), static_cast<size_t>(1));
-    }
-
-    /**
-     * @tc.steps: step2. process connect died and then check the connectAbilityMap_
-     * @tc.expected: step2. the connectInfo is removed
-     */
-    DistributedSchedService::GetInstance().DisconnectAbilityFromRemote(connect,
-        IPCSkeleton::GetCallingUid(), "123_local_device_id");
-    {
-        std::lock_guard<std::mutex> autoLock(distributedLock);
-        EXPECT_EQ(connectAbilityMap.size(), static_cast<size_t>(0));
-    }
-
-    RemoveConnectInfo(connect);
-}
-
-/**
  * @tc.name: ProcessDeviceOffline001
  * @tc.desc: process device offline with only one connection
  * @tc.type: FUNC
@@ -495,79 +341,6 @@ HWTEST_F(DistributedSchedConnectTest, ProcessDeviceOffline003, TestSize.Level0)
 }
 
 /**
- * @tc.name: ProcessDeviceOffline004
- * @tc.desc: process device offline and check the trackingUidMap_
- * @tc.type: FUNC
- * @tc.require: AR000GI8IE
- */
-HWTEST_F(DistributedSchedConnectTest, ProcessDeviceOffline004, TestSize.Level1)
-{
-    DTEST_LOG << "DistributedSchedServiceTest ProcessDeviceOffline004 start" << std::endl;
-    OHOS::AAFwk::Want want;
-    want.SetElementName("", "ohos.demo.bundleName", "abilityName");
-    sptr<AbilityConnectCallbackTest> connect = new AbilityConnectCallbackTest();
-    AddSession(connect, "123_local_device_id", "123_remote_device_id", want);
-
-    auto& trackingUidMap = DistributedSchedService::GetInstance().trackingUidMap_;
-    /**
-     * @tc.steps: step1. Increase connect count
-     * @tc.expected: step1. connect count increase one
-     */
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    uint32_t oldCount = trackingUidMap[uid];
-    AddConnectCount(uid);
-    EXPECT_EQ(trackingUidMap[uid] - oldCount, static_cast<uint32_t>(1));
-
-    /**
-     * @tc.steps: step2. process device offline and then check the trackingUidMap_
-     * @tc.expected: step2. the connect count is decrease
-     */
-    DistributedSchedService::GetInstance().ProcessDeviceOffline("123_remote_device_id");
-    auto iter = trackingUidMap.find(uid);
-    if (iter != trackingUidMap.end()) {
-        EXPECT_EQ(trackingUidMap[uid], oldCount);
-    }
-
-    RemoveConnectInfo(connect);
-}
-
-/**
- * @tc.name: ProcessDeviceOffline005
- * @tc.desc: process device offline and check the connectAbilityMap_
- * @tc.type: FUNC
- * @tc.require: AR000GI8IE
- */
-HWTEST_F(DistributedSchedConnectTest, ProcessDeviceOffline005, TestSize.Level1)
-{
-    DTEST_LOG << "DistributedSchedServiceTest ProcessDeviceOffline005 start" << std::endl;
-    auto& connectAbilityMap = DistributedSchedService::GetInstance().connectAbilityMap_;
-    auto& distributedLock = DistributedSchedService::GetInstance().distributedLock_;
-
-    /**
-     * @tc.steps: step1. add one connectInfo
-     * @tc.expected: step1. can find the newly-added connectInfo
-     */
-    sptr<AbilityConnectCallbackTest> connect = new AbilityConnectCallbackTest();
-    AddConnectInfo(connect, "123_local_device_id", "123_remote_device_id");
-    {
-        std::lock_guard<std::mutex> autoLock(distributedLock);
-        EXPECT_EQ(connectAbilityMap.size(), static_cast<size_t>(1));
-    }
-
-    /**
-     * @tc.steps: step2. process device offline and then check the connectAbilityMap_
-     * @tc.expected: step2. the connectInfo is removed
-     */
-    DistributedSchedService::GetInstance().ProcessDeviceOffline("123_local_device_id");
-    {
-        std::lock_guard<std::mutex> autoLock(distributedLock);
-        EXPECT_EQ(connectAbilityMap.size(), static_cast<size_t>(0));
-    }
-
-    RemoveConnectInfo(connect);
-}
-
-/**
  * @tc.name: DisconnectRemoteAbility001
  * @tc.desc: disconnect remote ability
  * @tc.type: FUNC
@@ -596,43 +369,6 @@ HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility001, TestSize.Level
     }
 
     RemoveSession(connect);
-}
-
-/**
- * @tc.name: DisconnectRemoteAbility002
- * @tc.desc: disconnect remote ability and check the trackingUidMap_
- * @tc.type: FUNC
- * @tc.require: AR000GI8IE
- */
-HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility002, TestSize.Level1)
-{
-    DTEST_LOG << "DistributedSchedServiceTest DisconnectRemoteAbility002 start" << std::endl;
-    OHOS::AAFwk::Want want;
-    want.SetElementName("", "ohos.demo.bundleName", "abilityName");
-    sptr<AbilityConnectCallbackTest> connect = new AbilityConnectCallbackTest();
-    AddSession(connect, "123_local_device_id", "123_remote_device_id", want);
-
-    auto& trackingUidMap = DistributedSchedService::GetInstance().trackingUidMap_;
-    /**
-     * @tc.steps: step1. Increase connect count
-     * @tc.expected: step1. connect count increase one
-     */
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    uint32_t oldCount = trackingUidMap[uid];
-    AddConnectCount(uid);
-    EXPECT_EQ(trackingUidMap[uid] - oldCount, static_cast<uint32_t>(1));
-
-    /**
-     * @tc.steps: step2. disconnect remote ability and then check the trackingUidMap_
-     * @tc.expected: step2. the connect count is decrease
-     */
-    DistributedSchedService::GetInstance().DisconnectRemoteAbility(connect);
-    auto iter = trackingUidMap.find(uid);
-    if (iter != trackingUidMap.end()) {
-        EXPECT_EQ(trackingUidMap[uid], oldCount);
-    }
-
-    RemoveConnectInfo(connect);
 }
 }
 }
