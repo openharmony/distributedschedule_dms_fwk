@@ -126,6 +126,7 @@ private:
     std::map<sptr<IRemoteObject>, ConnectInfo> connectAbilityMap_;
     std::unordered_map<int32_t, uint32_t> trackingUidMap_;
     std::mutex distributedLock_;
+    std::mutex connectLock_;
     sptr<IRemoteObject::DeathRecipient> connectDeathRecipient_;
 };
 
