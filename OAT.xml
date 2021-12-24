@@ -58,9 +58,6 @@ Note:If the text contains special characters, please escape them according to th
             <filefilter name="copyrightPolicyFilter" desc="copyright文件头校验策略的过滤条件" >
                 <filteritem type="filepath" name="etc/init/distributedsched.cfg" desc="cfg文件为json格式,无法添加版权头"/>
             </filefilter>
-            <filefilter name="binaryFileTypePolicyFilter" desc="binaryFileType校验策略的过滤条件" >
-                <filteritem type="filename" name="*.png" desc="README文件的自研开源图片"/>
-            </filefilter>
         </filefilterlist>
     </oatconfig>
 </configuration>

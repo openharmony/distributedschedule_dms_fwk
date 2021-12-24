@@ -34,7 +34,6 @@ const std::string PKG_NAME = "DBinderBus_" + std::to_string(getpid());
 
 constexpr int32_t NON_ANONYMIZED_LENGTH = 6;
 const std::string EMPTY_DEVICE_ID = "";
-const std::string TAG = "DnetworkAdapter";
 }
 
 std::shared_ptr<AppExecFwk::EventHandler> DnetworkAdapter::dnetworkHandler_;
@@ -107,7 +106,7 @@ bool DnetworkAdapter::AddDeviceChangeListener(const std::shared_ptr<DeviceListen
 {
     HILOGD("AddDeviceChangeListener called");
     if (dnetworkHandler_ == nullptr) {
-        HILOGE("handler is null");
+        HILOGE("DnetworkAdapter handler is null");
         return false;
     }
 
@@ -122,7 +121,7 @@ bool DnetworkAdapter::AddDeviceChangeListener(const std::shared_ptr<DeviceListen
     }
 
     auto registerTask = [this]() {
-        HILOGD("AddDeviceChangeListener register mission...");
+        HILOGD("AddDeviceChangeListener register task...");
         int32_t retryTimes = 0;
         int32_t errCode = ERR_OK;
         while (retryTimes++ < RETRY_REGISTER_CALLBACK_TIMES) {
@@ -168,30 +167,30 @@ std::shared_ptr<NodeBasicInfo> DnetworkAdapter::GetLocalBasicInfo()
     auto info = std::make_shared<NodeBasicInfo>();
     int32_t errCode = GetLocalNodeDeviceInfo(PKG_NAME.c_str(), info.get());
     if (errCode != ERR_OK) {
-        HILOGE("GetLocalBasicInfo errCode = %{public}d", errCode);
+        HILOGE("DnetworkAdapter::GetLocalBasicInfo errCode = %{public}d", errCode);
         return nullptr;
     }
     return info;
 }
 
-std::string DnetworkAdapter::GetUdidByNetworkId(const std::string& networkId)
+std::string DnetworkAdapter::GetUdidByNodeId(const std::string& nodeId)
 {
-    return GetUuidOrUdidByNetworkId(networkId, NodeDeivceInfoKey::NODE_KEY_UDID);
+    return GetUuidOrUdidByNodeId(nodeId, NodeDeivceInfoKey::NODE_KEY_UDID);
 }
 
-std::string DnetworkAdapter::GetUuidByNetworkId(const std::string& networkId)
+std::string DnetworkAdapter::GetUuidByNodeId(const std::string& nodeId)
 {
-    return GetUuidOrUdidByNetworkId(networkId, NodeDeivceInfoKey::NODE_KEY_UUID);
+    return GetUuidOrUdidByNodeId(nodeId, NodeDeivceInfoKey::NODE_KEY_UUID);
 }
 
-std::string DnetworkAdapter::GetUuidOrUdidByNetworkId(const std::string& networkId, NodeDeivceInfoKey keyType)
+std::string DnetworkAdapter::GetUuidOrUdidByNodeId(const std::string& nodeId, NodeDeivceInfoKey keyType)
 {
-    if (networkId.empty()) {
+    if (nodeId.empty()) {
         return std::string();
     }
 
     char uuidOrUdid[DEVICE_ID_SIZE] = {0};
-    int32_t ret = GetNodeKeyInfo(PKG_NAME.c_str(), networkId.c_str(), keyType,
+    int32_t ret = GetNodeKeyInfo(PKG_NAME.c_str(), nodeId.c_str(), keyType,
         reinterpret_cast<uint8_t*>(uuidOrUdid), DEVICE_ID_SIZE);
     return (ret == ERR_OK) ? std::string(uuidOrUdid) : std::string();
 }
