@@ -264,6 +264,9 @@ void DistributedSchedService::NotifyContinuationCallbackResult(const sptr<IRemot
         HILOGE("NotifyContinuationCallbackResult abilityToken null!");
         return;
     }
+
+    int32_t result = AAFwk::AbilityManagerClient::GetInstance()->NotifyContinuationResult(abilityToken, isSuccess);
+    HILOGD("NotifyContinuationCallbackResult ScheduleCompleteContinuation result:%{public}d", result);
 }
 
 void DistributedSchedService::RemoteConnectAbilityMappingLocked(const sptr<IRemoteObject>& connect,
