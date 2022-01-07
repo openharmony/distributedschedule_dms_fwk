@@ -18,6 +18,7 @@
 #include "dtbschedmgr_log.h"
 
 #include "ipc_types.h"
+#include "mission/mission_info_converter.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 
@@ -256,7 +257,7 @@ int32_t DistributedSchedProxy::NotifyProcessDiedFromRemote(const CallerInfo& cal
     PARCEL_TRANSACT_SYNC_RET_INT(remote, NOTIFY_PROCESS_DIED_FROM_REMOTE, data, reply);
 }
 
-int32_t DistributedSchedProxy::PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag)
+int32_t DistributedSchedProxy::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
     HILOGI("called");
     sptr<IRemoteObject> remote = Remote();
@@ -270,26 +271,96 @@ int32_t DistributedSchedProxy::PrepareAndSyncMissions(const std::u16string& devI
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
-    PARCEL_WRITE_HELPER(data, String16, devId);
+    PARCEL_WRITE_HELPER(data, String16, Str8ToStr16(devId));
     PARCEL_WRITE_HELPER(data, Bool, fixConflict);
     PARCEL_WRITE_HELPER(data, Int64, tag);
-    PARCEL_TRANSACT_SYNC_RET_INT(remote, PREPARE_AND_SYNC_MISSIONS, data, reply);
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_SYNC_MISSIONS, data, reply);
 }
 
-int32_t DistributedSchedProxy::RegisterRemoteMissionListener(const std::u16string& devId,
+int32_t DistributedSchedProxy::StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
+    std::vector<DstbMissionInfo>& missionInfos)
+{
+    HILOGI("called");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote service is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option { MessageOption::TF_SYNC, WAIT_TIME };
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!CallerInfoMarshalling(callerInfo, data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t error = remote->SendRequest(START_SYNC_MISSIONS_FROM_REMOTE, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOGW("fail, error: %{public}d", error);
+        return error;
+    }
+    int32_t version = reply.ReadInt32();
+    HILOGD("version : %{public}d", version);
+    return DstbMissionInfo::ReadMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
+}
+
+int32_t DistributedSchedProxy::StopSyncRemoteMissions(const std::string& devId)
+{
+    HILOGI("called");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote system abiity is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String16, Str8ToStr16(devId));
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, STOP_SYNC_MISSIONS, data, reply);
+}
+
+int32_t DistributedSchedProxy::StopSyncMissionsFromRemote(const CallerInfo& callerInfo)
+{
+    HILOGI("called");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote service is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option { MessageOption::TF_SYNC, WAIT_TIME };
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!CallerInfoMarshalling(callerInfo, data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t error = remote->SendRequest(STOP_SYNC_MISSIONS_FROM_REMOTE, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOGW("sendRequest fail, error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t DistributedSchedProxy::RegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
     return ERR_NONE;
 }
 
-int32_t DistributedSchedProxy::UnRegisterRemoteMissionListener(const std::u16string& devId,
+int32_t DistributedSchedProxy::UnRegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
     return ERR_NONE;
 }
 
 int32_t DistributedSchedProxy::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<MissionInfo>& missionInfos)
+    std::vector<DstbMissionInfo>& missionInfos)
 {
     HILOGI("called");
     sptr<IRemoteObject> remote = Remote();
@@ -311,10 +382,10 @@ int32_t DistributedSchedProxy::GetMissionInfos(const std::string& deviceId, int3
         HILOGW("sendRequest fail, error: %{public}d", ret);
         return ret;
     }
-    return MissionInfo::ReadMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
+    return DstbMissionInfo::ReadMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
 }
 
-int32_t DistributedSchedProxy::NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
+int32_t DistributedSchedProxy::NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
     const CallerInfo& callerInfo)
 {
     HILOGI("NotifyMissionsChangedFromRemote is called");
@@ -329,7 +400,7 @@ int32_t DistributedSchedProxy::NotifyMissionsChangedFromRemote(const std::vector
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Int32, callerInfo.dmsVersion);
-    if (!MissionInfo::WriteMissionInfoVectorFromParcel(data, missionInfos)) {
+    if (!DstbMissionInfo::WriteMissionInfoVectorFromParcel(data, missionInfos)) {
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
@@ -426,59 +497,6 @@ int32_t DistributedSchedProxy::StoreSnapshotInfo(const std::string& deviceId,
 int32_t DistributedSchedProxy::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
 {
     return ERR_NONE;
-}
-
-int32_t DistributedSchedProxy::PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-    std::vector<MissionInfo>& missionInfos)
-{
-    HILOGI("called");
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOGE("remote service is null");
-        return ERR_NULL_OBJECT;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option { MessageOption::TF_SYNC, WAIT_TIME };
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    if (!CallerInfoMarshalling(callerInfo, data)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    int32_t error = remote->SendRequest(PREPARE_AND_SYNC_MISSIONS_FROM_REMOTE, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOGW("fail, error: %{public}d", error);
-        return error;
-    }
-    int32_t version = reply.ReadInt32();
-    HILOGD("version : %{public}d", version);
-    return MissionInfo::ReadMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
-}
-
-int32_t DistributedSchedProxy::UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo)
-{
-    HILOGI("called");
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOGE("remote service is null");
-        return ERR_NULL_OBJECT;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option { MessageOption::TF_SYNC, WAIT_TIME };
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    if (!CallerInfoMarshalling(callerInfo, data)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    int32_t error = remote->SendRequest(UNREGISTER_MISSION_LISTENER_FROM_REMOTE, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOGW("sendRequest fail, error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
 }
 
 int32_t DistributedSchedProxy::UpdateOsdSwitchValueFromRemote(int32_t switchVal,

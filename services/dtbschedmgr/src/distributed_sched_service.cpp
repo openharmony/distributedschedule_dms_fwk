@@ -33,8 +33,8 @@
 #include "file_ex.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "mission/distributed_mission_info.h"
 #include "mission/distributed_sched_mission_manager.h"
-#include "mission/mission_info.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
@@ -884,12 +884,12 @@ void DistributedSchedService::DumpElementLocked(const std::list<AppExecFwk::Elem
 }
 
 int32_t DistributedSchedService::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<MissionInfo>& missionInfos)
+    std::vector<DstbMissionInfo>& missionInfos)
 {
     return DistributedSchedMissionManager::GetInstance().GetMissionInfos(deviceId, numMissions, missionInfos);
 }
 
-int32_t DistributedSchedService::NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
+int32_t DistributedSchedService::NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
     const CallerInfo& callerInfo)
 {
     return DistributedSchedMissionManager::GetInstance()
@@ -930,27 +930,37 @@ int32_t DistributedSchedService::RemoveSnapshotInfo(const std::string& deviceId,
     return DistributedSchedMissionManager::GetInstance().RemoveSnapshotInfo(deviceId, missionId);
 }
 
-int32_t DistributedSchedService::RegisterRemoteMissionListener(const std::u16string& devId,
+int32_t DistributedSchedService::RegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    return DistributedSchedMissionManager::GetInstance().RegisterRemoteMissionListener(devId, obj);
+    return DistributedSchedMissionManager::GetInstance().RegisterMissionListener(devId, obj);
 }
 
-int32_t DistributedSchedService::UnRegisterRemoteMissionListener(const std::u16string& devId,
+int32_t DistributedSchedService::UnRegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    return DistributedSchedMissionManager::GetInstance().UnRegisterRemoteMissionListener(devId, obj);
+    return DistributedSchedMissionManager::GetInstance().UnRegisterMissionListener(devId, obj);
 }
 
-int32_t DistributedSchedService::PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-    std::vector<MissionInfo>& missionInfos)
+int32_t DistributedSchedService::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
-    return DistributedSchedMissionManager::GetInstance().PrepareAndSyncMissionsFromRemote(callerInfo, missionInfos);
+    return DistributedSchedMissionManager::GetInstance().StartSyncRemoteMissions(devId, fixConflict, tag);
 }
 
-int32_t DistributedSchedService::UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo)
+int32_t DistributedSchedService::StopSyncRemoteMissions(const std::string& devId)
 {
-    DistributedSchedMissionManager::GetInstance().UnRegisterMissionListenerFromRemote(callerInfo.sourceDeviceId);
+    return DistributedSchedMissionManager::GetInstance().StopSyncRemoteMissions(devId, false, true);
+}
+
+int32_t DistributedSchedService::StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
+    std::vector<DstbMissionInfo>& missionInfos)
+{
+    return DistributedSchedMissionManager::GetInstance().StartSyncMissionsFromRemote(callerInfo, missionInfos);
+}
+
+int32_t DistributedSchedService::StopSyncMissionsFromRemote(const CallerInfo& callerInfo)
+{
+    DistributedSchedMissionManager::GetInstance().StopSyncMissionsFromRemote(callerInfo.sourceDeviceId);
     return ERR_NONE;
 }
 
@@ -959,11 +969,6 @@ int32_t DistributedSchedService::UpdateOsdSwitchValueFromRemote(int32_t switchVa
 {
     return DistributedSchedMissionManager::GetInstance()
         .UpdateOsdSwitchValueFromRemote(switchVal, sourceDeviceId);
-}
-
-int32_t DistributedSchedService::PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag)
-{
-    return DistributedSchedMissionManager::GetInstance().PrepareAndSyncMissions(devId, fixConflict, tag);
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

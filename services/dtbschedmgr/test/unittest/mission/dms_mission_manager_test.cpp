@@ -38,7 +38,6 @@ namespace DistributedSchedule {
 namespace {
 const std::string DEVICE_NAME = "DEVICE_PHONE_001";
 const std::string DEVICE_ID = "123456789ABCD";
-const std::u16string U16DEVICE_ID = u"123456789ABCD";
 const std::string BUNDLE_NAME = "ohos.test.test";
 const int32_t NUM_MISSIONS = 100;
 }
@@ -58,7 +57,6 @@ void DMSMissionManagerTest::SetUp()
         return;
     }
     localDeviceId_ = localDeviceId;
-    localDev_ = Str8ToStr16(localDeviceId);
 }
 
 void DMSMissionManagerTest::TearDown()
@@ -95,7 +93,7 @@ sptr<IDistributedSched> DMSMissionManagerTest::GetDms()
  */
 HWTEST_F(DMSMissionManagerTest, testGetRemoteMissionInfo001, TestSize.Level1)
 {
-    std::vector<MissionInfo> infos;
+    std::vector<DstbMissionInfo> infos;
     auto ret = DistributedSchedMissionManager::GetInstance().GetMissionInfos(DEVICE_ID, 0, infos);
     EXPECT_TRUE(ret != ERR_NONE);
 
@@ -124,7 +122,7 @@ HWTEST_F(DMSMissionManagerTest, testGetRemoteMissionInfo002, TestSize.Level1)
     if (proxy == nullptr) {
         return;
     }
-    std::vector<MissionInfo> infos;
+    std::vector<DstbMissionInfo> infos;
     auto ret = proxy->GetMissionInfos(DEVICE_ID, 0, infos);
     EXPECT_TRUE(ret != ERR_NONE);
 
@@ -142,25 +140,25 @@ HWTEST_F(DMSMissionManagerTest, testGetRemoteMissionInfo002, TestSize.Level1)
 }
 
 /**
- * @tc.name: testPrepareAndSyncMissions001
+ * @tc.name: testStartSyncRemoteMissions001
  * @tc.desc: prepare and sync missions from remote
  * @tc.type: FUNC
  * @tc.require:AR000GK67M
  */
-HWTEST_F(DMSMissionManagerTest, testPrepareAndSyncMissions001, TestSize.Level1)
+HWTEST_F(DMSMissionManagerTest, testStartSyncRemoteMissions001, TestSize.Level1)
 {
     sptr<IDistributedSched> proxy = GetDms();
     if (proxy == nullptr) {
         return;
     }
-    std::vector<MissionInfo> infos;
-    auto ret = proxy->PrepareAndSyncMissions(U16DEVICE_ID, false, 0);
+    std::vector<DstbMissionInfo> infos;
+    auto ret = proxy->StartSyncRemoteMissions(DEVICE_ID, false, 0);
     EXPECT_TRUE(ret != ERR_NONE);
 
-    ret = proxy->PrepareAndSyncMissions(localDev_, false, 0);
+    ret = proxy->StartSyncRemoteMissions(localDeviceId_, false, 0);
     EXPECT_TRUE(ret != ERR_NONE);
 
-    ret = proxy->PrepareAndSyncMissions(u"", false, 0);
+    ret = proxy->StartSyncRemoteMissions("", false, 0);
     EXPECT_TRUE(ret != ERR_NONE);
 }
 
@@ -193,7 +191,7 @@ HWTEST_F(DMSMissionManagerTest, testGetMissionInfos001, TestSize.Level1)
 {
     std::string deviceid = DEVICE_ID;
     int32_t numMissions = NUM_MISSIONS;
-    std::vector<MissionInfo> missionInfos;
+    std::vector<DstbMissionInfo> missionInfos;
 
     auto ret = DistributedSchedMissionManager::GetInstance().GetMissionInfos(deviceid, numMissions, missionInfos);
     EXPECT_TRUE(ret != ERR_NONE);
@@ -207,7 +205,7 @@ HWTEST_F(DMSMissionManagerTest, testGetMissionInfos001, TestSize.Level1)
  */
 HWTEST_F(DMSMissionManagerTest, testFetchCachedRemoteMissions001, TestSize.Level1)
 {
-    std::vector<MissionInfo> infos;
+    std::vector<DstbMissionInfo> infos;
     auto ret = DistributedSchedMissionManager::GetInstance().FetchCachedRemoteMissions(DEVICE_ID, 0, infos);
     EXPECT_TRUE(ret != ERR_NONE);
 }
