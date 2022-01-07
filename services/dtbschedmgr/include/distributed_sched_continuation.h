@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
-using FuncContinuationCallback = std::function<void(const sptr<IRemoteObject>& abilityToken)>;
+using FuncContinuationCallback = std::function<void(int32_t missionId)>;
 
 class DSchedContinuation : public std::enable_shared_from_this<DSchedContinuation> {
 public:
@@ -34,6 +34,12 @@ public:
     bool PushAbilityToken(int32_t sessionId, const sptr<IRemoteObject>& abilityToken);
     sptr<IRemoteObject> PopAbilityToken(int32_t sessionId);
     int32_t GenerateSessionId();
+    bool IsInContinuationProgress(int32_t missionId);
+    void SetTimeOut(int32_t missionId);
+    void RemoveTimeOut(int32_t missionId);
+    bool PushCallback(int32_t missionId, const sptr<IRemoteObject>& callback);
+    sptr<IRemoteObject> PopCallback(int32_t missionId);
+    int32_t NotifyMissionCenterResult(int32_t missionId, int32_t isSuccess);
 
 private:
     class ContinuationHandler : public AppExecFwk::EventHandler {
@@ -54,6 +60,7 @@ private:
     std::mutex continuationLock_;
     int32_t currSessionId_ = 1;
     std::map<int32_t, sptr<IRemoteObject>> continuationMap_;
+    std::map<int32_t, sptr<IRemoteObject>> callbackMap_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

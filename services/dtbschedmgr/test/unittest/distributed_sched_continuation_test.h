@@ -42,7 +42,7 @@ protected:
         int32_t flags);
     std::shared_ptr<AppExecFwk::AbilityInfo> MockAbilityInfo(const std::string& bundleName,
         const std::string& ability, const std::string& devId);
-    int32_t StartContinuation(const sptr<IRemoteObject>& abilityToken, int32_t flags);
+    int32_t StartContinuation(int32_t missionId, int32_t flags);
 
     std::shared_ptr<DSchedContinuation> dschedContinuation_;
     bool timeoutFlag_ = false;

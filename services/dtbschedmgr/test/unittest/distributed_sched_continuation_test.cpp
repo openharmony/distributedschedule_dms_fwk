@@ -56,10 +56,7 @@ sptr<IRemoteObject> DSchedContinuationTest::GetDSchedService() const
 
 int32_t DSchedContinuationTest::PushAbilityToken()
 {
-    FuncContinuationCallback continuationCallback = [this] (const sptr<IRemoteObject>& abilityToken) {
-        if (abilityToken == nullptr) {
-            return;
-        }
+    FuncContinuationCallback continuationCallback = [this] (int32_t missionId) {
         timeoutFlag_ = true;
     };
     dschedContinuation_->Init(continuationCallback);
@@ -77,14 +74,14 @@ std::shared_ptr<Want> DSchedContinuationTest::MockWant(const string& bundleName,
     return spWant;
 }
 
-int32_t DSchedContinuationTest::StartContinuation(const sptr<IRemoteObject>& abilityToken, int32_t flags)
+int32_t DSchedContinuationTest::StartContinuation(int32_t missionId, int32_t flags)
 {
     string bundleName = "bundleName";
     string abilityName = "abilityName";
     string devId = "devId";
     shared_ptr<Want> spWant = MockWant(bundleName, abilityName, flags);
     int callerUid = 0;
-    return DistributedSchedService::GetInstance().StartContinuation(*spWant, abilityToken, callerUid);
+    return DistributedSchedService::GetInstance().StartContinuation(*spWant, missionId, callerUid, 0);
 }
 
 /**
@@ -96,44 +93,27 @@ HWTEST_F(DSchedContinuationTest, StartContinuation_001, TestSize.Level1)
 {
     DTEST_LOG << "DSchedContinuationTest StartContinuation_001 start" << std::endl;
     /**
-     * @tc.steps: step1. input invalid abilityToken
+     * @tc.steps: step1. want not set continuation flags.
      * @tc.expected: step1. return false.
      */
-    int32_t ret = StartContinuation(nullptr, Want::FLAG_ABILITY_CONTINUATION);
+    int32_t ret = StartContinuation(0, 0);
     EXPECT_TRUE(ret != ERR_OK);
-    DTEST_LOG << "DSchedContinuationTest StartContinuation001 end" << std::endl;
+    DTEST_LOG << "DSchedContinuationTest StartContinuation002 end" << std::endl;
 }
 
 /**
  * @tc.name: StartContinuation_002
- * @tc.desc: input invalid params.
+ * @tc.desc: get remote dms failed.
  * @tc.type: FUNC
  */
 HWTEST_F(DSchedContinuationTest, StartContinuation_002, TestSize.Level1)
 {
     DTEST_LOG << "DSchedContinuationTest StartContinuation_002 start" << std::endl;
     /**
-     * @tc.steps: step1. want not set continuation flags.
-     * @tc.expected: step1. return false.
-     */
-    int32_t ret = StartContinuation(GetDSchedService(), 0);
-    EXPECT_TRUE(ret != ERR_OK);
-    DTEST_LOG << "DSchedContinuationTest StartContinuation002 end" << std::endl;
-}
-
-/**
- * @tc.name: StartContinuation_003
- * @tc.desc: get remote dms failed.
- * @tc.type: FUNC
- */
-HWTEST_F(DSchedContinuationTest, StartContinuation_003, TestSize.Level1)
-{
-    DTEST_LOG << "DSchedContinuationTest StartContinuation_003 start" << std::endl;
-    /**
      * @tc.steps: step1. get remote dms failed.
      * @tc.expected: step1. return false.
      */
-    int32_t ret = StartContinuation(GetDSchedService(), Want::FLAG_ABILITY_CONTINUATION);
+    int32_t ret = StartContinuation(0, Want::FLAG_ABILITY_CONTINUATION);
     EXPECT_TRUE(ret != ERR_OK);
     DTEST_LOG << "DSchedContinuationTest StartContinuation003 end" << std::endl;
 }
