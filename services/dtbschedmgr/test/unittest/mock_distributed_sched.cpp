@@ -82,17 +82,17 @@ int32_t MockDistributedSched::NotifyProcessDiedFromRemote(const CallerInfo& call
     return 0;
 }
 
-int32_t MockDistributedSched::PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag)
+int32_t MockDistributedSched::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
     return ERR_NONE;
 }
 
-int32_t MockDistributedSched::RegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj)
+int32_t MockDistributedSched::RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj)
 {
     return ERR_NONE;
 }
 
-int32_t MockDistributedSched::UnRegisterRemoteMissionListener(const std::u16string& devId,
+int32_t MockDistributedSched::UnRegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
     return ERR_NONE;
@@ -109,7 +109,7 @@ int32_t MockDistributedSched::RemoveSnapshotInfo(const std::string& deviceId, in
     return ERR_NONE;
 }
 
-int32_t MockDistributedSched::NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
+int32_t MockDistributedSched::NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
     const CallerInfo& callerInfo)
 {
     expectedTrue_ = false;
@@ -133,18 +133,23 @@ int32_t MockDistributedSched::GetOsdSwitchValueFromRemote()
 }
 
 int32_t MockDistributedSched::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<MissionInfo>& missionInfos)
+    std::vector<DstbMissionInfo>& missionInfos)
 {
     return ERR_NONE;
 }
 
-int32_t MockDistributedSched::PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-    std::vector<MissionInfo>& missionInfos)
+int32_t MockDistributedSched::StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
+    std::vector<DstbMissionInfo>& missionInfos)
 {
     return ERR_NONE;
 }
 
-int32_t MockDistributedSched::UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo)
+int32_t MockDistributedSched::StopSyncMissionsFromRemote(const CallerInfo& callerInfo)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::StopSyncRemoteMissions(const std::string& devId)
 {
     return ERR_NONE;
 }

@@ -28,26 +28,23 @@ config("test_config") {
       [ "//foundation/distributedschedule/dmsfwk/utils/native/include" ]
 }
 
-dsched_deps = [
-  "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-  "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
-  "//foundation/aafwk/standard/interfaces/innerkits/base:base",
-  "//foundation/aafwk/standard/interfaces/innerkits/want:want",
-  "//foundation/appexecfwk/standard/common:libappexecfwk_common",
-  "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
-  "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
-  "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
-  "//foundation/distributeddatamgr/distributeddatamgr/interfaces/innerkits/distributeddata:distributeddata_inner",
-  "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-  "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-  "//foundation/multimedia/image_standard/interfaces/innerkits:image_native",
-  "//utils/native/base:utils",
-]
+dsched_deps = [ "//foundation/appexecfwk/standard/common:libappexecfwk_common" ]
 
 dsched_external_deps = [
+  "aafwk_standard:ability_manager",
+  "aafwk_standard:want",
+  "appexecfwk_standard:appexecfwk_base",
+  "appexecfwk_standard:appexecfwk_core",
+  "appexecfwk_standard:libeventhandler",
+  "distributeddatamgr:distributeddata_inner",
   "dsoftbus_standard:softbus_client",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
+  "multimedia_image_standard:image_native",
+  "permission_standard:libpermissionsdk_standard",
+  "safwk:system_ability_fwk",
+  "samgr_standard:samgr_proxy",
+  "utils_base:utils",
 ]
 
 dsched_public_deps = [
@@ -73,9 +70,9 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_data_change_listener.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_data_storage.cpp",
+  "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_info.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_sched_mission_manager.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/mission_changed_notify.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/mission_info.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/mission_info_converter.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/snapshot.cpp",
 ]

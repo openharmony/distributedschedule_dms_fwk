@@ -20,7 +20,7 @@
 #include "ability_info.h"
 #include "caller_info.h"
 #include "iremote_broker.h"
-#include "mission/mission_info.h"
+#include "mission/distributed_mission_info.h"
 #include "ohos/aafwk/content/want.h"
 
 namespace OHOS {
@@ -53,24 +53,24 @@ public:
     virtual int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
         int32_t uid, const std::string& sourceDeviceId) = 0;
     virtual int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) = 0;
-
-    virtual int32_t PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag) = 0;
-    virtual int32_t RegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) = 0;
-    virtual int32_t UnRegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) = 0;
+    virtual int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) = 0;
+    virtual int32_t StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
+        std::vector<DstbMissionInfo>& missionInfos) = 0;
+    virtual int32_t StopSyncRemoteMissions(const std::string& devId) = 0;
+    virtual int32_t StopSyncMissionsFromRemote(const CallerInfo& callerInfo) = 0;
+    virtual int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) = 0;
+    virtual int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) = 0;
     virtual int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-        std::vector<MissionInfo>& missionInfos) = 0;
+        std::vector<DstbMissionInfo>& missionInfos) = 0;
     virtual int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
         const uint8_t* byteStream, size_t len) = 0;
     virtual int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) = 0;
-    virtual int32_t NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
+    virtual int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
          const CallerInfo& callerInfo) = 0;
     virtual int32_t CheckSupportOsd(const std::string& deviceId) = 0;
     virtual void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values) = 0;
     virtual int32_t GetOsdSwitchValueFromRemote() = 0;
     virtual int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) = 0;
-    virtual int32_t PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-        std::vector<MissionInfo>& missionInfos) = 0;
-    virtual int32_t UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo) = 0;
     enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
@@ -95,17 +95,19 @@ public:
         REMOVE_SNAPSHOT_INFO = 83,
         REGISTER_MISSION_LISTENER = 84,
         UNREGISTER_MISSION_LISTENER = 85,
-        PREPARE_AND_SYNC_MISSIONS_FROM_REMOTE = 86,
-        UNREGISTER_MISSION_LISTENER_FROM_REMOTE = 87,
+        START_SYNC_MISSIONS_FROM_REMOTE = 86,
+        STOP_SYNC_MISSIONS_FROM_REMOTE = 87,
         CHECK_SUPPORTED_OSD = 88,
         CHECK_SUPPORT_OSD_FROM_REMOTE = 89,
         MISSION_CHANGED = 90,
         NOTIFY_MISSIONS_CHANGED_FROM_REMOTE = 91,
-        PREPARE_AND_SYNC_MISSIONS = 92,
+        START_SYNC_MISSIONS = 92,
         TRY_OPENP2PSESSION_FROM_REMOTE = 93,
         SWITCH_CHANGED = 94,
         NOTIFY_SWITCH_CHANGED_FROM_REMOTE = 95,
         GET_CACHED_SUPPORTED_OSD = 96,
+        ALL_CONNECT_TO_DMS = 97,
+        STOP_SYNC_MISSIONS = 98,
     };
 };
 } // namespace DistributedSchedule

@@ -51,11 +51,12 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[STORE_SNAPSHOT_INFO] = &DistributedSchedStub::StoreSnapshotInfoInner;
     localFuncsMap_[REMOVE_SNAPSHOT_INFO] = &DistributedSchedStub::RemoveSnapshotInfoInner;
     localFuncsMap_[GET_REMOTE_SNAPSHOT_INFO] = &DistributedSchedStub::GetRemoteSnapshotInfoInner;
-    localFuncsMap_[REGISTER_MISSION_LISTENER] = &DistributedSchedStub::RegisterRemoteMissionListenerInner;
-    localFuncsMap_[UNREGISTER_MISSION_LISTENER] = &DistributedSchedStub::UnRegisterRemoteMissionListenerInner;
+    localFuncsMap_[REGISTER_MISSION_LISTENER] = &DistributedSchedStub::RegisterMissionListenerInner;
+    localFuncsMap_[UNREGISTER_MISSION_LISTENER] = &DistributedSchedStub::UnRegisterMissionListenerInner;
     localFuncsMap_[GET_MISSION_INFOS] = &DistributedSchedStub::GetMissionInfosInner;
     localFuncsMap_[MISSION_CHANGED] = &DistributedSchedStub::NotifyLocalMissionsChangedInner;
-    localFuncsMap_[PREPARE_AND_SYNC_MISSIONS] = &DistributedSchedStub::PrepareAndSyncMissionsInner;
+    localFuncsMap_[START_SYNC_MISSIONS] = &DistributedSchedStub::StartSyncRemoteMissionsInner;
+    localFuncsMap_[STOP_SYNC_MISSIONS] = &DistributedSchedStub::StopSyncRemoteMissionsInner;
     localFuncsMap_[SWITCH_CHANGED] = &DistributedSchedStub::NotifyOsdSwitchChangedInner;
     localFuncsMap_[GET_CACHED_SUPPORTED_OSD] = &DistributedSchedStub::GetCachedOsdSwitchInner;
 
@@ -67,10 +68,10 @@ DistributedSchedStub::DistributedSchedStub()
     remoteFuncsMap_[NOTIFY_PROCESS_DIED_FROM_REMOTE] = &DistributedSchedStub::NotifyProcessDiedFromRemoteInner;
     // request codes for mission mananger
     remoteFuncsMap_[CHECK_SUPPORT_OSD_FROM_REMOTE] = &DistributedSchedStub::GetOsdSwitchValueFromRemoteInner;
-    remoteFuncsMap_[PREPARE_AND_SYNC_MISSIONS_FROM_REMOTE] =
-        &DistributedSchedStub::PrepareAndSyncMissionsFromRemoteInner;
-    remoteFuncsMap_[UNREGISTER_MISSION_LISTENER_FROM_REMOTE] =
-        &DistributedSchedStub::UnRegisterMissionListenerFromRemoteInner;
+    remoteFuncsMap_[START_SYNC_MISSIONS_FROM_REMOTE] =
+        &DistributedSchedStub::StartSyncMissionsFromRemoteInner;
+    remoteFuncsMap_[STOP_SYNC_MISSIONS_FROM_REMOTE] =
+        &DistributedSchedStub::StopSyncMissionsFromRemoteInner;
     remoteFuncsMap_[NOTIFY_MISSIONS_CHANGED_FROM_REMOTE] = &DistributedSchedStub::NotifyMissionsChangedFromRemoteInner;
     remoteFuncsMap_[NOTIFY_SWITCH_CHANGED_FROM_REMOTE] = &DistributedSchedStub::UpdateOsdSwitchValueFromRemoteInner;
 }
@@ -333,11 +334,11 @@ int32_t DistributedSchedStub::GetMissionInfosInner(MessageParcel& data, MessageP
     int32_t numMissions = 0;
     PARCEL_READ_HELPER(data, Int32, numMissions);
 
-    std::vector<MissionInfo> missionInfos;
+    std::vector<DstbMissionInfo> missionInfos;
     int result = GetMissionInfos(Str16ToStr8(deviceId), numMissions, missionInfos);
     HILOGI("result = %{public}d", result);
     if (result == ERR_NONE) {
-        return MissionInfo::WriteMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
+        return DstbMissionInfo::WriteMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
     }
     return ERR_NULL_OBJECT;
 }
@@ -372,11 +373,11 @@ int32_t DistributedSchedStub::GetRemoteSnapshotInfoInner(MessageParcel& data, Me
     return ERR_NONE;
 }
 
-int32_t DistributedSchedStub::RegisterRemoteMissionListenerInner(MessageParcel& data, MessageParcel& reply)
+int32_t DistributedSchedStub::RegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
     if (!EnforceInterfaceToken(data)) {
-        HILOGW("RegisterRemoteMissionListenerInner interface token check failed!");
+        HILOGW("RegisterMissionListenerInner interface token check failed!");
         return DMS_PERMISSION_DENIED;
     }
     u16string devId = data.ReadString16();
@@ -389,32 +390,11 @@ int32_t DistributedSchedStub::RegisterRemoteMissionListenerInner(MessageParcel& 
         HILOGW("read IRemoteObject failed!");
         return ERR_FLATTEN_OBJECT;
     }
-    int32_t result = RegisterRemoteMissionListener(devId, missionChangedListener);
+    int32_t result = RegisterMissionListener(devId, missionChangedListener);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
-int32_t DistributedSchedStub::PrepareAndSyncMissionsFromRemoteInner(MessageParcel& data, MessageParcel& reply)
-{
-    CallerInfo callerInfo;
-    if (!CallerInfoUnmarshalling(callerInfo, data)) {
-        HILOGW("read callerInfo failed!");
-        return ERR_FLATTEN_OBJECT;
-    }
-    std::vector<MissionInfo> missionInfos;
-    if (PrepareAndSyncMissionsFromRemote(callerInfo, missionInfos) != ERR_NONE) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    if (!reply.WriteInt32(VERSION)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    if (!MissionInfo::WriteMissionInfoVectorFromParcel(reply, missionInfos)) {
-        HILOGE("write mission info failed!");
-        return ERR_FLATTEN_OBJECT;
-    }
-    return ERR_NONE;
-}
-
-int32_t DistributedSchedStub::UnRegisterRemoteMissionListenerInner(MessageParcel& data, MessageParcel& reply)
+int32_t DistributedSchedStub::UnRegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
     u16string devId = data.ReadString16();
@@ -427,18 +407,51 @@ int32_t DistributedSchedStub::UnRegisterRemoteMissionListenerInner(MessageParcel
         HILOGW("read IRemoteObject failed!");
         return ERR_FLATTEN_OBJECT;
     }
-    int32_t result = UnRegisterRemoteMissionListener(devId, missionChangedListener);
+    int32_t result = UnRegisterMissionListener(devId, missionChangedListener);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
-int32_t DistributedSchedStub::UnRegisterMissionListenerFromRemoteInner(MessageParcel& data, MessageParcel& reply)
+int32_t DistributedSchedStub::StartSyncMissionsFromRemoteInner(MessageParcel& data, MessageParcel& reply)
 {
     CallerInfo callerInfo;
     if (!CallerInfoUnmarshalling(callerInfo, data)) {
         HILOGW("read callerInfo failed!");
         return ERR_FLATTEN_OBJECT;
     }
-    int32_t result = UnRegisterMissionListenerFromRemote(callerInfo);
+    std::vector<DstbMissionInfo> missionInfos;
+    if (StartSyncMissionsFromRemote(callerInfo, missionInfos) != ERR_NONE) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!reply.WriteInt32(VERSION)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!DstbMissionInfo::WriteMissionInfoVectorFromParcel(reply, missionInfos)) {
+        HILOGE("write mission info failed!");
+        return ERR_FLATTEN_OBJECT;
+    }
+    return ERR_NONE;
+}
+
+int32_t DistributedSchedStub::StopSyncRemoteMissionsInner(MessageParcel& data, MessageParcel& reply)
+{
+    HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
+    u16string devId = data.ReadString16();
+    if (devId.empty()) {
+        HILOGW("read deviceId failed!");
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t result = StopSyncRemoteMissions(Str16ToStr8(devId));
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::StopSyncMissionsFromRemoteInner(MessageParcel& data, MessageParcel& reply)
+{
+    CallerInfo callerInfo;
+    if (!CallerInfoUnmarshalling(callerInfo, data)) {
+        HILOGW("read callerInfo failed!");
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t result = StopSyncMissionsFromRemote(callerInfo);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
@@ -469,8 +482,8 @@ int32_t DistributedSchedStub::GetCachedOsdSwitchInner(MessageParcel& data, Messa
 
 int32_t DistributedSchedStub::NotifyLocalMissionsChangedInner(MessageParcel& data, MessageParcel& reply)
 {
-    std::vector<MissionInfo> missionInfos;
-    if (!MissionInfo::ReadMissionInfoVectorFromParcel(data, missionInfos)) {
+    std::vector<DstbMissionInfo> missionInfos;
+    if (!DstbMissionInfo::ReadMissionInfoVectorFromParcel(data, missionInfos)) {
         return ERR_FLATTEN_OBJECT;
     }
     int32_t result = DistributedSchedMissionManager::GetInstance().NotifyMissionsChangedToRemote(missionInfos);
@@ -481,8 +494,8 @@ int32_t DistributedSchedStub::NotifyMissionsChangedFromRemoteInner(MessageParcel
 {
     int32_t version = data.ReadInt32();
     HILOGD("version is %{public}d", version);
-    std::vector<MissionInfo> missionInfos;
-    if (!MissionInfo::ReadMissionInfoVectorFromParcel(data, missionInfos)) {
+    std::vector<DstbMissionInfo> missionInfos;
+    if (!DstbMissionInfo::ReadMissionInfoVectorFromParcel(data, missionInfos)) {
         return ERR_FLATTEN_OBJECT;
     }
     CallerInfo callerInfo;
@@ -557,17 +570,18 @@ int32_t DistributedSchedStub::UpdateOsdSwitchValueFromRemoteInner(MessageParcel&
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
-int32_t DistributedSchedStub::PrepareAndSyncMissionsInner(MessageParcel& data, MessageParcel& reply)
+int32_t DistributedSchedStub::StartSyncRemoteMissionsInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOGI("[PerformanceTest], IPC end = %{public}" PRId64, GetTickCount());
     u16string devId = data.ReadString16();
-    bool fixConflict = data.ReadBool();
-    long tag = data.ReadInt64();
     if (devId.empty()) {
         HILOGW("read deviceId failed!");
         return ERR_FLATTEN_OBJECT;
     }
-    int32_t result = PrepareAndSyncMissions(devId, fixConflict, tag);
+    string deviceId = Str16ToStr8(devId);
+    bool fixConflict = data.ReadBool();
+    long tag = data.ReadInt64();
+    int32_t result = StartSyncRemoteMissions(deviceId, fixConflict, tag);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 

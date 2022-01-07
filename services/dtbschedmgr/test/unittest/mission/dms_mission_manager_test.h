@@ -29,7 +29,6 @@ public:
     void SetUp() override;
     void TearDown() override;
 protected:
-    std::u16string localDev_;
     std::string localDeviceId_;
     sptr<IDistributedSched> proxy_;
     sptr<IDistributedSched> GetDms();

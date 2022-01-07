@@ -19,19 +19,17 @@
 #include <string>
 #include <vector>
 
-#include "ability_mission_info.h"
-#include "mission/mission_info.h"
-
-using AbilityMissionInfo = OHOS::AAFwk::AbilityMissionInfo;
+#include "mission_info.h"
+#include "mission/distributed_mission_info.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
 class MissionInfoConverter {
 public:
-    static int32_t ConvertToMissionInfos(std::vector<AbilityMissionInfo>& abilityMissionInfos,
-        std::vector<MissionInfo>& missionInfos);
-    static int32_t ConvertToAbilityMissionInfos(std::vector<MissionInfo>& missionInfos,
-        std::vector<AbilityMissionInfo>& abilityMissionInfos);
+    static int32_t ConvertToDstbMissionInfos(std::vector<AAFwk::MissionInfo>& missionInfos,
+        std::vector<DstbMissionInfo>& dstbMissionInfos);
+    static int32_t ConvertToMissionInfos(std::vector<DstbMissionInfo>& dstbMissionInfos,
+        std::vector<AAFwk::MissionInfo>& missionInfos);
 };
 }
 }
