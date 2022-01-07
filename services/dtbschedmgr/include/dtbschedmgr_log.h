@@ -324,6 +324,10 @@ enum {
      * Result(29360196) for cloud switch is off.
      */
     MISSION_OSD_CLOUD_SWITCH_OFF = 29360196,
+    /*
+     * Result(29360197) for continue mission rejected.
+     */
+    CONTINUE_MISSION_REJECTED = 29360197,
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

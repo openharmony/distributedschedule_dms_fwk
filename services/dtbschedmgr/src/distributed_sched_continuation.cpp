@@ -15,6 +15,7 @@
 
 #include "distributed_sched_continuation.h"
 #include "dtbschedmgr_log.h"
+#include "parcel_helper.h"
 
 using namespace std;
 using namespace OHOS::AppExecFwk;
@@ -24,6 +25,8 @@ namespace DistributedSchedule {
 namespace {
 constexpr int64_t CONTINUATION_DELAY_TIME = 20000;
 const std::string TAG = "DSchedContinuation";
+const std::u16string NAPI_MISSION_CENTER_INTERFACE_TOKEN = u"ohos.DistributedSchedule.IMissionCallback";
+constexpr int32_t NOTIFY_MISSION_CENTER_RESULT = 4;
 }
 
 void DSchedContinuation::Init(const FuncContinuationCallback& contCallback)
@@ -97,16 +100,105 @@ int32_t DSchedContinuation::GenerateSessionId()
     return currValue;
 }
 
+void DSchedContinuation::SetTimeOut(int32_t missionId)
+{
+    if (continuationHandler_ == nullptr) {
+        HILOGE("continuationHandler not initialized!");
+        return;
+    }
+    continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME);
+}
+
+void DSchedContinuation::RemoveTimeOut(int32_t missionId)
+{
+    if (continuationHandler_ == nullptr) {
+        HILOGE("continuationHandler not initialized!");
+        return;
+    }
+    continuationHandler_->RemoveEvent(missionId);
+}
+
+bool DSchedContinuation::IsInContinuationProgress(int32_t missionId)
+{
+    lock_guard<mutex> autoLock(continuationLock_);
+    auto iterSession = callbackMap_.find(missionId);
+    if (iterSession != callbackMap_.end()) {
+        HILOGE("Continuation in progress, missionId:%{public}d exist!", missionId);
+        return true;
+    }
+    return false;
+}
+
+bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObject>& callback)
+{
+    if (callback == nullptr) {
+        HILOGE("PushCallback callback null!");
+        return false;
+    }
+
+    if (continuationHandler_ == nullptr) {
+        HILOGE("PushCallback not initialized!");
+        return false;
+    }
+
+    bool ret = true;
+    ret = continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME);
+    if (!ret) {
+        HILOGE("PushCallback SendEvent failed!");
+        return false;
+    }
+
+    lock_guard<mutex> autoLock(continuationLock_);
+    auto iterSession = callbackMap_.find(missionId);
+    if (iterSession != callbackMap_.end()) {
+        HILOGE("PushCallback missionId:%{public}d exist!", missionId);
+        return false;
+    }
+    (void)callbackMap_.emplace(missionId, callback);
+    return true;
+}
+
+sptr<IRemoteObject> DSchedContinuation::PopCallback(int32_t missionId)
+{
+    lock_guard<mutex> autoLock(continuationLock_);
+    auto iter = callbackMap_.find(missionId);
+    if (iter == callbackMap_.end()) {
+        HILOGW("PopCallback not found missionId:%{public}d", missionId);
+        return nullptr;
+    }
+    sptr<IRemoteObject> callback = iter->second;
+    (void)callbackMap_.erase(iter);
+    if (continuationHandler_ != nullptr) {
+        continuationHandler_->RemoveEvent(missionId);
+    }
+    return callback;
+}
+
+int32_t DSchedContinuation::NotifyMissionCenterResult(int32_t missionId, int32_t isSuccess)
+{
+    sptr<IRemoteObject> callback = PopCallback(missionId);
+    if (callback == nullptr) {
+        HILOGE("NotifyMissionCenterResult callback is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(NAPI_MISSION_CENTER_INTERFACE_TOKEN)) {
+        HILOGE("NotifyMissionCenterResult write token failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    PARCEL_WRITE_HELPER_RET(data, Int32, isSuccess, INVALID_PARAMETERS_ERR);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t error = callback->SendRequest(NOTIFY_MISSION_CENTER_RESULT, data, reply, option);
+    HILOGI("NotifyMissionCenterResult transact result: %{public}d", error);
+    return error;
+}
+
 void DSchedContinuation::ContinuationHandler::ProcessEvent(const InnerEvent::Pointer& event)
 {
     if (event == nullptr) {
         HILOGE("ProcessEvent event nullptr!");
-        return;
-    }
-
-    auto dSchedContinuation = continuationObj_.lock();
-    if (dSchedContinuation == nullptr) {
-        HILOGE("ProcessEvent continuation object failed!");
         return;
     }
 
@@ -117,14 +209,8 @@ void DSchedContinuation::ContinuationHandler::ProcessEvent(const InnerEvent::Poi
         return;
     }
 
-    auto abilityToken = dSchedContinuation->PopAbilityToken(sessionId);
-    if (abilityToken == nullptr) {
-        HILOGW("ProcessEvent abilityToken nullptr!");
-        return;
-    }
-
     if (contCallback_ != nullptr) {
-        contCallback_(abilityToken);
+        contCallback_(sessionId);
     }
 }
 } // namespace DistributedSchedule
