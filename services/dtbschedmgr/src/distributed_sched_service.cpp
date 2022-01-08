@@ -47,6 +47,10 @@ using namespace AppExecFwk;
 namespace {
 const std::string TAG = "DistributedSchedService";
 const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
+const std::u16string ABILITY_MANAGER_SERVICE_TOKEN = u"ohos.aafwk.AbilityManager";
+constexpr int32_t IAbilityManager_CONTINUE_ABILITY = 1104;
+constexpr int32_t IAbilityManager_NOTIFY_CONTINUATION_RESULT = 1102;
+constexpr int32_t IAbilityManager_CLEAN_MISSION = 45;
 constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
@@ -68,9 +72,9 @@ void DistributedSchedService::OnStart()
         HILOGE("failed to init DistributedSchedService");
         return;
     }
-    FuncContinuationCallback continuationCallback = [this] (const sptr<IRemoteObject>& abilityToken) {
+    FuncContinuationCallback continuationCallback = [this] (int32_t missionId) {
         HILOGW("continuationCallback timeout.");
-        NotifyContinuationCallbackResult(abilityToken, CONTINUE_ABILITY_TIMEOUT_ERR);
+        NotifyContinuationCallbackResult(missionId, CONTINUE_ABILITY_TIMEOUT_ERR);
     };
     dschedContinuation_ = std::make_shared<DSchedContinuation>();
     dschedContinuation_->Init(continuationCallback);
@@ -161,12 +165,96 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
     return err;
 }
 
-int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& abilityToken, int32_t callerUid)
+int32_t DistributedSchedService::ContinueToAbilityManager(const std::string& deviceId, int32_t missionId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(ABILITY_MANAGER_SERVICE_TOKEN)) {
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!data.WriteString(deviceId)) {
+        HILOGE("deviceId write failed.");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!data.WriteInt32(missionId)) {
+        HILOGE("missionId write failed.");
+        return INVALID_PARAMETERS_ERR;
+    }
+
+    sptr<IRemoteObject> ability_manager = GetAbilityManagerProxy();
+    if (ability_manager == nullptr) {
+        HILOGE("get ability manager failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    auto error = ability_manager->SendRequest(IAbilityManager_CONTINUE_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOGE("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t DistributedSchedService::ContinueLocalMission(const std::string& dstDeviceId, int32_t missionId,
+    const sptr<IRemoteObject>& callback)
+{
+    if (dschedContinuation_ == nullptr) {
+        HILOGE("continuation object null!");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (dschedContinuation_->IsInContinuationProgress(missionId)) {
+        HILOGE("ContinueLocalMission already in progress!");
+        return INVALID_PARAMETERS_ERR;
+    }
+    dschedContinuation_->PushCallback(missionId, callback);
+    int32_t result = ContinueToAbilityManager(dstDeviceId, missionId);
+    HILOGI("ContinueLocalMission result: %{public}d!", result);
+    return result;
+}
+
+int32_t DistributedSchedService::ContinueRemoteMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
+    int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
+{
+    sptr<IDistributedSched> remoteDms = GetRemoteDms(srcDeviceId);
+    if (remoteDms == nullptr) {
+        HILOGE("get remote dms null!");
+        return INVALID_REMOTE_PARAMETERS_ERR;
+    }
+    int32_t result = remoteDms->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+    HILOGI("ContinueRemoteMission result: %{public}d!", result);
+    return result;
+}
+
+int32_t DistributedSchedService::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
+    int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
+{
+    if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
+        HILOGE("srcDeviceId or dstDeviceId or callback is null!");
+        return INVALID_PARAMETERS_ERR;
+    }
+    std::string localDevId;
+    if (!GetLocalDeviceId(localDevId)) {
+        HILOGE("get local deviceId failed!");
+        return INVALID_PARAMETERS_ERR;
+    }
+
+    if (srcDeviceId == localDevId) {
+        return ContinueLocalMission(dstDeviceId, missionId, callback);
+    } else if (dstDeviceId == localDevId) {
+        return ContinueRemoteMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+    } else {
+        HILOGE("source or target device must be local!");
+        return INVALID_PARAMETERS_ERR;
+    }
+}
+
+int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId,
+    int32_t callerUid, int32_t status)
 {
     HILOGD("[PerformanceTest] StartContinuation begin");
-    if (abilityToken == nullptr) {
-        HILOGE("StartContinuation abilityToken is null!");
+    if (status != ERR_OK) {
+        HILOGE("continuation has been rejected, status: %{public}d", status);
+        NotifyContinuationCallbackResult(missionId, CONTINUE_MISSION_REJECTED);
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
     auto flags = want.GetFlags();
@@ -192,10 +280,13 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
 
     if (dschedContinuation_ == nullptr) {
         HILOGE("StartContinuation continuation object null!");
-        return INVALID_PARAMETERS_ERR;
+        return INVALID_REMOTE_PARAMETERS_ERR;
+    }
+    if (!dschedContinuation_->IsInContinuationProgress(missionId)) {
+        dschedContinuation_->SetTimeOut(missionId);
     }
 
-    int32_t sessionId = dschedContinuation_->GenerateSessionId();
+    int32_t sessionId = missionId;
     AAFwk::Want newWant = want;
     newWant.SetParam("sessionId", sessionId);
     newWant.SetParam("deviceId", devId);
@@ -206,16 +297,12 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
         return result;
     }
 
-    bool ret = dschedContinuation_->PushAbilityToken(sessionId, abilityToken);
-    if (!ret) {
-        HILOGW("StartContinuation PushAbilityToken failed!");
-        return INVALID_REMOTE_PARAMETERS_ERR;
-    }
     HILOGD("[PerformanceTest] StartContinuation end");
     return result;
 }
 
-void DistributedSchedService::NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess)
+void DistributedSchedService::NotifyCompleteContinuation(const std::u16string& devId,
+    int32_t sessionId, bool isSuccess)
 {
     if (!isSuccess) {
         HILOGE("NotifyCompleteContinuation failed!");
@@ -239,34 +326,107 @@ int32_t DistributedSchedService::NotifyContinuationResultFromRemote(int32_t sess
         HILOGE("NotifyContinuationResultFromRemote sessionId:%{public}d invalid!", sessionId);
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
-    if (dschedContinuation_ == nullptr) {
-        HILOGE("NotifyContinuationResultFromRemote continuation object null!");
-        return INVALID_REMOTE_PARAMETERS_ERR;
-    }
 
-    auto abilityToken = dschedContinuation_->PopAbilityToken(sessionId);
-    if (abilityToken == nullptr) {
-        HILOGE("DSchedContinuationCallback NotifyContinuationResultFromRemote abilityToken null!");
-        return INVALID_REMOTE_PARAMETERS_ERR;
-    }
-    NotifyContinuationCallbackResult(abilityToken, isSuccess ? 0 : NOTIFYCOMPLETECONTINUATION_FAILED);
+    int32_t missionId = sessionId;
+    NotifyContinuationCallbackResult(missionId, isSuccess ? 0 : NOTIFYCOMPLETECONTINUATION_FAILED);
     return ERR_OK;
 }
 
-void DistributedSchedService::NotifyContinuationCallbackResult(const sptr<IRemoteObject>& abilityToken,
-    int32_t isSuccess)
+sptr<IRemoteObject> DistributedSchedService::GetAbilityManagerProxy()
 {
-    if (isSuccess != ERR_OK) {
-        HILOGE("NotifyContinuationCallbackResult failed!");
+    HILOGI("%{public}s begin.", __func__);
+    auto sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sm == nullptr) {
+        HILOGE("GetAbilityManagerProxy sm is nullptr");
+        return nullptr;
     }
-    HILOGD("NotifyContinuationCallbackResult ContinuationRet result:%{public}d", isSuccess);
-    if (abilityToken == nullptr) {
-        HILOGE("NotifyContinuationCallbackResult abilityToken null!");
+
+    abilityManagerProxy_ = sm->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    if (abilityManagerProxy_ == nullptr) {
+        HILOGE("failed to get ability manager service");
+        return nullptr;
+    }
+    return abilityManagerProxy_;
+}
+
+int32_t DistributedSchedService::NotifyResultToAbilityManager(int32_t missionId, int32_t isSuccess)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(ABILITY_MANAGER_SERVICE_TOKEN)) {
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!data.WriteInt32(missionId)) {
+        HILOGE("NotifyResultToAbilityManager missionId write failed.");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!data.WriteInt32(isSuccess)) {
+        HILOGE("NotifyResultToAbilityManager result write failed.");
+        return INVALID_PARAMETERS_ERR;
+    }
+
+    sptr<IRemoteObject> ability_manager = GetAbilityManagerProxy();
+    if (ability_manager == nullptr) {
+        HILOGE("get ability manager failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    auto error = ability_manager->SendRequest(IAbilityManager_NOTIFY_CONTINUATION_RESULT,
+        data, reply, option);
+    if (error != NO_ERROR) {
+        HILOGE("NotifyResultToAbilityManager Send request error: %{public}d", error);
+        return INVALID_PARAMETERS_ERR;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t DistributedSchedService::CleanMission(int32_t missionId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(ABILITY_MANAGER_SERVICE_TOKEN)) {
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!data.WriteInt32(missionId)) {
+        HILOGE("CleanMission WriteInt32 fail.");
+        return INVALID_PARAMETERS_ERR;
+    }
+
+    sptr<IRemoteObject> ability_manager = GetAbilityManagerProxy();
+    if (ability_manager == nullptr) {
+        HILOGE("get ability manager failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    auto error = ability_manager->SendRequest(IAbilityManager_CLEAN_MISSION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOGE("CleanMission error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+void DistributedSchedService::NotifyContinuationCallbackResult(int32_t missionId, int32_t isSuccess)
+{
+    HILOGD("Continuation result is: %{public}d", isSuccess);
+
+    if (dschedContinuation_ == nullptr) {
+        HILOGE("continuation object null!");
         return;
     }
 
-    int32_t result = AAFwk::AbilityManagerClient::GetInstance()->NotifyContinuationResult(abilityToken, isSuccess);
-    HILOGD("NotifyContinuationCallbackResult ScheduleCompleteContinuation result:%{public}d", result);
+    int32_t result = 0;
+    if (dschedContinuation_->IsInContinuationProgress(missionId)) {
+        if (isSuccess) {
+            result = CleanMission(missionId);
+        }
+        result = dschedContinuation_->NotifyMissionCenterResult(missionId, isSuccess);
+    } else {
+        result = NotifyResultToAbilityManager(missionId, isSuccess);
+        dschedContinuation_->RemoveTimeOut(missionId);
+    }
+    HILOGD("NotifyContinuationCallbackResult result:%{public}d", result);
 }
 
 void DistributedSchedService::RemoteConnectAbilityMappingLocked(const sptr<IRemoteObject>& connect,

@@ -42,6 +42,7 @@ const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.acces
 DistributedSchedStub::DistributedSchedStub()
 {
     localFuncsMap_[START_REMOTE_ABILITY] = &DistributedSchedStub::StartRemoteAbilityInner;
+    localFuncsMap_[CONTINUE_MISSION] = &DistributedSchedStub::ContinueMissionInner;
     localFuncsMap_[START_CONTINUATION] = &DistributedSchedStub::StartContinuationInner;
     localFuncsMap_[NOTIFY_COMPLETE_CONTINUATION] = &DistributedSchedStub::NotifyCompleteContinuationInner;
     localFuncsMap_[CONNECT_REMOTE_ABILITY] = &DistributedSchedStub::ConnectRemoteAbilityInner;
@@ -74,6 +75,7 @@ DistributedSchedStub::DistributedSchedStub()
         &DistributedSchedStub::StopSyncMissionsFromRemoteInner;
     remoteFuncsMap_[NOTIFY_MISSIONS_CHANGED_FROM_REMOTE] = &DistributedSchedStub::NotifyMissionsChangedFromRemoteInner;
     remoteFuncsMap_[NOTIFY_SWITCH_CHANGED_FROM_REMOTE] = &DistributedSchedStub::UpdateOsdSwitchValueFromRemoteInner;
+    remoteFuncsMap_[CONTINUE_MISSION] = &DistributedSchedStub::ContinueMissionInner;
 }
 
 DistributedSchedStub::~DistributedSchedStub()
@@ -160,6 +162,29 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     return ERR_NONE;
 }
 
+int32_t DistributedSchedStub::ContinueMissionInner(MessageParcel& data, MessageParcel& reply)
+{
+    std::string srcDevId;
+    std::string dstDevId;
+    PARCEL_READ_HELPER(data, String, srcDevId);
+    PARCEL_READ_HELPER(data, String, dstDevId);
+    int32_t missionId = 0;
+    PARCEL_READ_HELPER(data, Int32, missionId);
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    if (callback == nullptr) {
+        HILOGW("read callback failed!");
+        return ERR_NULL_OBJECT;
+    }
+    shared_ptr<AAFwk::WantParams> wantParams(data.ReadParcelable<AAFwk::WantParams>());
+    if (wantParams == nullptr) {
+        HILOGW("wantParams readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = ContinueMission(srcDevId, dstDevId, missionId, callback, *wantParams);
+    HILOGI("result = %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
 int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, MessageParcel& reply)
 {
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
@@ -167,9 +192,10 @@ int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, Messag
         HILOGW("want readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
-    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
+    int32_t missionId = data.ReadInt32();
     int32_t callerUid = data.ReadInt32();
-    int32_t result = StartContinuation(*want, abilityToken, callerUid);
+    int32_t status = data.ReadInt32();
+    int32_t result = StartContinuation(*want, missionId, callerUid, status);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
