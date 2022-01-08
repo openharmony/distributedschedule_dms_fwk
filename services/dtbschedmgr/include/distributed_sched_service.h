@@ -25,7 +25,7 @@
 #include "distributed_sched_continuation.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
-#include "mission/mission_info.h"
+#include "mission/distributed_mission_info.h"
 #include "nocopyable.h"
 #include "single_instance.h"
 #include "system_ability.h"
@@ -74,11 +74,11 @@ public:
         int32_t uid, const std::string& sourceDeviceId) override;
     int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) override;
     int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-        std::vector<MissionInfo>& missionInfos) override;
+        std::vector<DstbMissionInfo>& missionInfos) override;
     int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
         const uint8_t* byteStream, size_t len) override;
     int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) override;
-    int32_t NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
+    int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
         const CallerInfo& callerInfo) override;
     void ProcessConnectDied(const sptr<IRemoteObject>& connect);
     void ProcessDeviceOffline(const std::string& deviceId);
@@ -91,12 +91,13 @@ public:
     int32_t GetOsdSwitchValueFromRemote() override;
     int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) override;
     std::unique_ptr<Snapshot> GetRemoteSnapshotInfo(const std::u16string& deviceId, int32_t missionId) override;
-    int32_t RegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
-    int32_t UnRegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
-    int32_t PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-        std::vector<MissionInfo>& missionInfos) override;
-    int32_t UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo) override;
-    int32_t PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag) override;
+    int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
+    int32_t StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
+        std::vector<DstbMissionInfo>& missionInfos) override;
+    int32_t StopSyncRemoteMissions(const std::string& devId) override;
+    int32_t StopSyncMissionsFromRemote(const CallerInfo& callerInfo) override;
+    int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
+    int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
 private:
     DistributedSchedService();
     bool Init();

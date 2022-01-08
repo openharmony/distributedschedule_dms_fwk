@@ -18,6 +18,8 @@
 
 #include "distributed_sched_interface.h"
 #include "iremote_proxy.h"
+#include "mission_info.h"
+#include "mission/distributed_mission_info.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -42,23 +44,24 @@ public:
     int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
         int32_t uid, const std::string& sourceDeviceId) override;
     int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) override;
-    int32_t PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag) override;
-    int32_t RegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
-    int32_t UnRegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
+    int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
+    int32_t StopSyncRemoteMissions(const std::string& devId) override;
+    int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
+    int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
     int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-        std::vector<MissionInfo>& missionInfos) override;
+        std::vector<DstbMissionInfo>& missionInfos) override;
     int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
         const uint8_t* byteStream, size_t len) override;
     int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) override;
-    int32_t NotifyMissionsChangedFromRemote(const std::vector<MissionInfo>& missionInfos,
+    int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
         const CallerInfo& callerInfo) override;
     int32_t CheckSupportOsd(const std::string& deviceId) override;
     void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values) override;
     int32_t GetOsdSwitchValueFromRemote() override;
     int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) override;
-    int32_t PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo,
-        std::vector<MissionInfo>& missionInfos) override;
-    int32_t UnRegisterMissionListenerFromRemote(const CallerInfo& callerInfo) override;
+    int32_t StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
+        std::vector<DstbMissionInfo>& missionInfos) override;
+    int32_t StopSyncMissionsFromRemote(const CallerInfo& callerInfo) override;
 private:
     bool CallerInfoMarshalling(const CallerInfo& callerInfo, MessageParcel& data);
     static inline BrokerDelegator<DistributedSchedProxy> delegator_;

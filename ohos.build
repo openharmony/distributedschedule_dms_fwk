@@ -11,7 +11,7 @@
                             "distributed_sched_proxy.h",
                             "caller_info.h",
                             "uri.h",
-                            "mission/mission_info.h"
+                            "mission/distributed_mission_info.h"
                         ]
                     },
                     "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri"
