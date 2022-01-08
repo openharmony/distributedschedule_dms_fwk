@@ -61,8 +61,10 @@ public:
     int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
         const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo) override;
-    int32_t StartContinuation(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& abilityToken,
-        int32_t callerUid) override;
+    int32_t ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
+        int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams) override;
+    int32_t StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
+        int32_t status) override;
     void NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess) override;
     int32_t NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess) override;
     int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want,
@@ -101,7 +103,7 @@ public:
 private:
     DistributedSchedService();
     bool Init();
-    void NotifyContinuationCallbackResult(const sptr<IRemoteObject>& abilityToken, int32_t isSuccess);
+    void NotifyContinuationCallbackResult(int32_t missionId, int32_t isSuccess);
     void RemoteConnectAbilityMappingLocked(const sptr<IRemoteObject>& connect, const std::string& localDeviceId,
         const std::string& remoteDeviceId, const AppExecFwk::ElementName& element, const CallerInfo& callerInfo,
         TargetComponent targetComponent);
@@ -121,6 +123,14 @@ private:
     static int32_t GetUidLocked(const std::list<ConnectAbilitySession>& sessionList);
     int32_t TryConnectRemoteAbility(const OHOS::AAFwk::Want& want,
         const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo);
+    int32_t ContinueToAbilityManager(const std::string& deviceId, int32_t missionId);
+    int32_t NotifyResultToAbilityManager(int32_t missionId, int32_t isSuccess);
+    int32_t CleanMission(int32_t missionId);
+    sptr<IRemoteObject> GetAbilityManagerProxy();
+    int32_t ContinueLocalMission(const std::string& dstDeviceId, int32_t missionId,
+        const sptr<IRemoteObject>& callback);
+    int32_t ContinueRemoteMission(const std::string& srcDeviceId, const std::string& dstDeviceId, int32_t missionId,
+        const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
 
     std::shared_ptr<DSchedContinuation> dschedContinuation_;
     std::map<sptr<IRemoteObject>, std::list<ConnectAbilitySession>> distributedConnectAbilityMap_;
@@ -129,6 +139,7 @@ private:
     std::mutex distributedLock_;
     std::mutex connectLock_;
     sptr<IRemoteObject::DeathRecipient> connectDeathRecipient_;
+    sptr<IRemoteObject> abilityManagerProxy_;
 };
 
 class ConnectAbilitySession {
