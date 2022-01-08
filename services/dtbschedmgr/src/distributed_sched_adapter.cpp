@@ -190,21 +190,23 @@ int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid, std::vect
     return result ? ERR_OK : BUNDLE_MANAGER_SERVICE_ERR;
 }
 
-int32_t DistributedSchedAdapter::GetLocalMissionInfos(int32_t numMissions, std::vector<MissionInfo>& missionInfos)
+int32_t DistributedSchedAdapter::GetLocalMissionInfos(int32_t numMissions,
+    std::vector<DstbMissionInfo>& missionInfos)
+
 {
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
         HILOGE("get ability server failed, errCode=%{public}d", errCode);
         return errCode;
     }
-    std::vector<AbilityMissionInfo> abilityMissions;
-    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->GetRecentMissions(numMissions,
-        RECENT_WITH_EXCLUDED, abilityMissions);
+    std::vector<MissionInfo> amsMissions;
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->GetMissionInfos("", numMissions, amsMissions);
     if (ret != ERR_OK) {
         HILOGE("GetRecentMissions failed, ret=%{public}d", ret);
         return ret;
     }
-    return MissionInfoConverter::ConvertToMissionInfos(abilityMissions, missionInfos);
+    HILOGI("GetMissionInfos size:%{public}zu", amsMissions.size());
+    return MissionInfoConverter::ConvertToDstbMissionInfos(amsMissions, missionInfos);
 }
 
 bool DistributedSchedAdapter::AllowMissionUid(int32_t uid)

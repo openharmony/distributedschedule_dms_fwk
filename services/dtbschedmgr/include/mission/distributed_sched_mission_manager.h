@@ -71,7 +71,8 @@ class DistributedSchedMissionManager {
 
 public:
     void Init();
-    int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions, std::vector<MissionInfo>& missionInfos);
+    int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
+        std::vector<DstbMissionInfo>& missionInfos);
     int32_t InitDataStorage();
     int32_t StopDataStorage();
     int32_t StoreSnapshotInfo(const std::string& deviceId,
@@ -83,10 +84,12 @@ public:
     void DeviceOnlineNotify(const std::string& deviceId);
     void DeviceOfflineNotify(const std::string& deviceId);
     void DeleteDataStorage(const std::string& deviceId, bool isDelayed);
-    int32_t RegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
-    int32_t UnRegisterRemoteMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
-    int32_t PrepareAndSyncMissionsFromRemote(const CallerInfo& callerInfo, std::vector<MissionInfo>& missionInfos);
-    void UnRegisterMissionListenerFromRemote(const std::string& deviceId);
+    int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
+    int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
+    int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag);
+    int32_t StartSyncMissionsFromRemote(const CallerInfo& callerInfo, std::vector<DstbMissionInfo>& missionInfos);
+    int32_t StopSyncRemoteMissions(const std::string& dstDevId, bool offline, bool exit = false);
+    void StopSyncMissionsFromRemote(const std::string& deviceId);
     bool needSyncDevice(const std::string& deviceId);
 
     void NotifySnapshotChanged(const std::string& devId, int32_t missionId);
@@ -94,8 +97,9 @@ public:
 
     void EnqueueCachedSnapshotInfo(const std::string& deviceId, int32_t missionId, std::unique_ptr<Snapshot> snapshot);
     std::unique_ptr<Snapshot> DequeueCachedSnapshotInfo(const std::string& deviceId, int32_t missionId);
-    int32_t NotifyMissionsChangedToRemote(const std::vector<MissionInfo>& missionInfos);
-    int32_t NotifyMissionsChangedFromRemote(const CallerInfo& callerInfo, const std::vector<MissionInfo>& missionInfos);
+    int32_t NotifyMissionsChangedToRemote(const std::vector<DstbMissionInfo>& missionInfos);
+    int32_t NotifyMissionsChangedFromRemote(const CallerInfo& callerInfo,
+        const std::vector<DstbMissionInfo>& missionInfos);
     int32_t CheckSupportOsd(const std::string& deviceId);
     int32_t CheckOsdSwitch(const std::string& deviceId);
     void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values);
@@ -104,35 +108,34 @@ public:
     int32_t UpdateSwitchValueToRemote();
     void UpdateConnCapSupportOsd(const std::string& deviceId);
     void NotifyOsdSwitchChanged(bool needNotifyChanged);
-    int32_t PrepareAndSyncMissions(const std::u16string& devId, bool fixConflict, int64_t tag);
     void OnRemoteDmsDied(const wptr<IRemoteObject>& remote);
     void NotifyDmsProxyProcessDied();
     void OnDnetDied();
 private:
     std::map<std::string, std::shared_ptr<AppExecFwk::EventHandler>> deviceHandle_;
     mutable std::mutex remoteMissionInfosLock_;
-    std::map<std::string, std::vector<MissionInfo>> deviceMissionInfos_;
+    std::map<std::string, std::vector<DstbMissionInfo>> deviceMissionInfos_;
     sptr<IDistributedSched> GetRemoteDms(const std::string& deviceId);
     bool IsDeviceIdValidated(const std::string& deviceId);
     std::shared_ptr<AppExecFwk::EventHandler> FetchDeviceHandler(const std::string& deviceId);
     bool GenerateCallerInfo(CallerInfo& callerInfo);
     void NotifyMissionsChangedToRemoteInner(const std::string& remoteUuid,
-        const std::vector<MissionInfo>& missionInfos, const CallerInfo& callerInfo);
+        const std::vector<DstbMissionInfo>& missionInfos, const CallerInfo& callerInfo);
     std::string GenerateKeyInfo(const std::string& devId, int32_t missionId)
     {
         return devId + "_" + std::to_string(missionId);
     }
     bool AllowMissionUid(int32_t uid);
-    int32_t PrepareAndSyncMissions(const std::string& dstDevId, const std::string& localDevId);
-    int32_t PrepareAndSyncMissions(const std::string& dstDevId, const sptr<IDistributedSched>& remoteDms);
-    int32_t UnRegisterRemoteMissionListenerInner(const std::string& dstDevId, bool offline, bool exit = false);
+    int32_t StartSyncRemoteMissions(const std::string& dstDevId, const std::string& localDevId);
+    int32_t StartSyncRemoteMissions(const std::string& dstDevId, const sptr<IDistributedSched>& remoteDms);
     void CleanMissionResources(const std::string& dstDevId);
-    void RetryStartRemoteSyncMission(const std::string& dstDeviceId, const std::string& localDevId, int32_t retryTimes);
+    void RetryStartSyncRemoteMissions(const std::string& dstDeviceId, const std::string& localDevId,
+        int32_t retryTimes);
     bool HasSyncListener(const std::string& dstDeviceId);
     void DeleteCachedSnapshotInfo(const std::string& networkId);
     int32_t FetchCachedRemoteMissions(const std::string& srcId, int32_t numMissions,
-        std::vector<MissionInfo>& missionInfos);
-    void RebornMissionCache(const std::string& deviceId, const std::vector<MissionInfo>& missionInfos);
+        std::vector<DstbMissionInfo>& missionInfos);
+    void RebornMissionCache(const std::string& deviceId, const std::vector<DstbMissionInfo>& missionInfos);
     void CleanMissionCache(const std::string& deviceId);
     void UpdateSwitchValueToRemoteInner(std::set<std::string>& remoteSyncDeviceSet,
         const std::string& localNetworkId);

@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
-struct MissionInfo : public Parcelable {
+struct DstbMissionInfo : public Parcelable {
     int32_t id = -1;
     int32_t runingState = -1;
     int32_t userId = 0;
@@ -48,17 +48,17 @@ struct MissionInfo : public Parcelable {
     std::string iconPath;
     int32_t color = 0;
     int32_t windowType = 0;
-    bool supportsMultiWindow = false;
+    bool lockedState = false;
     int32_t missionType = INT_MAX;
     int32_t windowTypeMode = 0;
 
     bool ReadFromParcel(Parcel& parcel);
     virtual bool Marshalling(Parcel& parcel) const override;
-    static MissionInfo* Unmarshalling(Parcel& parcel);
+    static DstbMissionInfo* Unmarshalling(Parcel& parcel);
     std::string ToString() const;
 
-    static bool ReadMissionInfoVectorFromParcel(Parcel& parcel, std::vector<MissionInfo> &missionInfos);
-    static bool WriteMissionInfoVectorFromParcel(Parcel& parcel, const std::vector<MissionInfo> &missionInfos);
+    static bool ReadMissionInfoVectorFromParcel(Parcel& parcel, std::vector<DstbMissionInfo> &missionInfos);
+    static bool WriteMissionInfoVectorFromParcel(Parcel& parcel, const std::vector<DstbMissionInfo> &missionInfos);
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "mission/mission_info.h"
+#include "mission/distributed_mission_info.h"
 
 #include "adapter/adapter_constant.h"
 #include "dtbschedmgr_log.h"
@@ -24,10 +24,10 @@ namespace OHOS {
 namespace DistributedSchedule {
 using namespace Constants::Adapter;
 namespace {
-const std::string TAG = "MissionInfo";
+const std::string TAG = "DstbMissionInfo";
 }
 
-bool MissionInfo::ReadFromParcel(Parcel& parcel)
+bool DstbMissionInfo::ReadFromParcel(Parcel& parcel)
 {
     id = parcel.ReadInt32();
     runingState = parcel.ReadInt32();
@@ -52,16 +52,16 @@ bool MissionInfo::ReadFromParcel(Parcel& parcel)
     iconPath = Str16ToStr8(parcel.ReadString16());
     color = parcel.ReadInt32();
     windowType = parcel.ReadInt32();
-    supportsMultiWindow = parcel.ReadBool();
+    lockedState = parcel.ReadBool();
     missionType = parcel.ReadInt32();
     windowTypeMode = parcel.ReadInt32();
 
     return true;
 }
 
-MissionInfo* MissionInfo::Unmarshalling(Parcel& parcel)
+DstbMissionInfo* DstbMissionInfo::Unmarshalling(Parcel& parcel)
 {
-    MissionInfo* info = new MissionInfo();
+    DstbMissionInfo* info = new DstbMissionInfo();
     if (info && !info->ReadFromParcel(parcel)) {
         HILOGE("read from parcel failed!");
         delete info;
@@ -70,7 +70,7 @@ MissionInfo* MissionInfo::Unmarshalling(Parcel& parcel)
     return info;
 }
 
-bool MissionInfo::Marshalling(Parcel& parcel) const
+bool DstbMissionInfo::Marshalling(Parcel& parcel) const
 {
     PARCEL_WRITE_HELPER_RET(parcel, Int32, id, false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, runingState, false);
@@ -93,14 +93,15 @@ bool MissionInfo::Marshalling(Parcel& parcel) const
     PARCEL_WRITE_HELPER_RET(parcel, String16, Str8ToStr16(iconPath), false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, color, false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, windowType, false);
-    PARCEL_WRITE_HELPER_RET(parcel, Bool, supportsMultiWindow, false);
+    PARCEL_WRITE_HELPER_RET(parcel, Bool, lockedState, false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, missionType, false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, windowTypeMode, false);
 
     return true;
 }
 
-bool MissionInfo::ReadMissionInfoVectorFromParcel(Parcel& parcel, std::vector<MissionInfo> &missionInfos)
+bool DstbMissionInfo::ReadMissionInfoVectorFromParcel(Parcel& parcel,
+    std::vector<DstbMissionInfo> &missionInfos)
 {
     int32_t empty = parcel.ReadInt32();
     if (empty == VALUE_OBJECT) {
@@ -111,16 +112,16 @@ bool MissionInfo::ReadMissionInfoVectorFromParcel(Parcel& parcel, std::vector<Mi
         }
         size_t size = static_cast<size_t>(len);
         if ((size > parcel.GetReadableBytes()) || (missionInfos.max_size() < size)) {
-            HILOGE("Failed to read MissionInfo vector, size = %{public}zu", size);
+            HILOGE("Failed to read DstbMissionInfo vector, size = %{public}zu", size);
             return false;
         }
         missionInfos.clear();
         for (size_t i = 0; i < size; i++) {
-            MissionInfo *ptr = parcel.ReadParcelable<MissionInfo>();
+            DstbMissionInfo *ptr = parcel.ReadParcelable<DstbMissionInfo>();
             if (ptr == nullptr) {
                 return false;
             }
-            HILOGD("read MissionInfo is:%{private}s", ptr->ToString().c_str());
+            HILOGD("read DstbMissionInfo is:%{private}s", ptr->ToString().c_str());
             missionInfos.emplace_back(*ptr);
             delete ptr;
         }
@@ -130,7 +131,8 @@ bool MissionInfo::ReadMissionInfoVectorFromParcel(Parcel& parcel, std::vector<Mi
     return true;
 }
 
-bool MissionInfo::WriteMissionInfoVectorFromParcel(Parcel& parcel, const std::vector<MissionInfo> &missionInfos)
+bool DstbMissionInfo::WriteMissionInfoVectorFromParcel(Parcel& parcel,
+    const std::vector<DstbMissionInfo> &missionInfos)
 {
     size_t size = missionInfos.size();
     if (size == 0) {
@@ -146,7 +148,7 @@ bool MissionInfo::WriteMissionInfoVectorFromParcel(Parcel& parcel, const std::ve
     return true;
 }
 
-std::string MissionInfo::ToString() const
+std::string DstbMissionInfo::ToString() const
 {
     std::string str = "id: " + std::to_string(id);
     str += " runingState: " + std::to_string(runingState);
@@ -184,8 +186,8 @@ std::string MissionInfo::ToString() const
     str += " iconPath: " + iconPath;
     str += " color: " + std::to_string(color);
     str += " windowType: " + std::to_string(windowType);
-    str += " supportsMultiWindow: ";
-    str += supportsMultiWindow ? "true" : "false";
+    str += " lockedState: ";
+    str += lockedState ? "true" : "false";
     str += " missionType: " + std::to_string(missionType);
     str += " windowTypeMode: " + std::to_string(windowTypeMode);
     return str;
