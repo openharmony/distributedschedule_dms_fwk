@@ -418,7 +418,7 @@ void DistributedSchedService::NotifyContinuationCallbackResult(int32_t missionId
 
     int32_t result = 0;
     if (dschedContinuation_->IsInContinuationProgress(missionId)) {
-        if (isSuccess) {
+        if (!isSuccess) {
             result = CleanMission(missionId);
         }
         result = dschedContinuation_->NotifyMissionCenterResult(missionId, isSuccess);
