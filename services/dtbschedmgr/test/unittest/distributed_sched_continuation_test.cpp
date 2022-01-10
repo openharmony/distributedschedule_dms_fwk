@@ -14,6 +14,7 @@
  */
 
 #include "distributed_sched_continuation_test.h"
+#include "dtbschedmgr_device_info_storage.h"
 #include "mock_distributed_sched.h"
 using namespace std;
 using namespace testing;
@@ -316,6 +317,72 @@ HWTEST_F(DSchedContinuationTest, PopAbilityToken_003, TestSize.Level1)
     abilityToken = dschedContinuation_->PopAbilityToken(sessionId);
     EXPECT_TRUE(abilityToken == nullptr);
     DTEST_LOG << "DSchedContinuationTest PopAbilityToken_003 end" << std::endl;
+}
+
+/**
+ * @tc.name: ContinueMission_001
+ * @tc.desc: test ContinueMission when srcDeviceId is empty.
+ * @tc.type: FUNC
+ * @tc.require: SR000GKT4A
+ */
+HWTEST_F(DSchedContinuationTest, ContinueMission_001, TestSize.Level1)
+{
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_001 start" << std::endl;
+    WantParams wantParams;
+    int32_t ret = DistributedSchedService::GetInstance().ContinueMission("",
+        "string", 1, GetDSchedService(), wantParams);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_001 end" << std::endl;
+}
+
+/**
+ * @tc.name: ContinueMission_002
+ * @tc.desc: test ContinueMission when dstDeviceId is empty.
+ * @tc.type: FUNC
+ * @tc.require: SR000GKT4A
+ */
+HWTEST_F(DSchedContinuationTest, ContinueMission_002, TestSize.Level1)
+{
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_002 start" << std::endl;
+    WantParams wantParams;
+    int32_t ret = DistributedSchedService::GetInstance().ContinueMission("string",
+        "", 1, GetDSchedService(), wantParams);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_002 end" << std::endl;
+}
+
+/**
+ * @tc.name: ContinueMission_003
+ * @tc.desc: test ContinueMission when callback is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: SR000GKT4A
+ */
+HWTEST_F(DSchedContinuationTest, ContinueMission_003, TestSize.Level1)
+{
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_003 start" << std::endl;
+    WantParams wantParams;
+    int32_t ret = DistributedSchedService::GetInstance().ContinueMission("string", "string", 1, nullptr, wantParams);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_003 end" << std::endl;
+}
+
+/**
+ * @tc.name: ContinueMission_004
+ * @tc.desc: test ContinueMission when srcDeviceId == localDevId.
+ * @tc.type: FUNC
+ * @tc.require: SR000GKT4A
+ */
+HWTEST_F(DSchedContinuationTest, ContinueMission_004, TestSize.Level1)
+{
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_004 start" << std::endl;
+    WantParams wantParams;
+
+    std::string srcDeviceId;
+    DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(srcDeviceId);
+    int32_t ret = DistributedSchedService::GetInstance().ContinueMission(srcDeviceId,
+        "string", 1, GetDSchedService(), wantParams);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "DSchedContinuationTest ContinueMission_004 end" << std::endl;
 }
 } // DistributedSchedule
 } // namespace OHOS
