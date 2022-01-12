@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include "event_handler.h"
 #include "single_instance.h"
 #include "mission/distributed_data_storage.h"
+#include "mission/distributed_mission_change_listener.h"
 #include "mission/snapshot.h"
 
 namespace OHOS {
@@ -111,6 +112,7 @@ public:
     void OnRemoteDmsDied(const wptr<IRemoteObject>& remote);
     void NotifyDmsProxyProcessDied();
     void OnDnetDied();
+    void NotifyLocalMissionsChanged();
 private:
     std::map<std::string, std::shared_ptr<AppExecFwk::EventHandler>> deviceHandle_;
     mutable std::mutex remoteMissionInfosLock_;
@@ -168,6 +170,8 @@ private:
     std::set<int32_t> allowMissionUids_;
     std::mutex allowMissionUidsLock_;
     bool isRegMissionChange_ = false;
+    sptr<DistributedMissionChangeListener> missonChangeListener_;
+    std::shared_ptr<AppExecFwk::EventHandler> missionChangeHandler_;
 
     class RemoteDmsDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
