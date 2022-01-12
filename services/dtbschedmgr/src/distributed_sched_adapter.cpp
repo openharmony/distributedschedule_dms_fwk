@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,8 @@ namespace DistributedSchedule {
 using namespace std;
 using namespace AAFwk;
 using namespace AppExecFwk;
+
+using DstbMissionChangeListener = DistributedMissionChangeListener;
 
 namespace {
 // set a non-zero value on need later
@@ -196,14 +198,18 @@ int32_t DistributedSchedAdapter::GetLocalMissionInfos(int32_t numMissions,
 {
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
-        HILOGE("get ability server failed, errCode=%{public}d", errCode);
+        HILOGE("get ability server failed, errCode = %{public}d", errCode);
         return errCode;
     }
     std::vector<MissionInfo> amsMissions;
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->GetMissionInfos("", numMissions, amsMissions);
     if (ret != ERR_OK) {
-        HILOGE("GetRecentMissions failed, ret=%{public}d", ret);
+        HILOGE("GetMissionInfos failed, ret = %{public}d", ret);
         return ret;
+    }
+    if (amsMissions.empty()) {
+        HILOGI("empty missions");
+        return ERR_OK;
     }
     HILOGI("GetMissionInfos size:%{public}zu", amsMissions.size());
     return MissionInfoConverter::ConvertToDstbMissionInfos(amsMissions, missionInfos);
@@ -218,9 +224,43 @@ bool DistributedSchedAdapter::AllowMissionUid(int32_t uid)
     return true;
 }
 
-int32_t DistributedSchedAdapter::RegisterMissionChange(bool willRegister)
+int32_t DistributedSchedAdapter::RegisterMissionListener(const sptr<DstbMissionChangeListener>& listener)
 {
-    return ERR_NONE;
+    if (listener == nullptr) {
+        HILOGE("listener is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("get ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->RegisterMissionListener(listener);
+    if (ret != ERR_OK) {
+        HILOGE("RegisterMissionListener failed, ret=%{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
+}
+
+int32_t DistributedSchedAdapter::UnRegisterMissionListener(const sptr<DstbMissionChangeListener> &listener)
+{
+    if (listener == nullptr) {
+        HILOGE("listener is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("get ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->UnRegisterMissionListener(listener);
+    if (ret != ERR_OK) {
+        HILOGE("UnRegisterMissionListener failed, ret=%{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
 }
 
 int32_t DistributedSchedAdapter::GetOsdSwitch()

@@ -70,6 +70,7 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_data_change_listener.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_data_storage.cpp",
+  "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_change_listener.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_info.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_sched_mission_manager.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/mission_changed_notify.cpp",

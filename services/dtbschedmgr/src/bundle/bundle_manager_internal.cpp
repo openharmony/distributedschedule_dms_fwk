@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,14 +52,16 @@ bool BundleManagerInternal::GetCallerAppIdFromBms(int32_t callingUid, std::strin
 
 sptr<AppExecFwk::IBundleMgr> BundleManagerInternal::GetBundleManager()
 {
-    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrClient != nullptr) {
-        return iface_cast<AppExecFwk::IBundleMgr>(
-            samgrClient->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
-    } else {
-        HILOGE("failed to get samgr");
+    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
         return nullptr;
     }
+    sptr<IRemoteObject> bmsProxy = samgrProxy->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bmsProxy == nullptr) {
+        HILOGE("failed to get bms from samgr");
+        return nullptr;
+    }
+    return iface_cast<AppExecFwk::IBundleMgr>(bmsProxy);
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
