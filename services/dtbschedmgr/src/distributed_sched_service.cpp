@@ -254,7 +254,7 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
     HILOGD("[PerformanceTest] StartContinuation begin");
     if (status != ERR_OK) {
         HILOGE("continuation has been rejected, status: %{public}d", status);
-        NotifyContinuationCallbackResult(missionId, CONTINUE_MISSION_REJECTED);
+        NotifyContinuationCallbackResult(missionId, status);
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
     auto flags = want.GetFlags();
