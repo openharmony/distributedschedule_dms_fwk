@@ -325,9 +325,21 @@ enum {
      */
     MISSION_OSD_CLOUD_SWITCH_OFF = 29360196,
     /*
-     * Result(29360197) for continue mission rejected.
+     * Result(29360197) for continue ability rejected.
      */
-    CONTINUE_MISSION_REJECTED = 29360197,
+    CONTINUE_ABILITY_REJECTED = 29360197,
+    /*
+     * Result(29360198) for continue save data failed.
+     */
+    CONTINUE_SAVE_DATA_FAILED = 29360198,
+    /*
+     * Result(29360199) for onContinue failed.
+     */
+    CONTINUE_ON_CONTINUE_FAILED = 29360199,
+    /*
+     * Result(29360200) for continue get content failed.
+     */
+    CONTINUE_GET_CONTENT_FAILED = 29360200,
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
