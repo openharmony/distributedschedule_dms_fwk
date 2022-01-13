@@ -44,6 +44,7 @@ ohos_shared_library("distributedschedsvr") {
     "src/dtbschedmgr_device_info_storage.cpp",
     "src/mission/distributed_data_change_listener.cpp",
     "src/mission/distributed_data_storage.cpp",
+    "src/mission/distributed_mission_change_listener.cpp",
     "src/mission/distributed_mission_info.cpp",
     "src/mission/distributed_sched_mission_manager.cpp",
     "src/mission/mission_changed_notify.cpp",
