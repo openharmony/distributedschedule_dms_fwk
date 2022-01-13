@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,6 +64,9 @@ void DistributedSchedMissionManager::Init()
     missionHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
     auto updateRunner = AppExecFwk::EventRunner::Create("UpdateHandler");
     updateHandler_ = std::make_shared<AppExecFwk::EventHandler>(updateRunner);
+    missonChangeListener_ = new DistributedMissionChangeListener();
+    auto missionChangeRunner = AppExecFwk::EventRunner::Create("DistributedMissionChange");
+    missionChangeHandler_ = std::make_shared<AppExecFwk::EventHandler>(missionChangeRunner);
 }
 
 int32_t DistributedSchedMissionManager::GetMissionInfos(const std::string& deviceId,
@@ -416,7 +419,7 @@ int32_t DistributedSchedMissionManager::StartSyncRemoteMissions(const std::strin
     }
     int64_t begin = GetTickCount();
     int32_t ret = remoteDms->StartSyncMissionsFromRemote(callerInfo, missionInfos);
-    HILOGI("[PerformanceTest] ret:%{public}d, spend %{public}" PRId64 " ms",
+    HILOGI("[PerformanceTest] StartSyncMissionsFromRemote ret:%{public}d, spend %{public}" PRId64 " ms",
         ret, GetTickCount() - begin);
     if (ret == ERR_NONE) {
         RebornMissionCache(dstDevId, missionInfos);
@@ -553,8 +556,10 @@ int32_t DistributedSchedMissionManager::StartSyncMissionsFromRemote(const Caller
         }
     }
     if (!isRegMissionChange_) {
-        DistributedSchedAdapter::GetInstance().RegisterMissionChange(true);
-        isRegMissionChange_ = true;
+        int32_t ret = DistributedSchedAdapter::GetInstance().RegisterMissionListener(missonChangeListener_);
+        if (ret == ERR_OK) {
+            isRegMissionChange_ = true;
+        }
     }
     return DistributedSchedAdapter::GetInstance().GetLocalMissionInfos(Mission::GET_MAX_MISSIONS, missionInfos);
 }
@@ -566,9 +571,11 @@ void DistributedSchedMissionManager::StopSyncMissionsFromRemote(const std::strin
         std::lock_guard<std::mutex> autoLock(remoteSyncDeviceLock_);
         remoteSyncDeviceSet_.erase(deviceId);
         if (remoteSyncDeviceSet_.empty()) {
-            DistributedSchedAdapter::GetInstance().RegisterMissionChange(false);
-            DistributedSchedAdapter::GetInstance().OnOsdEventOccur(UNREGISTER_MISSION_LISTENER);
-            isRegMissionChange_ = false;
+            int32_t ret = DistributedSchedAdapter::GetInstance().UnRegisterMissionListener(missonChangeListener_);
+            if (ret == ERR_OK) {
+                DistributedSchedAdapter::GetInstance().OnOsdEventOccur(UNREGISTER_MISSION_LISTENER);
+                isRegMissionChange_ = false;
+            }
         }
     }
 }
@@ -762,13 +769,6 @@ int32_t DistributedSchedMissionManager::NotifyMissionsChangedFromRemote(const Ca
 {
     HILOGI("NotifyMissionsChangedFromRemote version is %{public}d!", callerInfo.dmsVersion);
     std::u16string u16DevId = Str8ToStr16(callerInfo.sourceDeviceId);
-    {
-        std::lock_guard<std::mutex> autoLock(listenDeviceLock_);
-        if (listenDeviceMap_.count(u16DevId) == 0) {
-            HILOGW("NotifyMissionsChangedFromRemote exit for invaid device");
-            return INVALID_PARAMETERS_ERR;
-        }
-    }
     RebornMissionCache(callerInfo.sourceDeviceId, missionInfos);
     {
         HILOGI("NotifyMissionsChangedFromRemote notify mission start!");
@@ -791,6 +791,23 @@ int32_t DistributedSchedMissionManager::NotifyMissionsChangedFromRemote(const Ca
         }
     }
     return INVALID_PARAMETERS_ERR;
+}
+
+void DistributedSchedMissionManager::NotifyLocalMissionsChanged()
+{
+    auto func = [this]() {
+        HILOGI("NotifyLocalMissionsChanged");
+        std::vector<DstbMissionInfo> missionInfos;
+        int32_t ret = DistributedSchedAdapter::GetInstance().GetLocalMissionInfos(Mission::GET_MAX_MISSIONS,
+            missionInfos);
+        if (ret == ERR_OK) {
+            int32_t result = NotifyMissionsChangedToRemote(missionInfos);
+            HILOGI("NotifyMissionsChangedToRemote result = %{public}d", result);
+        }
+    };
+    if (!missionChangeHandler_->PostTask(func)) {
+        HILOGE("postTask failed");
+    }
 }
 
 int32_t DistributedSchedMissionManager::NotifyMissionsChangedToRemote(const std::vector<DstbMissionInfo>& missionInfos)
@@ -828,7 +845,7 @@ void DistributedSchedMissionManager::NotifyMissionsChangedToRemoteInner(const st
     }
     int64_t begin = GetTickCount();
     int32_t result = remoteDms->NotifyMissionsChangedFromRemote(missionInfos, callerInfo);
-    HILOGI("[PerformanceTest] NotifyMissionsChangedFromRemote ret:%d, spend %{public}" PRId64 " ms",
+    HILOGI("[PerformanceTest] NotifyMissionsChangedFromRemote ret:%{public}d, spend %{public}" PRId64 " ms",
         result, GetTickCount() - begin);
 }
 
@@ -868,7 +885,7 @@ std::shared_ptr<AppExecFwk::EventHandler> DistributedSchedMissionManager::FetchD
     }
 
     auto anonyUuid = DnetworkAdapter::AnonymizeDeviceId(uuid);
-    auto runner = AppExecFwk::EventRunner::Create("MissionN_" + anonyUuid);
+    auto runner = AppExecFwk::EventRunner::Create(anonyUuid + "_MissionN");
     auto handler = std::make_shared<AppExecFwk::EventHandler>(runner);
     if (handler != nullptr) {
         deviceHandle_.emplace(uuid, handler);
@@ -1285,7 +1302,7 @@ void DistributedSchedMissionManager::RetryRegisterMissionChange(int32_t retryTim
                 return;
             }
         }
-        int32_t ret = DistributedSchedAdapter::GetInstance().RegisterMissionChange(true);
+        int32_t ret = DistributedSchedAdapter::GetInstance().RegisterMissionListener(missonChangeListener_);
         if (ret == ERR_NULL_OBJECT) {
             RetryRegisterMissionChange(retryTimes + 1);
             HILOGI("RetryRegisterMissionChange dmsproxy null, retry!");
@@ -1307,7 +1324,7 @@ void DistributedSchedMissionManager::OnDnetDied()
             return;
         }
         remoteSyncDeviceSet_.clear();
-        DistributedSchedAdapter::GetInstance().RegisterMissionChange(false);
+        DistributedSchedAdapter::GetInstance().UnRegisterMissionListener(missonChangeListener_);
         DistributedSchedAdapter::GetInstance().OnOsdEventOccur(UNREGISTER_MISSION_LISTENER);
         isRegMissionChange_ = false;
     };

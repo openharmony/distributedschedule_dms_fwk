@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "event_handler.h"
 #include "if_system_ability_manager.h"
 #include "iremote_object.h"
+#include "mission/distributed_mission_change_listener.h"
 #include "mission/distributed_mission_info.h"
 #include "single_instance.h"
 #include "uri.h"
@@ -46,7 +47,8 @@ public:
     int32_t GetLocalMissionInfos(int32_t numMissions, std::vector<DstbMissionInfo>& missionInfos);
     int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::string>& bundleNameList);
     bool AllowMissionUid(int32_t uid);
-    int32_t RegisterMissionChange(bool willRegister);
+    int32_t RegisterMissionListener(const sptr<DistributedMissionChangeListener>& listener);
+    int32_t UnRegisterMissionListener(const sptr<DistributedMissionChangeListener>& listener);
     int32_t GetOsdSwitch();
     void OnOsdEventOccur(int32_t flag);
 private:

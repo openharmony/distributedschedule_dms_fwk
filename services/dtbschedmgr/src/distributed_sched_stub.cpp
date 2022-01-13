@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,7 +55,6 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[REGISTER_MISSION_LISTENER] = &DistributedSchedStub::RegisterMissionListenerInner;
     localFuncsMap_[UNREGISTER_MISSION_LISTENER] = &DistributedSchedStub::UnRegisterMissionListenerInner;
     localFuncsMap_[GET_MISSION_INFOS] = &DistributedSchedStub::GetMissionInfosInner;
-    localFuncsMap_[MISSION_CHANGED] = &DistributedSchedStub::NotifyLocalMissionsChangedInner;
     localFuncsMap_[START_SYNC_MISSIONS] = &DistributedSchedStub::StartSyncRemoteMissionsInner;
     localFuncsMap_[STOP_SYNC_MISSIONS] = &DistributedSchedStub::StopSyncRemoteMissionsInner;
     localFuncsMap_[SWITCH_CHANGED] = &DistributedSchedStub::NotifyOsdSwitchChangedInner;
@@ -504,16 +503,6 @@ int32_t DistributedSchedStub::GetCachedOsdSwitchInner(MessageParcel& data, Messa
     PARCEL_WRITE_HELPER(reply, String16Vector, deviceIds);
     PARCEL_WRITE_HELPER(reply, Int32Vector, values);
     return ERR_NONE;
-}
-
-int32_t DistributedSchedStub::NotifyLocalMissionsChangedInner(MessageParcel& data, MessageParcel& reply)
-{
-    std::vector<DstbMissionInfo> missionInfos;
-    if (!DstbMissionInfo::ReadMissionInfoVectorFromParcel(data, missionInfos)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    int32_t result = DistributedSchedMissionManager::GetInstance().NotifyMissionsChangedToRemote(missionInfos);
-    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
 int32_t DistributedSchedStub::NotifyMissionsChangedFromRemoteInner(MessageParcel& data, MessageParcel& reply)
