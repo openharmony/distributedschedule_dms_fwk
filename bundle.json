@@ -1,0 +1,63 @@
+{
+    "name": "@ohos/distributedschedule_dms_fwk",
+    "description": "支持跨设备组件的启动和调用;支持分布式任务迁移;支持全局任务快照信息的实时获取能力。",
+    "version": "3.1",
+    "license": "Apache License 2.0",
+    "repository": "https://gitee.com/openharmony/distributedschedule_dms_fwk",
+    "publishAs": "code-segment",
+    "segment": {
+      "destPath": "foundation/distributedschedule/dmsfwk"
+    },
+    "dirs": {},
+    "scripts": {},
+    "license": "Apache License 2.0",
+    "component": {
+      "name": "dmsfwk_standard",
+      "subsystem": "distributedschedule",
+      "adapted_system_type": [ "standard" ],
+      "rom": "",
+      "ram": "",
+      "deps": {
+        "components": [
+          "aafwk_standard",
+          "appexecfwk_standard",
+          "distributeddatamgr",
+          "dsoftbus_standard",
+          "eventhandler",
+          "hiviewdfx_hilog_native",
+          "ipc",
+          "multimedia_image_standard",
+          "safwk",
+          "samgr_standard",
+          "utils_base"
+        ],
+        "third_party": []
+      },
+      "build": {
+        "sub_component": [
+          "//foundation/distributedschedule/dmsfwk/etc/init:etc",
+          "//foundation/distributedschedule/dmsfwk/etc/profile:distributedsched_trust",
+          "//foundation/distributedschedule/dmsfwk/sa_profile:dms_sa_profile",
+          "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
+        ],
+        "inner_kits": [
+          {
+            "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+            "header": {
+              "header_files": [
+                "caller_info.h",
+                "distributed_sched_interface.h",
+                "distributed_sched_proxy.h",
+                "mission/distributed_mission_info.h",
+                "uri.h"
+              ],
+              "header_base": "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include"
+            }
+          }
+        ],
+        "test": [
+          "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:unittest"
+        ]
+      }
+    }
+  }
