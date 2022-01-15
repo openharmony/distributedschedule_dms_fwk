@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include "ipc_types.h"
 #include "mission/mission_info_converter.h"
 #include "parcel_helper.h"
+#include "pixel_map.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -544,6 +545,35 @@ int32_t DistributedSchedProxy::StoreSnapshotInfo(const std::string& deviceId,
 
 int32_t DistributedSchedProxy::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
 {
+    return ERR_NONE;
+}
+
+int32_t DistributedSchedProxy::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+    std::unique_ptr<MissionSnapshot>& missionSnapshot)
+{
+    if (networkId.empty()) {
+        HILOGE("networkId is null");
+        return ERR_NULL_OBJECT;
+    }
+    if (missionId < 0) {
+        HILOGE("missionId is invalid");
+        return INVALID_PARAMETERS_ERR;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String, networkId);
+    PARCEL_WRITE_HELPER(data, Int32, missionId);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, GET_REMOTE_SNAPSHOT_INFO, data, reply);
+    std::unique_ptr<MissionSnapshot> missionSnapshotPtr(reply.ReadParcelable<MissionSnapshot>());
+    missionSnapshot = std::move(missionSnapshotPtr);
     return ERR_NONE;
 }
 

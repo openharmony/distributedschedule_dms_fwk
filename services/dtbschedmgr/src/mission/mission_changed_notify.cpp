@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "datetime_ex.h"
 #include "parcel_helper.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -44,7 +45,7 @@ void MissionChangedNotify::NotifyMissionsChanged(const sptr<IRemoteObject>& remo
         HILOGE("NotifyMissionsChanged write interface token failed!");
         return;
     }
-    PARCEL_WRITE_HELPER_NORET(data, String16, deviceId);
+    PARCEL_WRITE_HELPER_NORET(data, String, Str16ToStr8(deviceId));
     HILOGI("[PerformanceTest] NotifyMissionsChanged called, IPC begin = %{public}" PRId64, GetTickCount());
     int32_t error = remoteObject->SendRequest(CODE_NOTIFY_MISSION, data, reply, option);
     if (error != ERR_NONE) {
@@ -69,7 +70,7 @@ void MissionChangedNotify::NotifySnapshot(const sptr<IRemoteObject>& remoteObjec
         HILOGE("NotifySnapshot write interface token failed!");
         return;
     }
-    PARCEL_WRITE_HELPER_NORET(data, String16, deviceId);
+    PARCEL_WRITE_HELPER_NORET(data, String, Str16ToStr8(deviceId));
     PARCEL_WRITE_HELPER_NORET(data, Int32, missionId);
     HILOGI("[PerformanceTest] NotifySnapshot called, IPC begin = %{public}" PRId64, GetTickCount());
     int32_t error = remoteObject->SendRequest(NOTIFY_SNAP_SHOT, data, reply, option);
@@ -95,7 +96,7 @@ void MissionChangedNotify::NotifyNetDisconnect(const sptr<IRemoteObject>& remote
         HILOGE("NotifyNetDisconnect write interface token failed!");
         return;
     }
-    PARCEL_WRITE_HELPER_NORET(data, String16, deviceId);
+    PARCEL_WRITE_HELPER_NORET(data, String, Str16ToStr8(deviceId));
     PARCEL_WRITE_HELPER_NORET(data, Int32, state);
     HILOGI("[PerformanceTest] NotifyNetDisconnect called, IPC begin = %{public}" PRId64, GetTickCount());
     int32_t error = remoteObject->SendRequest(NOTIFY_NET_DISCONNECT, data, reply, option);
@@ -121,7 +122,7 @@ void MissionChangedNotify::NotifyOsdSwitchChanged(const sptr<IRemoteObject>& rem
         HILOGE("NotifyOsdSwitchChanged write interface token failed!");
         return;
     }
-    PARCEL_WRITE_HELPER_NORET(data, String16, deviceId);
+    PARCEL_WRITE_HELPER_NORET(data, String, Str16ToStr8(deviceId));
     PARCEL_WRITE_HELPER_NORET(data, Bool, isSwitchOn);
     HILOGI("[PerformanceTest] NotifyOsdSwitchChanged called, IPC begin = %{public}" PRId64, GetTickCount());
     int32_t error = remoteObject->SendRequest(CODE_NOTIFY_SWITCH, data, reply, option);

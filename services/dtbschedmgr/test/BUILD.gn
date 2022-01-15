@@ -73,9 +73,11 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_change_listener.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_info.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/distributed_sched_mission_manager.cpp",
+  "${distributed_service}/dtbschedmgr/src/mission/kvstore_death_recipient.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/mission_changed_notify.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/mission_info_converter.cpp",
   "${distributed_service}/dtbschedmgr/src/mission/snapshot.cpp",
+  "${distributed_service}/dtbschedmgr/src/mission/snapshot_converter.cpp",
 ]
 
 ohos_unittest("distributedschedsvrtest") {
