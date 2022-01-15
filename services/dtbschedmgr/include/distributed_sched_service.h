@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -93,6 +93,8 @@ public:
     int32_t GetOsdSwitchValueFromRemote() override;
     int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) override;
     std::unique_ptr<Snapshot> GetRemoteSnapshotInfo(const std::u16string& deviceId, int32_t missionId) override;
+    int32_t GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+        std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot) override;
     int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
     int32_t StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
         std::vector<DstbMissionInfo>& missionInfos) override;

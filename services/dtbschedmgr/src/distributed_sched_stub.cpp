@@ -25,6 +25,7 @@
 #include "ipc_skeleton.h"
 #include "message_parcel.h"
 #include "mission/distributed_sched_mission_manager.h"
+#include "mission/snapshot_converter.h"
 #include "parcel_helper.h"
 
 namespace OHOS {
@@ -52,6 +53,7 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[STORE_SNAPSHOT_INFO] = &DistributedSchedStub::StoreSnapshotInfoInner;
     localFuncsMap_[REMOVE_SNAPSHOT_INFO] = &DistributedSchedStub::RemoveSnapshotInfoInner;
     localFuncsMap_[GET_REMOTE_SNAPSHOT_INFO] = &DistributedSchedStub::GetRemoteSnapshotInfoInner;
+    localFuncsMap_[GET_REMOTE_MISSION_SNAPSHOT_INFO] = &DistributedSchedStub::GetRemoteMissionSnapshotInfoInner;
     localFuncsMap_[REGISTER_MISSION_LISTENER] = &DistributedSchedStub::RegisterMissionListenerInner;
     localFuncsMap_[UNREGISTER_MISSION_LISTENER] = &DistributedSchedStub::UnRegisterMissionListenerInner;
     localFuncsMap_[GET_MISSION_INFOS] = &DistributedSchedStub::GetMissionInfosInner;
@@ -395,6 +397,39 @@ int32_t DistributedSchedStub::GetRemoteSnapshotInfoInner(MessageParcel& data, Me
     }
     DistributedSchedMissionManager::GetInstance().EnqueueCachedSnapshotInfo(uuid,
         missionId, std::move(snapShot));
+    return ERR_NONE;
+}
+
+int32_t DistributedSchedStub::GetRemoteMissionSnapshotInfoInner(MessageParcel& data, MessageParcel& reply)
+{
+    HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
+    string networkId = data.ReadString();
+    if (networkId.empty()) {
+        HILOGE("networkId is empty!");
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t missionId = 0;
+    PARCEL_READ_HELPER(data, Int32, missionId);
+    if (missionId < 0) {
+        HILOGE("missionId is invalid");
+        return INVALID_PARAMETERS_ERR;
+    }
+    std::unique_ptr<MissionSnapshot> missionSnapshotPtr = std::make_unique<MissionSnapshot>();
+    int32_t errCode = GetRemoteMissionSnapshotInfo(networkId, missionId, missionSnapshotPtr);
+    if (errCode != ERR_NONE) {
+        HILOGE("get mission snapshot failed!");
+        return ERR_NULL_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(reply, Parcelable, missionSnapshotPtr.get());
+    std::string uuid = DnetworkAdapter::GetInstance()->GetUuidByNetworkId(networkId);
+    if (uuid.empty()) {
+        HILOGE("uuid is empty!");
+        return ERR_NULL_OBJECT;
+    }
+    std::unique_ptr<Snapshot> snapshotPtr = make_unique<Snapshot>();
+    SnapshotConverter::ConvertToSnapshot(*missionSnapshotPtr, snapshotPtr);
+    DistributedSchedMissionManager::GetInstance().EnqueueCachedSnapshotInfo(uuid,
+        missionId, std::move(snapshotPtr));
     return ERR_NONE;
 }
 
