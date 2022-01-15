@@ -20,6 +20,7 @@
 #include "ability_info.h"
 #include "caller_info.h"
 #include "iremote_broker.h"
+#include "mission_info.h"
 #include "mission/distributed_mission_info.h"
 #include "mission_snapshot.h"
 #include "ohos/aafwk/content/want.h"
@@ -64,7 +65,7 @@ public:
     virtual int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) = 0;
     virtual int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) = 0;
     virtual int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-        std::vector<DstbMissionInfo>& missionInfos) = 0;
+        std::vector<AAFwk::MissionInfo>& missionInfos) = 0;
     virtual int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
         const uint8_t* byteStream, size_t len) = 0;
     virtual int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) = 0;

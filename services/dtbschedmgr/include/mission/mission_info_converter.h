@@ -30,6 +30,8 @@ public:
         std::vector<DstbMissionInfo>& dstbMissionInfos);
     static int32_t ConvertToMissionInfos(std::vector<DstbMissionInfo>& dstbMissionInfos,
         std::vector<AAFwk::MissionInfo>& missionInfos);
+    static bool ReadMissionInfosFromParcel(Parcel& parcel, std::vector<AAFwk::MissionInfo>& missionInfos);
+    static bool WriteMissionInfosToParcel(Parcel& parcel, const std::vector<AAFwk::MissionInfo>& missionInfos);
 };
 }
 }
