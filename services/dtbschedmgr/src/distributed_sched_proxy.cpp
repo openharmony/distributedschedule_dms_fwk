@@ -372,13 +372,39 @@ int32_t DistributedSchedProxy::StopSyncMissionsFromRemote(const CallerInfo& call
 int32_t DistributedSchedProxy::RegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    return ERR_NONE;
+    HILOGI("RegisterMissionListener called");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote system abiity is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String16, devId);
+    PARCEL_WRITE_HELPER(data, RemoteObject, obj);
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, REGISTER_MISSION_LISTENER, data, reply);
 }
 
 int32_t DistributedSchedProxy::UnRegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    return ERR_NONE;
+    HILOGI("UnRegisterMissionListener called");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote system abiity is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String16, devId);
+    PARCEL_WRITE_HELPER(data, RemoteObject, obj);
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, UNREGISTER_MISSION_LISTENER, data, reply);
 }
 
 int32_t DistributedSchedProxy::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
