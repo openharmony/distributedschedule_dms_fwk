@@ -51,6 +51,9 @@ public:
     int32_t UnRegisterMissionListener(const sptr<DistributedMissionChangeListener>& listener);
     int32_t GetOsdSwitch();
     void OnOsdEventOccur(int32_t flag);
+    int32_t GetLocalMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+        AAFwk::MissionSnapshot& missionSnapshot);
+
 private:
     void ProcessDeviceOffline(const std::string& deviceId);
 

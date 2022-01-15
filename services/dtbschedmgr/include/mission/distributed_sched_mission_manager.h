@@ -21,12 +21,12 @@
 #include <vector>
 
 #include "common_event_manager.h"
+#include "distributed_data_storage.h"
+#include "distributed_mission_change_listener.h"
 #include "distributed_sched_interface.h"
 #include "event_handler.h"
 #include "single_instance.h"
-#include "mission/distributed_data_storage.h"
-#include "mission/distributed_mission_change_listener.h"
-#include "mission/snapshot.h"
+#include "snapshot.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -76,12 +76,12 @@ public:
         std::vector<DstbMissionInfo>& missionInfos);
     int32_t InitDataStorage();
     int32_t StopDataStorage();
-    int32_t StoreSnapshotInfo(const std::string& deviceId,
-                              int32_t missionId,
-                              const uint8_t* byteStream,
-                              size_t len);
+    int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
+        const uint8_t* byteStream, size_t len);
     int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId);
     std::unique_ptr<Snapshot> GetRemoteSnapshotInfo(const std::string& deviceId, int32_t missionId);
+    int32_t GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+        std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot);
     void DeviceOnlineNotify(const std::string& deviceId);
     void DeviceOfflineNotify(const std::string& deviceId);
     void DeleteDataStorage(const std::string& deviceId, bool isDelayed);
@@ -93,7 +93,7 @@ public:
     void StopSyncMissionsFromRemote(const std::string& deviceId);
     bool needSyncDevice(const std::string& deviceId);
 
-    void NotifySnapshotChanged(const std::string& devId, int32_t missionId);
+    void NotifySnapshotChanged(const std::string& networkId, int32_t missionId);
     void OnRemoteDied(const wptr<IRemoteObject>& remote);
 
     void EnqueueCachedSnapshotInfo(const std::string& deviceId, int32_t missionId, std::unique_ptr<Snapshot> snapshot);
@@ -113,6 +113,8 @@ public:
     void NotifyDmsProxyProcessDied();
     void OnDnetDied();
     void NotifyLocalMissionsChanged();
+    void NotifyMissionSnapshotChanged(int32_t missionId);
+    void NotifyMissionSnapshotDestroyed(int32_t missionId);
 private:
     std::map<std::string, std::shared_ptr<AppExecFwk::EventHandler>> deviceHandle_;
     mutable std::mutex remoteMissionInfosLock_;
@@ -133,7 +135,7 @@ private:
     void CleanMissionResources(const std::string& dstDevId);
     void RetryStartSyncRemoteMissions(const std::string& dstDeviceId, const std::string& localDevId,
         int32_t retryTimes);
-    bool HasSyncListener(const std::string& dstDeviceId);
+    bool HasSyncListener(const std::string& networkId);
     void DeleteCachedSnapshotInfo(const std::string& networkId);
     int32_t FetchCachedRemoteMissions(const std::string& srcId, int32_t numMissions,
         std::vector<DstbMissionInfo>& missionInfos);
@@ -152,6 +154,10 @@ private:
     void OnMissionListenerDied(const sptr<IRemoteObject>& remote);
     void OnRemoteDmsDied(const sptr<IRemoteObject>& remote);
     void RetryRegisterMissionChange(int32_t retryTimes);
+    void InitAllSnapshots(const std::vector<DstbMissionInfo>& missionInfos);
+    int32_t MissionSnapshotChanged(int32_t missionId);
+    int32_t MissionSnapshotDestroyed(int32_t missionId);
+    int32_t MissionSnapshotSequence(const Snapshot& snapshot, MessageParcel& data);
 
     class ListenerDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
@@ -169,7 +175,7 @@ private:
 
     std::set<int32_t> allowMissionUids_;
     std::mutex allowMissionUidsLock_;
-    bool isRegMissionChange_ = false;
+    std::atomic<bool> isRegMissionChange_ = false;
     sptr<DistributedMissionChangeListener> missonChangeListener_;
     std::shared_ptr<AppExecFwk::EventHandler> missionChangeHandler_;
 

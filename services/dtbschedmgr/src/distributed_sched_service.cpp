@@ -98,6 +98,7 @@ bool DistributedSchedService::Init()
     HILOGD("Init init success.");
     DistributedSchedAdapter::GetInstance().Init();
     DnetworkAdapter::GetInstance()->Init();
+    DistributedSchedMissionManager::GetInstance().InitDataStorage();
     connectDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ConnectDeathRecipient());
     return true;
 }
@@ -1062,6 +1063,13 @@ std::unique_ptr<Snapshot> DistributedSchedService::GetRemoteSnapshotInfo(const s
     std::string strDeviceId = Str16ToStr8(deviceId);
     HILOGI("GetRemoteSnapShot missionId:%{public}d", missionId);
     return DistributedSchedMissionManager::GetInstance().GetRemoteSnapshotInfo(strDeviceId, missionId);
+}
+
+int32_t DistributedSchedService::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+    std::unique_ptr<MissionSnapshot>& missionSnapshot)
+{
+    return DistributedSchedMissionManager::GetInstance()
+        .GetRemoteMissionSnapshotInfo(networkId, missionId, missionSnapshot);
 }
 
 int32_t DistributedSchedService::CheckSupportOsd(const std::string& deviceId)

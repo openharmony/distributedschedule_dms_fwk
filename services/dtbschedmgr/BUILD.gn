@@ -47,9 +47,11 @@ ohos_shared_library("distributedschedsvr") {
     "src/mission/distributed_mission_change_listener.cpp",
     "src/mission/distributed_mission_info.cpp",
     "src/mission/distributed_sched_mission_manager.cpp",
+    "src/mission/kvstore_death_recipient.cpp",
     "src/mission/mission_changed_notify.cpp",
     "src/mission/mission_info_converter.cpp",
     "src/mission/snapshot.cpp",
+    "src/mission/snapshot_converter.cpp",
   ]
 
   configs = [ ":distributed_sched_config" ]

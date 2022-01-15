@@ -15,11 +15,12 @@
 
 #include "distributed_sched_adapter.h"
 
-#include "bundle/bundle_manager_internal.h"
-#include "distributed_sched_service.h"
-#include "dtbschedmgr_log.h"
-
 #include "ability_manager_client.h"
+#include "bundle/bundle_manager_internal.h"
+#include "datetime_ex.h"
+#include "distributed_sched_service.h"
+#include "dtbschedmgr_device_info_storage.h"
+#include "dtbschedmgr_log.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "mission/distributed_sched_mission_manager.h"
@@ -32,7 +33,6 @@ namespace DistributedSchedule {
 using namespace std;
 using namespace AAFwk;
 using namespace AppExecFwk;
-
 using DstbMissionChangeListener = DistributedMissionChangeListener;
 
 namespace {
@@ -226,6 +226,7 @@ bool DistributedSchedAdapter::AllowMissionUid(int32_t uid)
 
 int32_t DistributedSchedAdapter::RegisterMissionListener(const sptr<DstbMissionChangeListener>& listener)
 {
+    HILOGD("called.");
     if (listener == nullptr) {
         HILOGE("listener is null");
         return INVALID_PARAMETERS_ERR;
@@ -260,6 +261,30 @@ int32_t DistributedSchedAdapter::UnRegisterMissionListener(const sptr<DstbMissio
         HILOGE("UnRegisterMissionListener failed, ret=%{public}d", ret);
         return ret;
     }
+    return ERR_OK;
+}
+
+int32_t DistributedSchedAdapter::GetLocalMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+    MissionSnapshot& missionSnapshot)
+{
+    int64_t begin = GetTickCount();
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("get ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+    errCode = AAFwk::AbilityManagerClient::GetInstance()->GetMissionSnapshot(networkId,
+        missionId, missionSnapshot);
+    HILOGI("[PerformanceTest] GetMissionSnapshot spend %{public}" PRId64 " ms", GetTickCount() - begin);
+    if (errCode != ERR_OK) {
+        HILOGE("get mission snapshot failed, missionId=%{public}d, errCode=%{public}d", missionId, errCode);
+        return errCode;
+    }
+    if (missionSnapshot.snapshot == nullptr) {
+        HILOGE("pixel map is nullptr!");
+        return ERR_NULL_OBJECT;
+    }
+    HILOGD("pixelMap size:%{public}d", missionSnapshot.snapshot->GetCapacity());
     return ERR_OK;
 }
 
