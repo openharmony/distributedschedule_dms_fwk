@@ -100,13 +100,13 @@ bool DstbMissionInfo::Marshalling(Parcel& parcel) const
     return true;
 }
 
-bool DstbMissionInfo::ReadMissionInfoVectorFromParcel(Parcel& parcel,
-    std::vector<DstbMissionInfo> &missionInfos)
+bool DstbMissionInfo::ReadDstbMissionInfosFromParcel(Parcel& parcel,
+    std::vector<DstbMissionInfo>& missionInfos)
 {
     int32_t empty = parcel.ReadInt32();
     if (empty == VALUE_OBJECT) {
         int32_t len = parcel.ReadInt32();
-        HILOGD("ReadMissionInfoVectorFromParcel::readLength is:%{public}d", len);
+        HILOGD("ReadDstbMissionInfosFromParcel::readLength is:%{public}d", len);
         if (len < 0) {
             return false;
         }
@@ -127,12 +127,12 @@ bool DstbMissionInfo::ReadMissionInfoVectorFromParcel(Parcel& parcel,
         }
     }
 
-    HILOGI("read ReadMissionInfoVectorFromParcel end. info size is:%{public}zu", missionInfos.size());
+    HILOGI("read ReadDstbMissionInfosFromParcel end. info size is:%{public}zu", missionInfos.size());
     return true;
 }
 
-bool DstbMissionInfo::WriteMissionInfoVectorFromParcel(Parcel& parcel,
-    const std::vector<DstbMissionInfo> &missionInfos)
+bool DstbMissionInfo::WriteDstbMissionInfosToParcel(Parcel& parcel,
+    const std::vector<DstbMissionInfo>& missionInfos)
 {
     size_t size = missionInfos.size();
     if (size == 0) {

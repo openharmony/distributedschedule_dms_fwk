@@ -244,7 +244,7 @@ int32_t DistributedSchedAdapter::RegisterMissionListener(const sptr<DstbMissionC
     return ERR_OK;
 }
 
-int32_t DistributedSchedAdapter::UnRegisterMissionListener(const sptr<DstbMissionChangeListener> &listener)
+int32_t DistributedSchedAdapter::UnRegisterMissionListener(const sptr<DstbMissionChangeListener>& listener)
 {
     if (listener == nullptr) {
         HILOGE("listener is null");

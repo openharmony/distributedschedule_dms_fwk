@@ -93,7 +93,7 @@ sptr<IDistributedSched> DMSMissionManagerTest::GetDms()
  */
 HWTEST_F(DMSMissionManagerTest, testGetRemoteMissionInfo001, TestSize.Level1)
 {
-    std::vector<DstbMissionInfo> infos;
+    std::vector<AAFwk::MissionInfo> infos;
     auto ret = DistributedSchedMissionManager::GetInstance().GetMissionInfos(DEVICE_ID, 0, infos);
     EXPECT_TRUE(ret != ERR_NONE);
 
@@ -122,7 +122,7 @@ HWTEST_F(DMSMissionManagerTest, testGetRemoteMissionInfo002, TestSize.Level1)
     if (proxy == nullptr) {
         return;
     }
-    std::vector<DstbMissionInfo> infos;
+    std::vector<AAFwk::MissionInfo> infos;
     auto ret = proxy->GetMissionInfos(DEVICE_ID, 0, infos);
     EXPECT_TRUE(ret != ERR_NONE);
 
@@ -151,7 +151,6 @@ HWTEST_F(DMSMissionManagerTest, testStartSyncRemoteMissions001, TestSize.Level1)
     if (proxy == nullptr) {
         return;
     }
-    std::vector<DstbMissionInfo> infos;
     auto ret = proxy->StartSyncRemoteMissions(DEVICE_ID, false, 0);
     EXPECT_TRUE(ret != ERR_NONE);
 
@@ -191,7 +190,7 @@ HWTEST_F(DMSMissionManagerTest, testGetMissionInfos001, TestSize.Level1)
 {
     std::string deviceid = DEVICE_ID;
     int32_t numMissions = NUM_MISSIONS;
-    std::vector<DstbMissionInfo> missionInfos;
+    std::vector<AAFwk::MissionInfo> missionInfos;
 
     auto ret = DistributedSchedMissionManager::GetInstance().GetMissionInfos(deviceid, numMissions, missionInfos);
     EXPECT_TRUE(ret != ERR_NONE);

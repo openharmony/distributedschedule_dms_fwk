@@ -27,6 +27,7 @@
 #include "iservice_registry.h"
 #include "mission/mission_changed_notify.h"
 #include "mission/mission_constant.h"
+#include "mission/mission_info_converter.h"
 #include "mission/snapshot_converter.h"
 #include "nlohmann/json.hpp"
 #include "string_ex.h"
@@ -71,7 +72,7 @@ void DistributedSchedMissionManager::Init()
 }
 
 int32_t DistributedSchedMissionManager::GetMissionInfos(const std::string& deviceId,
-    int32_t numMissions, std::vector<DstbMissionInfo>& missionInfos)
+    int32_t numMissions, std::vector<AAFwk::MissionInfo>& missionInfos)
 {
     HILOGI("start!");
     if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
@@ -85,8 +86,13 @@ int32_t DistributedSchedMissionManager::GetMissionInfos(const std::string& devic
         HILOGE("numMissions is illegal! numMissions:%{public}d", numMissions);
         return INVALID_PARAMETERS_ERR;
     }
-
-    return FetchCachedRemoteMissions(deviceId, numMissions, missionInfos);
+    std::vector<DstbMissionInfo> dstbMissionInfos;
+    int32_t ret = FetchCachedRemoteMissions(deviceId, numMissions, dstbMissionInfos);
+    if (ret != ERR_OK) {
+        HILOGE("FetchCachedRemoteMissions failed, ret = %{public}d", ret);
+        return ret;
+    }
+    return MissionInfoConverter::ConvertToMissionInfos(dstbMissionInfos, missionInfos);
 }
 
 sptr<IDistributedSched> DistributedSchedMissionManager::GetRemoteDms(const std::string& deviceId)

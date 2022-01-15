@@ -1045,7 +1045,7 @@ void DistributedSchedService::DumpElementLocked(const std::list<AppExecFwk::Elem
 }
 
 int32_t DistributedSchedService::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<DstbMissionInfo>& missionInfos)
+    std::vector<MissionInfo>& missionInfos)
 {
     return DistributedSchedMissionManager::GetInstance().GetMissionInfos(deviceId, numMissions, missionInfos);
 }
