@@ -55,6 +55,8 @@ public:
     int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
         const uint8_t* byteStream, size_t len) override;
     int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) override;
+    int32_t GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+        std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot) override;
     int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
         const CallerInfo& callerInfo) override;
     int32_t CheckSupportOsd(const std::string& deviceId) override;

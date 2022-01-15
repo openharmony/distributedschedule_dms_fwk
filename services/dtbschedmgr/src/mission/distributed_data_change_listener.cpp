@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,23 +27,23 @@ using namespace OHOS::DistributedKv;
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
-const std::string TAG = "DistributedDataChangeListener";
+const string TAG = "DistributedDataChangeListener";
 
 struct KeyInfo {
-    std::string devId;
+    string uuid;
     int32_t missionId = 0;
     static constexpr int32_t MAX_SPLIT_VARS = 2;
-    static std::unique_ptr<KeyInfo> ParseInfo(const std::string& strKey)
+    static unique_ptr<KeyInfo> ParseInfo(const std::string& strKey)
     {
-        std::vector<string> strVector;
+        vector<string> strVector;
         SplitStr(strKey, "_", strVector);
         if (strVector.size() != MAX_SPLIT_VARS) {
             HILOGI("ParseInfo key invalid!");
             return nullptr;
         }
         int32_t index = 0;
-        auto keyInfo = std::make_unique<KeyInfo>();
-        keyInfo->devId = strVector[index++];
+        auto keyInfo = make_unique<KeyInfo>();
+        keyInfo->uuid = strVector[index++];
         int32_t iValue = 0;
         bool ret = StrToInt(strVector[index], iValue);
         if (!ret) {
@@ -55,53 +55,56 @@ struct KeyInfo {
     }
 };
 }
-void DistributedDataChangeListener::OnChange(const DistributedKv::ChangeNotification &appChangeNotification)
+
+void DistributedDataChangeListener::OnChange(const ChangeNotification &changeNotification,
+    shared_ptr<KvStoreSnapshot> snapshot)
 {
-    HILOGI("OnChange");
-    const vector<Entry> inserts = appChangeNotification.GetInsertEntries();
+}
+
+void DistributedDataChangeListener::OnChange(const ChangeNotification &changeNotification)
+{
+    HILOGD("called.");
+    const vector<Entry>& inserts = changeNotification.GetInsertEntries();
     for (const auto& entry : inserts) {
         unique_ptr<KeyInfo> keyInfo = KeyInfo::ParseInfo(entry.key.ToString());
         if (keyInfo != nullptr) {
-            std::string keyStr = DnetworkAdapter::AnonymizeDeviceId(keyInfo->devId) + "_" +
-                std::to_string(keyInfo->missionId);
-            HILOGI("insertEntries Key:%{public}s, Value:%{public}s",
-                keyStr.c_str(), entry.value.ToString().c_str());
-            std::string networkId = DtbschedmgrDeviceInfoStorage::GetInstance().GetNetworkIdByUuid(keyInfo->devId);
+            string keyStr = DnetworkAdapter::AnonymizeDeviceId(keyInfo->uuid) + "_" +
+                to_string(keyInfo->missionId);
+            HILOGI("insertEntries Key:%{public}s, Value:%{public}s", keyStr.c_str(), entry.value.ToString().c_str());
+            string networkId = DtbschedmgrDeviceInfoStorage::GetInstance().GetNetworkIdByUuid(keyInfo->uuid);
             if (networkId.empty()) {
-                HILOGE("OnChange networkId empty!");
+                HILOGI("networkId is empty!");
                 return;
             }
             DistributedSchedMissionManager::GetInstance().NotifySnapshotChanged(networkId, keyInfo->missionId);
         }
     }
 
-    const vector<Entry> deletes = appChangeNotification.GetDeleteEntries();
+    const vector<Entry>& deletes = changeNotification.GetDeleteEntries();
     for (const auto& entry : deletes) {
         unique_ptr<KeyInfo> keyInfo = KeyInfo::ParseInfo(entry.key.ToString());
         if (keyInfo != nullptr) {
-            std::string keyStr = DnetworkAdapter::AnonymizeDeviceId(keyInfo->devId) + "_" +
-                std::to_string(keyInfo->missionId);
-            HILOGI("deleteEntries Key:%{public}s, Value:%{public}s",
-                keyStr.c_str(), entry.value.ToString().c_str());
-            (void)DistributedSchedMissionManager::GetInstance().DequeueCachedSnapshotInfo(keyInfo->devId,
+            string keyStr = DnetworkAdapter::AnonymizeDeviceId(keyInfo->uuid) + "_" +
+                to_string(keyInfo->missionId);
+            HILOGI("deleteEntries Key:%{public}s, Value:%{public}s", keyStr.c_str(), entry.value.ToString().c_str());
+            (void)DistributedSchedMissionManager::GetInstance().DequeueCachedSnapshotInfo(keyInfo->uuid,
                 keyInfo->missionId);
         }
     }
 
-    const vector<Entry> updates = appChangeNotification.GetUpdateEntries();
+    const vector<Entry>& updates = changeNotification.GetUpdateEntries();
     for (const auto& entry : updates) {
         unique_ptr<KeyInfo> keyInfo = KeyInfo::ParseInfo(entry.key.ToString());
         if (keyInfo != nullptr) {
-            std::string keyStr = DnetworkAdapter::AnonymizeDeviceId(keyInfo->devId) + "_" +
-                std::to_string(keyInfo->missionId);
-            HILOGI("updateEntries Key:%{public}s, Value:%{public}s",
-                keyStr.c_str(), entry.value.ToString().c_str());
-            std::string networkId = DtbschedmgrDeviceInfoStorage::GetInstance().GetNetworkIdByUuid(keyInfo->devId);
+            string keyStr = DnetworkAdapter::AnonymizeDeviceId(keyInfo->uuid) + "_" +
+                to_string(keyInfo->missionId);
+            HILOGI("updateEntries Key:%{public}s, Value:%{public}s", keyStr.c_str(), entry.value.ToString().c_str());
+            string networkId = DtbschedmgrDeviceInfoStorage::GetInstance().GetNetworkIdByUuid(keyInfo->uuid);
             if (networkId.empty()) {
-                HILOGE("OnChange networkId empty!");
+                HILOGI("networkId is empty!");
                 return;
             }
-            DistributedSchedMissionManager::GetInstance().DequeueCachedSnapshotInfo(keyInfo->devId, keyInfo->missionId);
+            DistributedSchedMissionManager::GetInstance().DequeueCachedSnapshotInfo(keyInfo->uuid, keyInfo->missionId);
             DistributedSchedMissionManager::GetInstance().NotifySnapshotChanged(networkId, keyInfo->missionId);
         }
     }

@@ -33,11 +33,13 @@ void DistributedMissionChangeListener::OnMissionDestroyed(int32_t missionId)
 {
     HILOGI("OnMissionDestroyed, missionId = %{public}d", missionId);
     DistributedSchedMissionManager::GetInstance().NotifyLocalMissionsChanged();
+    DistributedSchedMissionManager::GetInstance().NotifyMissionSnapshotDestroyed(missionId);
 }
 
 void DistributedMissionChangeListener::OnMissionSnapshotChanged(int32_t missionId)
 {
     HILOGI("OnMissionSnapshotChanged, missionId = %{public}d", missionId);
+    DistributedSchedMissionManager::GetInstance().NotifyMissionSnapshotChanged(missionId);
 }
 
 void DistributedMissionChangeListener::OnMissionMovedToFront(int32_t missionId)

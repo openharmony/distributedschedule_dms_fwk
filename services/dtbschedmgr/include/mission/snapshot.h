@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,16 +27,7 @@ namespace DistributedSchedule {
 struct Rect;
 class Snapshot {
 public:
-    ~Snapshot();
-    bool WriteToParcel(MessageParcel& data) const;
-    static std::unique_ptr<Snapshot> Create(const std::vector<uint8_t>& data);
-    int64_t GetCreatedTime() const;
-    int64_t GetLastAccessTime() const;
-    void UpdateLastAccessTime(int64_t accessTime);
-private:
-    static std::unique_ptr<Media::PixelMap> CreatePixelMap(const uint8_t* buffer, uint32_t bufferSize);
-    static std::unique_ptr<Snapshot> FillSnapShot(MessageParcel& data);
-    std::unique_ptr<Media::PixelMap> pixelMap_;
+    int32_t version_ = 0;
     int32_t orientation_ = 0;
     std::unique_ptr<Rect> rect_;
     bool reducedResolution_ = true;
@@ -46,18 +37,30 @@ private:
     int32_t systemUiVisibility_ = 0;
     bool isTranslucent_ = true;
     std::unique_ptr<Rect> windowBounds_;
-    std::u16string applicationLabel_;
-    std::u16string activityLabel_;
+    std::u16string appLabel_;
+    std::u16string abilityLabel_;
     std::vector<uint8_t> icon_;
-    std::u16string secApplicationLabel_;
-    std::u16string secActivityLabel_;
+    std::u16string secAppLabel_;
+    std::u16string secAbilityLabel_;
     std::vector<uint8_t> secIcon_;
     std::u16string sourceDeviceTips_;
+    std::shared_ptr<Media::PixelMap> pixelMap_;
+
+    ~Snapshot();
+    bool WriteToParcel(MessageParcel& data) const;
+    static std::unique_ptr<Snapshot> Create(const std::vector<uint8_t>& data);
+    bool WriteSnapshotInfo(MessageParcel& data) const;
+    bool WritePixelMap(MessageParcel& data) const;
+    int64_t GetCreatedTime() const;
+    int64_t GetLastAccessTime() const;
+    void UpdateLastAccessTime(int64_t accessTime);
+private:
+    static std::unique_ptr<Media::PixelMap> CreatePixelMap(const uint8_t* buffer, uint32_t bufferSize);
+    static std::unique_ptr<Snapshot> FillSnapShot(MessageParcel& data);
 
     // inner used
     int64_t createdTime_ = 0;
     int64_t lastAccessTime_ = 0;
-    int32_t version_ = 0;
 };
 
 struct Rect : public Parcelable {

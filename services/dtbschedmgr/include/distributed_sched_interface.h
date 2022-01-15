@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "caller_info.h"
 #include "iremote_broker.h"
 #include "mission/distributed_mission_info.h"
+#include "mission_snapshot.h"
 #include "ohos/aafwk/content/want.h"
 
 namespace OHOS {
@@ -67,6 +68,8 @@ public:
     virtual int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
         const uint8_t* byteStream, size_t len) = 0;
     virtual int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) = 0;
+    virtual int32_t GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+        std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot) = 0;
     virtual int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
          const CallerInfo& callerInfo) = 0;
     virtual int32_t CheckSupportOsd(const std::string& deviceId) = 0;
@@ -112,6 +115,7 @@ public:
         GET_CACHED_SUPPORTED_OSD = 96,
         ALL_CONNECT_TO_DMS = 97,
         STOP_SYNC_MISSIONS = 98,
+        GET_REMOTE_MISSION_SNAPSHOT_INFO = 99,
     };
 };
 } // namespace DistributedSchedule

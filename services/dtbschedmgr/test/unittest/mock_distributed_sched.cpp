@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -111,6 +111,12 @@ int32_t MockDistributedSched::StoreSnapshotInfo(const std::string& deviceId, int
 }
 
 int32_t MockDistributedSched::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
+    std::unique_ptr<MissionSnapshot>& missionSnapshot)
 {
     return ERR_NONE;
 }

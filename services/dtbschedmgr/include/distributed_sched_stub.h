@@ -54,6 +54,7 @@ private:
     int32_t StoreSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
     int32_t RemoveSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
     int32_t GetRemoteSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
+    int32_t GetRemoteMissionSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
     int32_t RegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply);
     int32_t UnRegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply);
     int32_t StartSyncRemoteMissionsInner(MessageParcel& data, MessageParcel& reply);

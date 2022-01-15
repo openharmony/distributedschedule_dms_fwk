@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 
+#include "mission/snapshot.h"
+
+#include <sstream>
 #include "datetime_ex.h"
 #include "dtbschedmgr_log.h"
 #include "image_source.h"
-#include "mission/snapshot.h"
+#include "image_packer.h"
 #include "parcel_helper.h"
 #include "pixel_map_parcel.h"
 #include "string_ex.h"
@@ -28,6 +31,9 @@ namespace OHOS {
 namespace DistributedSchedule {
 namespace {
 const std::string TAG = "Snapshot";
+constexpr int32_t COMPRESS_QUALITY = 85;
+constexpr size_t PIXEL_MAP_MAX_BUFFER_SIZE = 600 * 1024;
+constexpr size_t INT_BYTE = 4;
 }
 
 Snapshot::~Snapshot()
@@ -55,11 +61,11 @@ bool Snapshot::WriteToParcel(MessageParcel& data) const
     } else {
         PARCEL_WRITE_HELPER_RET(data, Parcelable, nullptr, false);
     }
-    PARCEL_WRITE_HELPER_RET(data, String16, applicationLabel_, false);
-    PARCEL_WRITE_HELPER_RET(data, String16, activityLabel_, false);
+    PARCEL_WRITE_HELPER_RET(data, String16, appLabel_, false);
+    PARCEL_WRITE_HELPER_RET(data, String16, abilityLabel_, false);
     PARCEL_WRITE_HELPER_RET(data, UInt8Vector, icon_, false);
-    PARCEL_WRITE_HELPER_RET(data, String16, secApplicationLabel_, false);
-    PARCEL_WRITE_HELPER_RET(data, String16, secActivityLabel_, false);
+    PARCEL_WRITE_HELPER_RET(data, String16, secAppLabel_, false);
+    PARCEL_WRITE_HELPER_RET(data, String16, secAbilityLabel_, false);
     PARCEL_WRITE_HELPER_RET(data, UInt8Vector, secIcon_, false);
     PARCEL_WRITE_HELPER_RET(data, String16, sourceDeviceTips_, false);
     if (pixelMap_ != nullptr) {
@@ -95,12 +101,12 @@ unique_ptr<Snapshot> Snapshot::FillSnapShot(MessageParcel& data)
     bool isTranslucent = false;
     PARCEL_READ_HELPER_RET(data, Bool, isTranslucent, nullptr);
     unique_ptr<Rect> windowBounds(data.ReadParcelable<Rect>());
-    std::u16string applicationLabel = data.ReadString16();
-    std::u16string activityLabel = data.ReadString16();
+    std::u16string appLabel = data.ReadString16();
+    std::u16string abilityLabel = data.ReadString16();
     std::vector<uint8_t> icon;
     PARCEL_READ_HELPER_RET(data, UInt8Vector, &icon, nullptr);
-    std::u16string secApplicationLabel = data.ReadString16();
-    std::u16string secActivityLabel = data.ReadString16();
+    std::u16string secAppLabel = data.ReadString16();
+    std::u16string secAbilityLabel = data.ReadString16();
     std::vector<uint8_t> secIcon;
     PARCEL_READ_HELPER_RET(data, UInt8Vector, &secIcon, nullptr);
     std::u16string sourceDeviceTips = data.ReadString16();
@@ -115,11 +121,11 @@ unique_ptr<Snapshot> Snapshot::FillSnapShot(MessageParcel& data)
     snapShot->systemUiVisibility_ = systemUiVisibility;
     snapShot->isTranslucent_ = isTranslucent;
     snapShot->windowBounds_ = std::move(windowBounds);
-    snapShot->applicationLabel_ = applicationLabel;
-    snapShot->activityLabel_ = activityLabel;
+    snapShot->appLabel_ = appLabel;
+    snapShot->abilityLabel_ = abilityLabel;
     snapShot->icon_ = icon;
-    snapShot->secApplicationLabel_ = secApplicationLabel;
-    snapShot->secActivityLabel_ = secActivityLabel;
+    snapShot->secAppLabel_ = secAppLabel;
+    snapShot->secAbilityLabel_ = secAbilityLabel;
     snapShot->secIcon_ = secIcon;
     snapShot->sourceDeviceTips_ = sourceDeviceTips;
     return snapShot;
@@ -128,7 +134,7 @@ unique_ptr<Snapshot> Snapshot::FillSnapShot(MessageParcel& data)
 unique_ptr<PixelMap> Snapshot::CreatePixelMap(const uint8_t* buffer, uint32_t bufferSize)
 {
     if (buffer == nullptr || bufferSize == 0) {
-        HILOGE("Snapshot CreatePixelMap invalid params !");
+        HILOGE("Snapshot CreatePixelMap invalid params!");
         return nullptr;
     }
     SourceOptions opts;
@@ -141,7 +147,7 @@ unique_ptr<PixelMap> Snapshot::CreatePixelMap(const uint8_t* buffer, uint32_t bu
     }
     DecodeOptions decodeOpt;
     decodeOpt.allocatorType = AllocatorType::SHARE_MEM_ALLOC;
-    decodeOpt.desiredPixelFormat = PixelFormat::RGB_565;
+    decodeOpt.desiredPixelFormat = PixelFormat::RGB_888;
     int64_t begin = GetTickCount();
     unique_ptr<PixelMap> pixelMap = imageSource->CreatePixelMap(decodeOpt, errCode);
     HILOGI("[PerformanceTest] Create PixelMap spend %{public}" PRId64 " ms", GetTickCount() - begin);
@@ -199,6 +205,79 @@ unique_ptr<Snapshot> Snapshot::Create(const vector<uint8_t>& data)
     snapShot->createdTime_ = GetTickCount();
     snapShot->lastAccessTime_ = snapShot->createdTime_;
     return snapShot;
+}
+
+bool Snapshot::WriteSnapshotInfo(MessageParcel& data) const
+{
+    MessageParcel parcel;
+    PARCEL_WRITE_HELPER_RET(parcel, Int32, version_, false); // for dms version
+    PARCEL_WRITE_HELPER_RET(parcel, Int32, orientation_, false); // for orientation
+    PARCEL_WRITE_HELPER_RET(parcel, Parcelable, rect_.get(), false); // for contentInsets
+    PARCEL_WRITE_HELPER_RET(parcel, Bool, reducedResolution_, false); // for reduceResolution
+    PARCEL_WRITE_HELPER_RET(parcel, Float, scale_, false); // for scale
+    PARCEL_WRITE_HELPER_RET(parcel, Bool, isRealSnapshot_, false); // for isRealSnapshot
+    PARCEL_WRITE_HELPER_RET(parcel, Int32, windowingMode_, false); // for windowingMode
+    PARCEL_WRITE_HELPER_RET(parcel, Int32, systemUiVisibility_, false); // for systemUiVisibility
+    PARCEL_WRITE_HELPER_RET(parcel, Bool, isTranslucent_, false); // for isTranslucent
+    PARCEL_WRITE_HELPER_RET(parcel, Parcelable, windowBounds_.get(), false); // for windowBounds
+    PARCEL_WRITE_HELPER_RET(parcel, String16, appLabel_, false); // for appLabel
+    PARCEL_WRITE_HELPER_RET(parcel, String16, abilityLabel_, false); // for abilityLabel
+    PARCEL_WRITE_HELPER_RET(parcel, UInt8Vector, icon_, false); // for icon
+    PARCEL_WRITE_HELPER_RET(parcel, String16, secAppLabel_, false); // for secAppLabel
+    PARCEL_WRITE_HELPER_RET(parcel, String16, secAbilityLabel_, false); // for secAbilityLabel
+    PARCEL_WRITE_HELPER_RET(parcel, UInt8Vector, secIcon_, false); // for secIcon
+    PARCEL_WRITE_HELPER_RET(parcel, String16, sourceDeviceTips_, false); // for sourceDeviceTips
+    size_t infoSize = parcel.GetReadableBytes();
+    const uint8_t* infoBuffer = parcel.ReadBuffer(infoSize);
+    PARCEL_WRITE_HELPER_RET(data, Uint32, infoSize, false); // for snapshot info size
+    bool ret = data.WriteBuffer(infoBuffer, infoSize); // for snapshot info buffer
+    if (!ret) {
+        HILOGE("snapshot info write parcel failed!");
+        return false;
+    }
+    return true;
+}
+
+bool Snapshot::WritePixelMap(MessageParcel& data) const
+{
+    ImagePacker imagePacker;
+    PackOption option;
+    option.format = "image/jpeg";
+    option.quality = COMPRESS_QUALITY;
+    option.numberHint = 1;
+    stringstream ss;
+    std::ostream outputStream(ss.rdbuf());
+    imagePacker.StartPacking(outputStream, option);
+    imagePacker.AddImage(*pixelMap_);
+    imagePacker.FinalizePacking();
+    std::istream inputStream(outputStream.rdbuf());
+    inputStream.seekg(0, inputStream.end);
+    size_t len = inputStream.tellg();
+    inputStream.seekg(0);
+    HILOGD("pixelMap compress size:%{public}zu", len);
+    if (len > PIXEL_MAP_MAX_BUFFER_SIZE) {
+        HILOGD("pixelMap size is too big.");
+        return false;
+    }
+    std::unique_ptr<char> pixelMapBuffer = make_unique<char>(len);
+    inputStream.read(pixelMapBuffer.get(), len);
+    uint8_t* byteStream = reinterpret_cast<uint8_t*>(pixelMapBuffer.get());
+    size_t minCapacity = data.GetReadableBytes() + len + INT_BYTE;
+    if (minCapacity % INT_BYTE != 0) {
+        HILOGI("bytes are not aligned!");
+        minCapacity += INT_BYTE;
+    }
+    if (minCapacity > data.GetDataCapacity() && !data.SetDataCapacity(minCapacity)) {
+        HILOGE("setCapacity failed! length = %{public}zu.", minCapacity);
+        return false;
+    }
+    PARCEL_WRITE_HELPER_RET(data, Uint32, len, false); // for pixel map size
+    bool ret = data.WriteBuffer(byteStream, len); // for pixel map buffer
+    if (!ret) {
+        HILOGE("pixel map write parcel failed!");
+        return false;
+    }
+    return true;
 }
 
 int64_t Snapshot::GetCreatedTime() const

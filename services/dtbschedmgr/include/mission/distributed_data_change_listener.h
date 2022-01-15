@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef DISTRIBUTED_DATA_CHANGE_LISTENER_H
-#define DISTRIBUTED_DATA_CHANGE_LISTENER_H
+#ifndef OHOS_DISTRIBUTED_DATA_CHANGE_LISTENER_H
+#define OHOS_DISTRIBUTED_DATA_CHANGE_LISTENER_H
 
-#include "kvstore_observer.h"
 #include "change_notification.h"
+#include "kvstore_observer.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -26,9 +26,12 @@ public:
     DistributedDataChangeListener() = default;
     ~DistributedDataChangeListener() override = default;
 
-    void OnChange(const DistributedKv::ChangeNotification &appChangeNotification) override;
+    void OnChange(const DistributedKv::ChangeNotification &changeNotification,
+        std::shared_ptr<DistributedKv::KvStoreSnapshot> snapshot) override;
+
+    void OnChange(const DistributedKv::ChangeNotification &changeNotification) override;
 };
 } // DistributedSchedule
 } // OHOS
 
-#endif // DISTRIBUTED_DATA_CHANGE_LISTENER_H
+#endif // OHOS_DISTRIBUTED_DATA_CHANGE_LISTENER_H
