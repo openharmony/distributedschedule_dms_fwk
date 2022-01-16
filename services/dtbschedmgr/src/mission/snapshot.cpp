@@ -259,7 +259,7 @@ bool Snapshot::WritePixelMap(MessageParcel& data) const
         HILOGD("pixelMap size is too big.");
         return false;
     }
-    std::unique_ptr<char> pixelMapBuffer = make_unique<char>(len);
+    std::unique_ptr<char[]> pixelMapBuffer = make_unique<char[]>(len);
     inputStream.read(pixelMapBuffer.get(), len);
     uint8_t* byteStream = reinterpret_cast<uint8_t*>(pixelMapBuffer.get());
     size_t minCapacity = data.GetReadableBytes() + len + INT_BYTE;
