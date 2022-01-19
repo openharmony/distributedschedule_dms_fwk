@@ -535,10 +535,8 @@ int32_t DistributedSchedProxy::GetOsdSwitchValueFromRemote()
     return result;
 }
 
-int32_t DistributedSchedProxy::StoreSnapshotInfo(const std::string& deviceId,
-                                                 int32_t missionId,
-                                                 const uint8_t* byteStream,
-                                                 size_t len)
+int32_t DistributedSchedProxy::StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
+    const uint8_t* byteStream, size_t len)
 {
     return ERR_NONE;
 }
@@ -571,7 +569,12 @@ int32_t DistributedSchedProxy::GetRemoteMissionSnapshotInfo(const std::string& n
     PARCEL_WRITE_HELPER(data, String, networkId);
     PARCEL_WRITE_HELPER(data, Int32, missionId);
     MessageParcel reply;
-    PARCEL_TRANSACT_SYNC_RET_INT(remote, GET_REMOTE_SNAPSHOT_INFO, data, reply);
+    MessageOption option;
+    int32_t error = remote->SendRequest(GET_REMOTE_MISSION_SNAPSHOT_INFO, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOGE("transact failed, error: %{public}d", error);
+        return error;
+    }
     std::unique_ptr<MissionSnapshot> missionSnapshotPtr(reply.ReadParcelable<MissionSnapshot>());
     missionSnapshot = std::move(missionSnapshotPtr);
     return ERR_NONE;

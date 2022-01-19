@@ -436,10 +436,6 @@ int32_t DistributedSchedStub::GetRemoteMissionSnapshotInfoInner(MessageParcel& d
 int32_t DistributedSchedStub::RegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
-    if (!EnforceInterfaceToken(data)) {
-        HILOGW("RegisterMissionListenerInner interface token check failed!");
-        return DMS_PERMISSION_DENIED;
-    }
     u16string devId = data.ReadString16();
     if (devId.empty()) {
         HILOGW("read deviceId failed!");
