@@ -57,8 +57,8 @@ struct DstbMissionInfo : public Parcelable {
     static DstbMissionInfo* Unmarshalling(Parcel& parcel);
     std::string ToString() const;
 
-    static bool ReadMissionInfoVectorFromParcel(Parcel& parcel, std::vector<DstbMissionInfo> &missionInfos);
-    static bool WriteMissionInfoVectorFromParcel(Parcel& parcel, const std::vector<DstbMissionInfo> &missionInfos);
+    static bool ReadDstbMissionInfosFromParcel(Parcel& parcel, std::vector<DstbMissionInfo>& missionInfos);
+    static bool WriteDstbMissionInfosToParcel(Parcel& parcel, const std::vector<DstbMissionInfo>& missionInfos);
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

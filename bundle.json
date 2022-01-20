@@ -1,6 +1,6 @@
 {
     "name": "@ohos/distributedschedule_dms_fwk",
-    "description": "支持跨设备组件的启动和调用;支持分布式任务迁移;支持全局任务快照信息的实时获取能力。",
+    "description": "distributed ability manager service",
     "version": "3.1",
     "license": "Apache License 2.0",
     "repository": "https://gitee.com/openharmony/distributedschedule_dms_fwk",
@@ -45,10 +45,6 @@
             "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
             "header": {
               "header_files": [
-                "caller_info.h",
-                "distributed_sched_interface.h",
-                "distributed_sched_proxy.h",
-                "mission/distributed_mission_info.h",
                 "uri.h"
               ],
               "header_base": "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include"

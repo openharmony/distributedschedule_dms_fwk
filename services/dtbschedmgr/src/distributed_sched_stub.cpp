@@ -25,6 +25,7 @@
 #include "ipc_skeleton.h"
 #include "message_parcel.h"
 #include "mission/distributed_sched_mission_manager.h"
+#include "mission/mission_info_converter.h"
 #include "mission/snapshot_converter.h"
 #include "parcel_helper.h"
 
@@ -361,13 +362,13 @@ int32_t DistributedSchedStub::GetMissionInfosInner(MessageParcel& data, MessageP
     int32_t numMissions = 0;
     PARCEL_READ_HELPER(data, Int32, numMissions);
 
-    std::vector<DstbMissionInfo> missionInfos;
-    int result = GetMissionInfos(Str16ToStr8(deviceId), numMissions, missionInfos);
+    std::vector<MissionInfo> missionInfos;
+    int32_t result = GetMissionInfos(Str16ToStr8(deviceId), numMissions, missionInfos);
     HILOGI("result = %{public}d", result);
     if (result == ERR_NONE) {
-        return DstbMissionInfo::WriteMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
+        result = MissionInfoConverter::WriteMissionInfosToParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
     }
-    return ERR_NULL_OBJECT;
+    return result;
 }
 
 int32_t DistributedSchedStub::GetRemoteSnapshotInfoInner(MessageParcel& data, MessageParcel& reply)
@@ -481,7 +482,7 @@ int32_t DistributedSchedStub::StartSyncMissionsFromRemoteInner(MessageParcel& da
     if (!reply.WriteInt32(VERSION)) {
         return ERR_FLATTEN_OBJECT;
     }
-    if (!DstbMissionInfo::WriteMissionInfoVectorFromParcel(reply, missionInfos)) {
+    if (!DstbMissionInfo::WriteDstbMissionInfosToParcel(reply, missionInfos)) {
         HILOGE("write mission info failed!");
         return ERR_FLATTEN_OBJECT;
     }
@@ -541,7 +542,7 @@ int32_t DistributedSchedStub::NotifyMissionsChangedFromRemoteInner(MessageParcel
     int32_t version = data.ReadInt32();
     HILOGD("version is %{public}d", version);
     std::vector<DstbMissionInfo> missionInfos;
-    if (!DstbMissionInfo::ReadMissionInfoVectorFromParcel(data, missionInfos)) {
+    if (!DstbMissionInfo::ReadDstbMissionInfosFromParcel(data, missionInfos)) {
         return ERR_FLATTEN_OBJECT;
     }
     CallerInfo callerInfo;

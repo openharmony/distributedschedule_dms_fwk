@@ -325,7 +325,7 @@ int32_t DistributedSchedProxy::StartSyncMissionsFromRemote(const CallerInfo& cal
     }
     int32_t version = reply.ReadInt32();
     HILOGD("version : %{public}d", version);
-    return DstbMissionInfo::ReadMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
+    return DstbMissionInfo::ReadDstbMissionInfosFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
 }
 
 int32_t DistributedSchedProxy::StopSyncRemoteMissions(const std::string& devId)
@@ -409,7 +409,7 @@ int32_t DistributedSchedProxy::UnRegisterMissionListener(const std::u16string& d
 }
 
 int32_t DistributedSchedProxy::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<DstbMissionInfo>& missionInfos)
+    std::vector<AAFwk::MissionInfo>& missionInfos)
 {
     HILOGI("called");
     sptr<IRemoteObject> remote = Remote();
@@ -431,7 +431,7 @@ int32_t DistributedSchedProxy::GetMissionInfos(const std::string& deviceId, int3
         HILOGW("sendRequest fail, error: %{public}d", ret);
         return ret;
     }
-    return DstbMissionInfo::ReadMissionInfoVectorFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
+    return MissionInfoConverter::ReadMissionInfosFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
 }
 
 int32_t DistributedSchedProxy::NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
@@ -449,7 +449,7 @@ int32_t DistributedSchedProxy::NotifyMissionsChangedFromRemote(const std::vector
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Int32, callerInfo.dmsVersion);
-    if (!DstbMissionInfo::WriteMissionInfoVectorFromParcel(data, missionInfos)) {
+    if (!DstbMissionInfo::WriteDstbMissionInfosToParcel(data, missionInfos)) {
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
