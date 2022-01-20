@@ -145,7 +145,7 @@ int32_t MockDistributedSched::GetOsdSwitchValueFromRemote()
 }
 
 int32_t MockDistributedSched::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-    std::vector<DstbMissionInfo>& missionInfos)
+    std::vector<MissionInfo>& missionInfos)
 {
     return ERR_NONE;
 }

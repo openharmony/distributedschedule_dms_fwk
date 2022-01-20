@@ -23,6 +23,7 @@
 #include "common_event_manager.h"
 #include "distributed_data_storage.h"
 #include "distributed_mission_change_listener.h"
+#include "distributed_mission_info.h"
 #include "distributed_sched_interface.h"
 #include "event_handler.h"
 #include "single_instance.h"
@@ -73,7 +74,7 @@ class DistributedSchedMissionManager {
 public:
     void Init();
     int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-        std::vector<DstbMissionInfo>& missionInfos);
+        std::vector<AAFwk::MissionInfo>& missionInfos);
     int32_t InitDataStorage();
     int32_t StopDataStorage();
     int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
