@@ -274,9 +274,7 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_002, TestSize.Level
     if (proxy == nullptr) {
         return;
     }
-    /**
-     * @tc.steps: step1. set want and abilityInfo
-     */
+
     AAFwk::Want want;
     AppExecFwk::ElementName element("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
@@ -288,16 +286,10 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_002, TestSize.Level
     callerInfo.uid = 0;
     callerInfo.sourceDeviceId = "255.255.255.255";
     IDistributedSched::AccountInfo accountInfo;
-    /**
-     * @tc.steps: step2. StartAbilityFromRemote with abilityInfo which is of ACTIVITY type
-     * @tc.expected: step2. StartAbilityFromRemote for result
-     */
+
     int result1 = proxy->StartAbilityFromRemote(want, abilityInfo, 0, callerInfo, accountInfo);
     DTEST_LOG << "result1 is" << result1 << std::endl;
-    /**
-     * @tc.steps: step3. StartAbilityFromRemote with abilityInfo which is of SERVICE type
-     * @tc.expected: step3. StartAbilityFromRemote for result
-     */
+
     AppExecFwk::ElementName element2("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbilityService");
     want.SetElement(element2);
@@ -354,9 +346,7 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_004, TestSize.Level
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_004 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
-    /**
-     * @tc.steps: step1. set want and abilityInfo
-     */
+
     AAFwk::Want want;
     AppExecFwk::ElementName element("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
@@ -368,17 +358,11 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_004, TestSize.Level
     callerInfo.uid = 0;
     callerInfo.sourceDeviceId = "255.255.255.255";
     IDistributedSched::AccountInfo accountInfo;
-    /**
-     * @tc.steps: step2. StartAbilityFromRemote with abilityInfo which is of ACTIVITY type
-     * @tc.expected: step2. StartAbilityFromRemote for result
-     */
+
     int result1 = DistributedSchedService::GetInstance().StartAbilityFromRemote(want,
         abilityInfo, 0, callerInfo, accountInfo);
     DTEST_LOG << "result1:" << result1 << std::endl;
-    /**
-     * @tc.steps: step3. StartAbilityFromRemote with abilityInfo which is of SERVICE type
-     * @tc.expected: step3. StartAbilityFromRemote for result
-     */
+
     AppExecFwk::ElementName element2("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbilityService");
     want.SetElement(element2);
@@ -401,9 +385,7 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_005, TestSize.Level
 {
     DTEST_LOG << "DistributedSchedServiceTest StartAbilityFromRemote_005 start" << std::endl;
     sptr<IDistributedSched> proxy = GetDms();
-    /**
-     * @tc.steps: step1. set want and abilityInfo
-     */
+
     AAFwk::Want want;
     AppExecFwk::ElementName element("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
@@ -417,17 +399,11 @@ HWTEST_F(DistributedSchedServiceTest, StartAbilityFromRemote_005, TestSize.Level
     IDistributedSched::AccountInfo accountInfo;
     accountInfo.accountType = 1;
     accountInfo.groupIdList.push_back("123456");
-    /**
-     * @tc.steps: step2. StartAbilityFromRemote with abilityInfo which is of ACTIVITY type
-     * @tc.expected: step2. StartAbilityFromRemote for result
-     */
+
     int result1 = DistributedSchedService::GetInstance().StartAbilityFromRemote(want,
         abilityInfo, 0, callerInfo, accountInfo);
     DTEST_LOG << "result1:" << result1 << std::endl;
-    /**
-     * @tc.steps: step3. StartAbilityFromRemote with abilityInfo which is of SERVICE type
-     * @tc.expected: step3. StartAbilityFromRemote for result
-     */
+
     AppExecFwk::ElementName element2("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbilityService");
     want.SetElement(element2);
