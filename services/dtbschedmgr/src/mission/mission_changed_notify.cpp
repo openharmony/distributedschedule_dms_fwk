@@ -22,12 +22,12 @@
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
-constexpr int32_t CODE_NOTIFY_MISSION = 1;
-constexpr int32_t NOTIFY_SNAP_SHOT = 2;
-constexpr int32_t NOTIFY_NET_DISCONNECT = 3;
+constexpr int32_t CODE_NOTIFY_MISSION = 0;
+constexpr int32_t NOTIFY_SNAP_SHOT = 1;
+constexpr int32_t NOTIFY_NET_DISCONNECT = 2;
 constexpr int32_t CODE_NOTIFY_SWITCH = 4;
 
-const std::u16string DESCRIPTOR = u"ohos.distributedschedule.dmissionmanagerkit.IDistributedMissionChangedListener";
+const std::u16string DESCRIPTOR = u"ohos.aafwk.RemoteMissionListener";
 const std::string TAG = "MissionChangedNotify";
 }
 void MissionChangedNotify::NotifyMissionsChanged(const sptr<IRemoteObject>& remoteObject,
