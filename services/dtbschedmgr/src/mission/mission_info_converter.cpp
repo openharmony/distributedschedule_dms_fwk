@@ -30,7 +30,7 @@ int32_t MissionInfoConverter::ConvertToDstbMissionInfos(std::vector<AAFwk::Missi
     std::vector<DstbMissionInfo>& dstbMissionInfos)
 {
     if (missionInfos.empty()) {
-        return INVALID_PARAMETERS_ERR;
+        return ERR_OK;
     }
     for (auto iter = missionInfos.begin(); iter != missionInfos.end(); iter++) {
         DstbMissionInfo dstbMissionInfo;
@@ -50,7 +50,7 @@ int32_t MissionInfoConverter::ConvertToMissionInfos(std::vector<DstbMissionInfo>
     std::vector<AAFwk::MissionInfo>& missionInfos)
 {
     if (dstbMissionInfos.empty()) {
-        return INVALID_PARAMETERS_ERR;
+        return ERR_OK;
     }
     for (auto iter = dstbMissionInfos.begin(); iter != dstbMissionInfos.end(); iter++) {
         AAFwk::MissionInfo missionInfo;
