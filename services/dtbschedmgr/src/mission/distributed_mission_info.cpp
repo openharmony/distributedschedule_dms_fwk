@@ -50,7 +50,7 @@ bool DstbMissionInfo::ReadFromParcel(Parcel& parcel)
     label = Str16ToStr8(parcel.ReadString16());
     size = parcel.ReadInt32();
     iconPath = Str16ToStr8(parcel.ReadString16());
-    color = parcel.ReadInt32();
+    continuable = parcel.ReadInt32();
     windowType = parcel.ReadInt32();
     lockedState = parcel.ReadBool();
     missionType = parcel.ReadInt32();
@@ -91,7 +91,7 @@ bool DstbMissionInfo::Marshalling(Parcel& parcel) const
     PARCEL_WRITE_HELPER_RET(parcel, String16, Str8ToStr16(label), false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, size, false);
     PARCEL_WRITE_HELPER_RET(parcel, String16, Str8ToStr16(iconPath), false);
-    PARCEL_WRITE_HELPER_RET(parcel, Int32, color, false);
+    PARCEL_WRITE_HELPER_RET(parcel, Int32, continuable, false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, windowType, false);
     PARCEL_WRITE_HELPER_RET(parcel, Bool, lockedState, false);
     PARCEL_WRITE_HELPER_RET(parcel, Int32, missionType, false);
@@ -184,7 +184,7 @@ std::string DstbMissionInfo::ToString() const
     str += " label: " + label;
     str += " size: " + std::to_string(size);
     str += " iconPath: " + iconPath;
-    str += " color: " + std::to_string(color);
+    str += " continuable: " + std::to_string(continuable);
     str += " windowType: " + std::to_string(windowType);
     str += " lockedState: ";
     str += lockedState ? "true" : "false";

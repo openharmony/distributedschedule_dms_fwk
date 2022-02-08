@@ -41,6 +41,7 @@ int32_t MissionInfoConverter::ConvertToDstbMissionInfos(std::vector<AAFwk::Missi
         dstbMissionInfo.iconPath = iter->iconPath;
         shared_ptr<AAFwk::Want> spWant = make_shared<AAFwk::Want>(iter->want);
         dstbMissionInfo.baseWant = spWant;
+        dstbMissionInfo.continuable = iter->continuable ? 1 : 0;
         dstbMissionInfos.push_back(dstbMissionInfo);
     }
     return ERR_OK;
@@ -60,6 +61,7 @@ int32_t MissionInfoConverter::ConvertToMissionInfos(std::vector<DstbMissionInfo>
         missionInfo.label = iter->label;
         missionInfo.iconPath = iter->iconPath;
         missionInfo.want = *(iter->baseWant);
+        missionInfo.continuable = iter->continuable == 1;
         missionInfos.push_back(missionInfo);
     }
     return ERR_OK;
