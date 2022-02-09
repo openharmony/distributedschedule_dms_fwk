@@ -46,7 +46,7 @@ struct DstbMissionInfo : public Parcelable {
     std::string label;
     int32_t size = 0;
     std::string iconPath;
-    int32_t color = 0;
+    int32_t continuable = 0;
     int32_t windowType = 0;
     bool lockedState = false;
     int32_t missionType = INT_MAX;
