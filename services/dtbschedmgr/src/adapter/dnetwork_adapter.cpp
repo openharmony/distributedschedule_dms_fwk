@@ -176,15 +176,15 @@ std::shared_ptr<NodeBasicInfo> DnetworkAdapter::GetLocalBasicInfo()
 
 std::string DnetworkAdapter::GetUdidByNetworkId(const std::string& networkId)
 {
-    return GetUuidOrUdidByNetworkId(networkId, NodeDeivceInfoKey::NODE_KEY_UDID);
+    return GetUuidOrUdidByNetworkId(networkId, NodeDeviceInfoKey::NODE_KEY_UDID);
 }
 
 std::string DnetworkAdapter::GetUuidByNetworkId(const std::string& networkId)
 {
-    return GetUuidOrUdidByNetworkId(networkId, NodeDeivceInfoKey::NODE_KEY_UUID);
+    return GetUuidOrUdidByNetworkId(networkId, NodeDeviceInfoKey::NODE_KEY_UUID);
 }
 
-std::string DnetworkAdapter::GetUuidOrUdidByNetworkId(const std::string& networkId, NodeDeivceInfoKey keyType)
+std::string DnetworkAdapter::GetUuidOrUdidByNetworkId(const std::string& networkId, NodeDeviceInfoKey keyType)
 {
     if (networkId.empty()) {
         return std::string();
