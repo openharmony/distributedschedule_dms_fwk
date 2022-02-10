@@ -59,9 +59,8 @@ ohos_shared_library("distributedschedsvr") {
   deps = [ "//foundation/appexecfwk/standard/common:libappexecfwk_common" ]
 
   external_deps = [
+    "ability_base:want",
     "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
-    "ability_runtime:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "distributeddatamgr:distributeddata_inner",
