@@ -19,10 +19,13 @@
 #include "dtbschedmgr_log.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "os_account_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
+using namespace AccountSA;
+
 namespace {
 const std::string TAG = "BundleManagerInternal";
 }
@@ -43,9 +46,12 @@ bool BundleManagerInternal::GetCallerAppIdFromBms(int32_t callingUid, std::strin
     }
 
     // getting an arbitrary bundlename for they sharing a same appId, here we get the first one
-    std::string identity = IPCSkeleton::ResetCallingIdentity();
-    appId = bundleMgr->GetAppIdByBundleName(bundleNameList.front(), callingUid);
-    IPCSkeleton::SetCallingIdentity(identity);
+    std::vector<int> ids;
+    ErrCode result = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (result != ERR_OK || ids.empty()) {
+        return false;
+    }
+    appId = bundleMgr->GetAppIdByBundleName(bundleNameList.front(), ids[0]);
     HILOGD("appId:%s", appId.c_str());
     return true;
 }
