@@ -59,7 +59,7 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(DnetworkAdapter);
 
-    std::string GetUuidOrUdidByNetworkId(const std::string& networkId, NodeDeivceInfoKey keyType);
+    std::string GetUuidOrUdidByNetworkId(const std::string& networkId, NodeDeviceInfoKey keyType);
     static void OnNodeOnline(NodeBasicInfo* info);
     static void OnNodeOffline(NodeBasicInfo* info);
     static void OnNodeBasicInfoChanged(NodeBasicInfoType type, NodeBasicInfo* info);
