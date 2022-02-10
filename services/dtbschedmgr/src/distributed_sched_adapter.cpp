@@ -25,6 +25,7 @@
 #include "ipc_types.h"
 #include "mission/distributed_sched_mission_manager.h"
 #include "mission/mission_info_converter.h"
+#include "os_account_manager.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 
@@ -32,6 +33,7 @@ namespace OHOS {
 namespace DistributedSchedule {
 using namespace std;
 using namespace AAFwk;
+using namespace AccountSA;
 using namespace AppExecFwk;
 using DstbMissionChangeListener = DistributedMissionChangeListener;
 
@@ -124,12 +126,18 @@ void DistributedSchedAdapter::DeviceOffline(const std::string& deviceId)
 
 bool DistributedSchedAdapter::QueryAbilityInfo(const OHOS::AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo)
 {
+    std::vector<int> ids;
+    ErrCode ret = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        return false;
+    }
     auto bundleMgr = BundleManagerInternal::GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOGE("QueryAbilityInfo failed to get bms");
         return false;
     }
-    bool result = bundleMgr->QueryAbilityInfo(want, abilityInfo);
+    bool result = bundleMgr->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, ids[0], abilityInfo);
     if (!result) {
         HILOGE("QueryAbilityInfo fail");
         return false;
