@@ -121,7 +121,7 @@ bool DstbMissionInfo::ReadDstbMissionInfosFromParcel(Parcel& parcel,
             if (ptr == nullptr) {
                 return false;
             }
-            HILOGD("read DstbMissionInfo is:%{private}s", ptr->ToString().c_str());
+            HILOGD("read DstbMissionInfo is:%{public}s", ptr->ToString().c_str());
             missionInfos.emplace_back(*ptr);
             delete ptr;
         }
