@@ -27,6 +27,7 @@ void DistributedMissionChangeListener::OnMissionCreated(int32_t missionId)
 {
     HILOGI("OnMissionCreated, missionId = %{public}d", missionId);
     DistributedSchedMissionManager::GetInstance().NotifyLocalMissionsChanged();
+    DistributedSchedMissionManager::GetInstance().NotifyMissionSnapshotCreated(missionId);
 }
 
 void DistributedMissionChangeListener::OnMissionDestroyed(int32_t missionId)

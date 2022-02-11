@@ -42,6 +42,7 @@ constexpr int32_t FIRST_APPLICATION_UID = 10000;
 constexpr int32_t MULTIUSER_HAP_PER_USER_RANGE = 100000;
 constexpr int32_t MAX_RETRY_TIMES = 15;
 constexpr int32_t RETRY_DELAYED = 2000;
+constexpr int32_t GET_FOREGROUND_SNAPSHOT_DELAY_TIME = 800;
 const std::string DELETE_DATA_STORAGE = "DeleteDataStorage";
 constexpr int32_t DELETE_DATA_STORAGE_DELAYED = 60000;
 constexpr int32_t REGISTER_MISSION_LISTENER = 0;
@@ -253,6 +254,8 @@ int32_t DistributedSchedMissionManager::GetRemoteMissionSnapshotInfo(const std::
     }
     std::unique_ptr<Snapshot> snapshotPtr = DequeueCachedSnapshotInfo(uuid, missionId);
     if (snapshotPtr != nullptr) {
+        HILOGI("get uuid = %{public}s + missionId = %{public}d snapshot from cache successful!",
+            DnetworkAdapter::AnonymizeDeviceId(uuid).c_str(), missionId);
         SnapshotConverter::ConvertToMissionSnapshot(*snapshotPtr, missionSnapshot);
         return ERR_NONE;
     }
@@ -271,6 +274,8 @@ int32_t DistributedSchedMissionManager::GetRemoteMissionSnapshotInfo(const std::
         HILOGE("snapshot create failed!");
         return ERR_NULL_OBJECT;
     }
+    HILOGI("get uuid = %{public}s + missionId = %{public}d snapshot from DistributedDB successful!",
+        DnetworkAdapter::AnonymizeDeviceId(uuid).c_str(), missionId);
     SnapshotConverter::ConvertToMissionSnapshot(*snapshotPtr, missionSnapshot);
     return ERR_NONE;
 }
@@ -859,6 +864,20 @@ void DistributedSchedMissionManager::NotifyLocalMissionsChanged()
     };
     if (!missionChangeHandler_->PostTask(func)) {
         HILOGE("postTask failed");
+    }
+}
+
+void DistributedSchedMissionManager::NotifyMissionSnapshotCreated(int32_t missionId)
+{
+    auto func = [this, missionId]() {
+        HILOGD("called.");
+        ErrCode errCode = MissionSnapshotChanged(missionId);
+        if (errCode != ERR_OK) {
+            HILOGE("mission snapshot changed failed, missionId=%{public}d, errCode=%{public}d", missionId, errCode);
+        }
+    };
+    if (!missionChangeHandler_->PostTask(func, GET_FOREGROUND_SNAPSHOT_DELAY_TIME)) {
+        HILOGE("post MissionSnapshotChanged delay Task failed");
     }
 }
 

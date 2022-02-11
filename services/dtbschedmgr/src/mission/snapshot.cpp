@@ -147,7 +147,7 @@ unique_ptr<PixelMap> Snapshot::CreatePixelMap(const uint8_t* buffer, uint32_t bu
     }
     DecodeOptions decodeOpt;
     decodeOpt.allocatorType = AllocatorType::SHARE_MEM_ALLOC;
-    decodeOpt.desiredPixelFormat = PixelFormat::RGB_888;
+    decodeOpt.desiredPixelFormat = PixelFormat::RGBA_8888;
     int64_t begin = GetTickCount();
     unique_ptr<PixelMap> pixelMap = imageSource->CreatePixelMap(decodeOpt, errCode);
     HILOGI("[PerformanceTest] Create PixelMap spend %{public}" PRId64 " ms", GetTickCount() - begin);
@@ -197,7 +197,7 @@ unique_ptr<Snapshot> Snapshot::Create(const vector<uint8_t>& data)
     dataBuffer += sizeof(uint32_t);
     unique_ptr<PixelMap> pixelMap = CreatePixelMap(dataBuffer, pixelmapLen);
     if (pixelMap != nullptr) {
-        HILOGD("Snapshot: dataParcel pixelMap width:%d, height:%d, byteCount:%d, pixelformat:%d",
+        HILOGD("create pixelMap width:%{public}d, height:%{public}d, byteCount:%{public}d, pixelformat:%{public}d",
             pixelMap->GetWidth(), pixelMap->GetHeight(), pixelMap->GetByteCount(),
             static_cast<int32_t>(pixelMap->GetPixelFormat()));
         snapShot->pixelMap_ = std::move(pixelMap);

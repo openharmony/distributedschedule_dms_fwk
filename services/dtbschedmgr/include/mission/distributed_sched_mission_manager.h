@@ -114,6 +114,7 @@ public:
     void NotifyDmsProxyProcessDied();
     void OnDnetDied();
     void NotifyLocalMissionsChanged();
+    void NotifyMissionSnapshotCreated(int32_t missionId);
     void NotifyMissionSnapshotChanged(int32_t missionId);
     void NotifyMissionSnapshotDestroyed(int32_t missionId);
 private:
