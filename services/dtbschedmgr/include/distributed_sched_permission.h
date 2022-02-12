@@ -32,6 +32,8 @@ public:
     int32_t CheckDPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo, const AppExecFwk::AbilityInfo& abilityInfo,
         const std::string& localDeviceId);
+    int32_t CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
+        const AccountInfo& accountInfo, const std::string& localDeviceId);
     bool CheckComponentAccessPermission(const AppExecFwk::AbilityInfo& targetAbility,
         const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
 

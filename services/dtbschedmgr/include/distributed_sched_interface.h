@@ -77,6 +77,14 @@ public:
     virtual void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values) = 0;
     virtual int32_t GetOsdSwitchValueFromRemote() = 0;
     virtual int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) = 0;
+    virtual int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+        int32_t callerUid, int32_t callerPid, uint32_t accessToken) = 0;
+    virtual int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
+        const AppExecFwk::ElementName &element) = 0;
+    virtual int32_t StartAbilityByCallFromRemote(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+        const CallerInfo& callerInfo, const AccountInfo& accountInfo) = 0;
+    virtual int32_t ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element,
+        const CallerInfo& callerInfo) = 0;
     enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
@@ -117,6 +125,12 @@ public:
         ALL_CONNECT_TO_DMS = 97,
         STOP_SYNC_MISSIONS = 98,
         GET_REMOTE_MISSION_SNAPSHOT_INFO = 99,
+
+        // request code for call ability
+        START_REMOTE_ABILITY_BY_CALL = 150,
+        RELEASE_REMOTE_ABILITY = 151,
+        START_ABILITY_BY_CALL_FROM_REMOTE = 152,
+        RELEASE_ABILITY_FROM_REMOTE = 153,
     };
 };
 } // namespace DistributedSchedule

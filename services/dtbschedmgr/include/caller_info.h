@@ -36,6 +36,7 @@ struct CallerInfo {
     std::string callerAppId;
     std::vector<std::string> bundleNames;
     int32_t dmsVersion = -1;
+    uint32_t accessToken = 0;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
