@@ -340,6 +340,10 @@ enum {
      * Result(29360200) for continue get content failed.
      */
     CONTINUE_GET_CONTENT_FAILED = 29360200,
+    /*
+     * Result(29360201) for continue get content failed.
+     */
+    CALL_PERMISSION_DENIED = 29360201,
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

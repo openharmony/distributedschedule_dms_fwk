@@ -29,6 +29,7 @@ class BundleManagerInternal {
 
 public:
     static bool GetCallerAppIdFromBms(int32_t callingUid, std::string& appId);
+    static bool GetCallerAppIdFromBms(const std::string& bundleName, std::string& appId);
     static sptr<AppExecFwk::IBundleMgr> GetBundleManager();
 };
 } // namespace DistributedSchedule
