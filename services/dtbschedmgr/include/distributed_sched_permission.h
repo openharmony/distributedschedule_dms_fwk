@@ -34,10 +34,12 @@ public:
         const std::string& localDeviceId);
     int32_t CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo, const std::string& localDeviceId);
-    bool CheckComponentAccessPermission(const AppExecFwk::AbilityInfo& targetAbility,
-        const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
 
 private:
+    bool CheckComponentAccessPermission(const AppExecFwk::AbilityInfo& targetAbility,
+        const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
+    bool CheckCustomPermission(const AppExecFwk::AbilityInfo& targetAbility,
+        const CallerInfo& callerInfo) const;
     bool getTargetAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
         const std::string& localDeviceId, AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const;
 };

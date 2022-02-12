@@ -61,6 +61,7 @@ ohos_shared_library("distributedschedsvr") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "distributeddatamgr:distributeddata_inner",
