@@ -100,6 +100,7 @@ bool DistributedSchedService::Init()
     DnetworkAdapter::GetInstance()->Init();
     DistributedSchedMissionManager::GetInstance().InitDataStorage();
     connectDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ConnectDeathRecipient());
+    callerDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new CallerDeathRecipient());
     return true;
 }
 
@@ -580,6 +581,209 @@ int32_t DistributedSchedService::TryConnectRemoteAbility(const OHOS::AAFwk::Want
             HILOGW("ConnectRemoteAbility timeout, elapsedTime is %{public}" PRId64 " ms", elapsedTime);
             break;
         }
+    }
+    return result;
+}
+
+void DistributedSchedService::ProcessCallerDied(const sptr<IRemoteObject>& connect)
+{
+    if (connect == nullptr) {
+        HILOGE("ProcessCallerDied connect is null");
+        return;
+    }
+    sptr<IRemoteObject> callbackWrapper = connect;
+    AppExecFwk::ElementName element;
+    {
+        std::lock_guard<std::mutex> autoLock(calleeLock_);
+        auto itConnect = calleeMap_.find(connect);
+        if (itConnect != calleeMap_.end()) {
+            callbackWrapper = itConnect->second.callbackWrapper;
+            element = itConnect->second.element;
+            calleeMap_.erase(itConnect);
+        } else {
+            HILOGW("ProcessCallerDied connect not found");
+        }
+    }
+    int32_t result = DistributedSchedAdapter::GetInstance().ReleaseAbility(callbackWrapper, element);
+    if (result != ERR_OK) {
+        HILOGW("ProcessCallerDied failed, error: %{public}d", result);
+    }
+}
+
+void DistributedSchedService::ProcessCalleeDied(const sptr<IRemoteObject>& connect)
+{
+    if (connect == nullptr) {
+        HILOGE("ProcessCalleeDied connect is null");
+        return;
+    }
+    std::lock_guard<std::mutex> autoLock(calleeLock_);
+    auto itConnect = calleeMap_.find(connect);
+    if (itConnect != calleeMap_.end()) {
+        calleeMap_.erase(itConnect);
+    } else {
+        HILOGW("ProcessCalleeDied connect not found");
+    }
+}
+
+int32_t DistributedSchedService::TryStartRemoteAbilityByCall(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo)
+{
+    std::string remoteDeviceId = want.GetElement().GetDeviceID();
+    HILOGD("[PerformanceTest] TryStartRemoteAbilityByCall get remote DMS");
+    sptr<IDistributedSched> remoteDms = GetRemoteDms(remoteDeviceId);
+    if (remoteDms == nullptr) {
+        HILOGE("TryStartRemoteAbilityByCall get remote DMS failed, remoteDeviceId : %{public}s",
+            DnetworkAdapter::AnonymizeDeviceId(remoteDeviceId).c_str());
+        return INVALID_PARAMETERS_ERR;
+    }
+    HILOGD("[PerformanceTest] TryStartRemoteAbilityByCall RPC begin");
+    AccountInfo accountInfo;
+    int result = remoteDms->StartAbilityByCallFromRemote(want, connect, callerInfo, accountInfo);
+    HILOGD("[PerformanceTest] TryStartRemoteAbilityByCall RPC end");
+    if (result != ERR_OK) {
+        HILOGE("TryStartRemoteAbilityByCall failed, result : %{public}d", result);
+    }
+    return result;
+}
+
+int32_t DistributedSchedService::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid, uint32_t accessToken)
+{
+    if (connect == nullptr) {
+        HILOGE("StartRemoteAbilityByCall connect is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    std::string localDeviceId;
+    std::string remoteDeviceId = want.GetElement().GetDeviceID();
+    if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, remoteDeviceId)) {
+        HILOGE("StartRemoteAbilityByCall check deviceId failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
+        HILOGE("StartRemoteAbilityByCall check system uid failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    CallerInfo callerInfo;
+    callerInfo = { callerUid, callerPid };
+    callerInfo.sourceDeviceId = localDeviceId;
+    callerInfo.accessToken = accessToken;
+    if (!BundleManagerInternal::GetCallerAppIdFromBms(callerInfo.uid, callerInfo.callerAppId)) {
+        HILOGE("StartRemoteAbilityByCall GetCallerAppIdFromBms failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    int32_t ret = TryStartRemoteAbilityByCall(want, connect, callerInfo);
+    if (ret != ERR_OK) {
+        HILOGE("StartRemoteAbilityByCall result is %{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t DistributedSchedService::ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
+    const AppExecFwk::ElementName &element)
+{
+    if (connect == nullptr) {
+        HILOGE("ReleaseRemoteAbility connect is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (element.GetDeviceID().empty()) {
+        HILOGE("ReleaseRemoteAbility remote deviceId empty");
+        return INVALID_PARAMETERS_ERR;
+    }
+    sptr<IDistributedSched> remoteDms = GetRemoteDms(element.GetDeviceID());
+    if (remoteDms == nullptr) {
+        HILOGE("ReleaseRemoteAbility get remote dms failed, devId : %{public}s",
+            DnetworkAdapter::AnonymizeDeviceId(element.GetDeviceID()).c_str());
+        return INVALID_PARAMETERS_ERR;
+    }
+    CallerInfo callerInfo;
+    if (!GetLocalDeviceId(callerInfo.sourceDeviceId)) {
+        HILOGE("ReleaseRemoteAbility get local deviceId failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    int32_t result = remoteDms->ReleaseAbilityFromRemote(connect, element, callerInfo);
+    if (result != ERR_OK) {
+        HILOGE("ReleaseRemoteAbility result is %{public}d", result);
+    }
+    return result;
+}
+
+int32_t DistributedSchedService::StartAbilityByCallFromRemote(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo, const AccountInfo& accountInfo)
+{
+    HILOGD("[PerformanceTest] DistributedSchedService StartAbilityByCallFromRemote begin");
+    if (connect == nullptr) {
+        HILOGE("StartAbilityByCallFromRemote connect is null");
+        return INVALID_REMOTE_PARAMETERS_ERR;
+    }
+    std::string localDeviceId;
+    std::string destinationDeviceId = want.GetElement().GetDeviceID();
+    if (!GetLocalDeviceId(localDeviceId) ||
+        !CheckDeviceIdFromRemote(localDeviceId, destinationDeviceId, callerInfo.sourceDeviceId)) {
+        HILOGE("StartAbilityByCallFromRemote check deviceId failed");
+        return INVALID_REMOTE_PARAMETERS_ERR;
+    }
+
+    DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
+    int32_t result = permissionInstance.CheckGetCallerPermission(want, callerInfo, accountInfo, localDeviceId);
+    if (result != ERR_OK) {
+        HILOGE("StartAbilityByCallFromRemote CheckDPermission denied!!");
+        return result;
+    }
+    sptr<IRemoteObject> callbackWrapper = connect;
+    {
+        std::lock_guard<std::mutex> autoLock(calleeLock_);
+        auto itConnect = calleeMap_.find(connect);
+        if (itConnect != calleeMap_.end()) {
+            callbackWrapper = itConnect->second.callbackWrapper;
+        } else {
+            callbackWrapper = new AbilityConnectionWrapperStub(connect, localDeviceId);
+        }
+    }
+    int32_t errCode = DistributedSchedAdapter::GetInstance().StartAbilityByCall(want, callbackWrapper, this);
+    HILOGD("[PerformanceTest] StartAbilityByCallFromRemote end");
+    if (errCode == ERR_OK) {
+        {
+            std::lock_guard<std::mutex> autoLock(calleeLock_);
+            ConnectInfo connectInfo {callerInfo, callbackWrapper, want.GetElement()};
+            calleeMap_.emplace(connect, connectInfo);
+        }
+        connect->AddDeathRecipient(callerDeathRecipient_);
+    }
+    return errCode;
+}
+
+int32_t DistributedSchedService::ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect,
+    const AppExecFwk::ElementName &element, const CallerInfo& callerInfo)
+{
+    if (connect == nullptr) {
+        HILOGE("ReleaseAbilityFromRemote connect is null");
+        return INVALID_REMOTE_PARAMETERS_ERR;
+    }
+
+    HILOGD("[PerformanceTest] ReleaseAbilityFromRemote begin");
+    std::string localDeviceId;
+    if (!GetLocalDeviceId(localDeviceId) || localDeviceId.empty() ||
+        callerInfo.sourceDeviceId.empty() || localDeviceId == callerInfo.sourceDeviceId) {
+        HILOGE("ReleaseAbilityFromRemote check deviceId failed");
+        return INVALID_REMOTE_PARAMETERS_ERR;
+    }
+
+    sptr<IRemoteObject> callbackWrapper = connect;
+    {
+        std::lock_guard<std::mutex> autoLock(calleeLock_);
+        auto itConnect = calleeMap_.find(connect);
+        if (itConnect == calleeMap_.end()) {
+            HILOGE("ReleaseAbilityFromRemote callee not found");
+            return INVALID_REMOTE_PARAMETERS_ERR;
+        }
+        callbackWrapper = itConnect->second.callbackWrapper;
+        calleeMap_.erase(itConnect);
+        connect->RemoveDeathRecipient(callerDeathRecipient_);
+    }
+    int32_t result = DistributedSchedAdapter::GetInstance().ReleaseAbility(callbackWrapper, element);
+    HILOGD("[PerformanceTest] ReleaseAbilityFromRemote end");
+    if (result != ERR_OK) {
+        HILOGE("ReleaseAbilityFromRemote failed, error: %{public}d", result);
     }
     return result;
 }
@@ -1137,6 +1341,12 @@ int32_t DistributedSchedService::UpdateOsdSwitchValueFromRemote(int32_t switchVa
 {
     return DistributedSchedMissionManager::GetInstance()
         .UpdateOsdSwitchValueFromRemote(switchVal, sourceDeviceId);
+}
+
+void CallerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
+{
+    HILOGI("CallerDeathRecipient OnRemoteDied called");
+    DistributedSchedAdapter::GetInstance().ProcessCallerDied(remote.promote());
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

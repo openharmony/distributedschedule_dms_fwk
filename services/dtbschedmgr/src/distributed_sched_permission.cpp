@@ -15,6 +15,7 @@
 
 #include "distributed_sched_permission.h"
 
+#include "bundle/bundle_manager_internal.h"
 #include "caller_info.h"
 #include "distributed_sched_adapter.h"
 #include "dtbschedmgr_log.h"
@@ -61,6 +62,27 @@ bool DistributedSchedPermission::getTargetAbility(const AAFwk::Want& want,
         return false;
     }
     return true;
+}
+
+int32_t DistributedSchedPermission::CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
+    const AccountInfo& accountInfo, const std::string& localDeviceId)
+{
+    AppExecFwk::AbilityInfo abilityInfo;
+    int32_t result = CheckDPermission(want, callerInfo, accountInfo, abilityInfo, localDeviceId);
+    if (result != ERR_OK) {
+        HILOGE("CheckGetCallerPermission fail, error:%{public}d", result);
+        return result;
+    }
+    std::string appId;
+    if (!BundleManagerInternal::GetCallerAppIdFromBms(want.GetElement().GetBundleName(), appId)) {
+        HILOGE("CheckGetCallerPermission get appId fail");
+        return CALL_PERMISSION_DENIED;
+    }
+    if (appId != callerInfo.callerAppId) {
+        HILOGE("CheckGetCallerPermission appId is different");
+        return CALL_PERMISSION_DENIED;
+    }
+    return ERR_OK;
 }
 
 bool DistributedSchedPermission::CheckComponentAccessPermission(const AppExecFwk::AbilityInfo& targetAbility,

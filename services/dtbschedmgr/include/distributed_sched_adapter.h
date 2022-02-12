@@ -53,6 +53,11 @@ public:
     void OnOsdEventOccur(int32_t flag);
     int32_t GetLocalMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
         AAFwk::MissionSnapshot& missionSnapshot);
+    int32_t ReleaseAbility(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element);
+    int32_t StartAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+        const sptr<IRemoteObject>& callerToken);
+    void ProcessCallerDied(const sptr<IRemoteObject>& connect);
+    void ProcessCalleeDied(const sptr<IRemoteObject>& connect);
 
 private:
     void ProcessDeviceOffline(const std::string& deviceId);

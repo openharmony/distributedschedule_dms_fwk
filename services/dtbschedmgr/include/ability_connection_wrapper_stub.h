@@ -27,6 +27,7 @@ namespace DistributedSchedule {
 class AbilityConnectionWrapperStub : public IRemoteStub<AAFwk::IAbilityConnection> {
 public:
     explicit AbilityConnectionWrapperStub(sptr<IRemoteObject> connection);
+    AbilityConnectionWrapperStub(sptr<IRemoteObject> connection, const std::string& localDeviceId);
     virtual ~AbilityConnectionWrapperStub() = default;
 
     void OnAbilityConnectDone(const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject,
@@ -39,6 +40,8 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(AbilityConnectionWrapperStub);
     sptr<IRemoteObject> distributedConnection_;
+    bool isCall_ = false;
+    std::string localDeviceId_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

@@ -16,6 +16,7 @@
 #include "ability_connection_wrapper_stub.h"
 
 #include "ability_connection_wrapper_proxy.h"
+#include "distributed_sched_adapter.h"
 #include "dtbschedmgr_log.h"
 #include "ipc_types.h"
 
@@ -29,6 +30,14 @@ const std::string TAG = "AbilityConnectionWrapperStub";
 AbilityConnectionWrapperStub::AbilityConnectionWrapperStub(sptr<IRemoteObject> connection)
 {
     distributedConnection_ = connection;
+}
+
+AbilityConnectionWrapperStub::AbilityConnectionWrapperStub(sptr<IRemoteObject> connection,
+    const std::string& localDeviceId)
+{
+    distributedConnection_ = connection;
+    isCall_ = true;
+    localDeviceId_ = localDeviceId;
 }
 
 int32_t AbilityConnectionWrapperStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
@@ -74,12 +83,23 @@ void AbilityConnectionWrapperStub::OnAbilityConnectDone(const AppExecFwk::Elemen
     const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
     auto proxy = std::make_unique<AbilityConnectionWrapperProxy>(distributedConnection_);
+    if (isCall_) {
+        HILOGD("OnAbilityConnectDone get caller callback");
+        AppExecFwk::ElementName elementWithDeviceId(localDeviceId_, element.GetBundleName(), element.GetAbilityName());
+        proxy->OnAbilityConnectDone(elementWithDeviceId, remoteObject, resultCode);
+        return;
+    }
     proxy->OnAbilityConnectDone(element, remoteObject, resultCode);
 }
 
 void AbilityConnectionWrapperStub::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
     int32_t resultCode)
 {
+    if (isCall_) {
+        HILOGD("OnAbilityDisconnectDone release caller");
+        DistributedSchedAdapter::GetInstance().ProcessCalleeDied(distributedConnection_);
+        return;
+    }
     auto proxy = std::make_unique<AbilityConnectionWrapperProxy>(distributedConnection_);
     proxy->OnAbilityDisconnectDone(element, resultCode);
 }

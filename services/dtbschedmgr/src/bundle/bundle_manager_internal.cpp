@@ -38,20 +38,23 @@ bool BundleManagerInternal::GetCallerAppIdFromBms(int32_t callingUid, std::strin
         HILOGE("GetBundleNameListFromBms error");
         return false;
     }
+    // getting an arbitrary bundlename for they sharing a same appId, here we get the first one
+    return GetCallerAppIdFromBms(bundleNameList.front(), appId);
+}
 
+bool BundleManagerInternal::GetCallerAppIdFromBms(const std::string& bundleName, std::string& appId)
+{
     auto bundleMgr = GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOGE("failed to get bms");
         return false;
     }
-
-    // getting an arbitrary bundlename for they sharing a same appId, here we get the first one
     std::vector<int> ids;
     ErrCode result = OsAccountManager::QueryActiveOsAccountIds(ids);
     if (result != ERR_OK || ids.empty()) {
         return false;
     }
-    appId = bundleMgr->GetAppIdByBundleName(bundleNameList.front(), ids[0]);
+    appId = bundleMgr->GetAppIdByBundleName(bundleName, ids[0]);
     HILOGD("appId:%s", appId.c_str());
     return true;
 }
