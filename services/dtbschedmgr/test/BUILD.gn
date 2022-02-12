@@ -33,6 +33,7 @@ dsched_deps = [ "//foundation/appexecfwk/standard/common:libappexecfwk_common" ]
 dsched_external_deps = [
   "ability_base:want",
   "ability_runtime:ability_manager",
+  "access_token:libaccesstoken_sdk",
   "bundle_framework:appexecfwk_base",
   "bundle_framework:appexecfwk_core",
   "distributeddatamgr:distributeddata_inner",

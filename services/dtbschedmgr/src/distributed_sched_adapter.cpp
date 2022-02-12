@@ -36,7 +36,6 @@ using namespace AAFwk;
 using namespace AccountSA;
 using namespace AppExecFwk;
 using DstbMissionChangeListener = DistributedMissionChangeListener;
-
 namespace {
 // set a non-zero value on need later
 constexpr int64_t DEVICE_OFFLINE_DELAY_TIME = 0;
@@ -71,8 +70,13 @@ int32_t DistributedSchedAdapter::ConnectAbility(const OHOS::AAFwk::Want& want,
         HILOGE("connect ability server failed, errCode=%{public}d", errCode);
         return errCode;
     }
-    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want,
-        iface_cast<AAFwk::IAbilityConnection>(connect), callerToken);
+    std::vector<int> ids;
+    ErrCode ret = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        return INVALID_PARAMETERS_ERR;
+    }
+    ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want,
+        iface_cast<AAFwk::IAbilityConnection>(connect), callerToken, ids[0]);
     return ret;
 }
 
