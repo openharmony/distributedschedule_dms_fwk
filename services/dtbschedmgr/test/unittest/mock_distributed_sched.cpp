@@ -171,5 +171,29 @@ int32_t MockDistributedSched::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
 {
     return ERR_NONE;
 }
+
+int32_t MockDistributedSched::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid, uint32_t accessToken)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
+    const AppExecFwk::ElementName &element)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::StartAbilityByCallFromRemote(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo, const AccountInfo& accountInfo)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect,
+    const AppExecFwk::ElementName &element, const CallerInfo& callerInfo)
+{
+    return ERR_NONE;
+}
 } // namespace DistributedSchedule
 } // namespace OHOS

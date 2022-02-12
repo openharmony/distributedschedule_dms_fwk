@@ -78,6 +78,12 @@ DistributedSchedStub::DistributedSchedStub()
     remoteFuncsMap_[NOTIFY_MISSIONS_CHANGED_FROM_REMOTE] = &DistributedSchedStub::NotifyMissionsChangedFromRemoteInner;
     remoteFuncsMap_[NOTIFY_SWITCH_CHANGED_FROM_REMOTE] = &DistributedSchedStub::UpdateOsdSwitchValueFromRemoteInner;
     remoteFuncsMap_[CONTINUE_MISSION] = &DistributedSchedStub::ContinueMissionInner;
+
+    // request codes for call ability
+    localFuncsMap_[START_REMOTE_ABILITY_BY_CALL] = &DistributedSchedStub::StartRemoteAbilityByCallInner;
+    localFuncsMap_[RELEASE_REMOTE_ABILITY] = &DistributedSchedStub::ReleaseRemoteAbilityInner;
+    remoteFuncsMap_[START_ABILITY_BY_CALL_FROM_REMOTE] = &DistributedSchedStub::StartAbilityByCallFromRemoteInner;
+    remoteFuncsMap_[RELEASE_ABILITY_FROM_REMOTE] = &DistributedSchedStub::ReleaseAbilityFromRemoteInner;
 }
 
 DistributedSchedStub::~DistributedSchedStub()
@@ -658,6 +664,99 @@ bool DistributedSchedStub::CallerInfoUnmarshalling(CallerInfo& callerInfo, Messa
     callerInfo.callerAppId = callerAppId;
     callerInfo.dmsVersion = version;
     return true;
+}
+
+int32_t DistributedSchedStub::StartRemoteAbilityByCallInner(MessageParcel& data, MessageParcel& reply)
+{
+    shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOGW("want readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> connect = data.ReadRemoteObject();
+    int32_t callerUid = 0;
+    PARCEL_READ_HELPER(data, Int32, callerUid);
+    int32_t callerPid = 0;
+    PARCEL_READ_HELPER(data, Int32, callerPid);
+    uint32_t accessToken = 0;
+    PARCEL_READ_HELPER(data, Uint32, accessToken);
+    int32_t result = StartRemoteAbilityByCall(*want, connect, callerUid, callerPid, accessToken);
+    HILOGI("result = %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::ReleaseRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
+{
+    sptr<IRemoteObject> connect = data.ReadRemoteObject();
+    auto element = data.ReadParcelable<AppExecFwk::ElementName>();
+    if (element == nullptr) {
+        HILOGE("ReleaseRemoteAbilityInner receive element is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = ReleaseRemoteAbility(connect, *element);
+    HILOGI("result = %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::StartAbilityByCallFromRemoteInner(MessageParcel& data, MessageParcel& reply)
+{
+    if (!CheckCallingUid()) {
+        HILOGW("request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
+
+    sptr<IRemoteObject> connect = data.ReadRemoteObject();
+    CallerInfo callerInfo;
+    PARCEL_READ_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_READ_HELPER(data, Int32, callerInfo.pid);
+    PARCEL_READ_HELPER(data, String, callerInfo.sourceDeviceId);
+    AccountInfo accountInfo;
+    accountInfo.accountType = data.ReadInt32();
+    PARCEL_READ_HELPER(data, StringVector, &accountInfo.groupIdList);
+    callerInfo.callerAppId = data.ReadString();
+    std::string extraInfo;
+    PARCEL_READ_HELPER(data, String, extraInfo);
+    if (extraInfo.empty()) {
+        HILOGW("read extraInfo failed!");
+        return ERR_NULL_OBJECT;
+    }
+    nlohmann::json extraInfoJson = nlohmann::json::parse(extraInfo, nullptr, false);
+    if (!extraInfoJson.is_discarded()) {
+        uint32_t accessToken = extraInfoJson["accessTokenID"];
+        callerInfo.accessToken = accessToken;
+        HILOGD("parse extra info, accessToken = %{public}d", accessToken);
+    }
+    shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOGW("want readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = StartAbilityByCallFromRemote(*want, connect, callerInfo, accountInfo);
+    HILOGI("result = %{public}d", result);
+    PARCEL_WRITE_HELPER(reply, Int32, result);
+    return ERR_NONE;
+}
+
+int32_t DistributedSchedStub::ReleaseAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply)
+{
+    if (!CheckCallingUid()) {
+        HILOGW("request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
+
+    sptr<IRemoteObject> connect = data.ReadRemoteObject();
+    auto element = data.ReadParcelable<AppExecFwk::ElementName>();
+    if (element == nullptr) {
+        HILOGE("ReleaseAbilityFromRemoteInner receive element is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    CallerInfo callerInfo;
+    PARCEL_READ_HELPER(data, String, callerInfo.sourceDeviceId);
+    std::string extraInfo;
+    PARCEL_READ_HELPER(data, String, extraInfo);
+    int32_t result = ReleaseAbilityFromRemote(connect, *element, callerInfo);
+    HILOGI("result %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

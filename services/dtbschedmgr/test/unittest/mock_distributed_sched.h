@@ -66,6 +66,14 @@ public:
         std::vector<DstbMissionInfo>& missionInfos) override;
     int32_t StopSyncMissionsFromRemote(const CallerInfo& callerInfo) override;
     int32_t StopSyncRemoteMissions(const std::string& devId) override;
+    int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+        int32_t callerUid, int32_t callerPid, uint32_t accessToken) override;
+    int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
+        const AppExecFwk::ElementName &element) override;
+    int32_t StartAbilityByCallFromRemote(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+        const CallerInfo& callerInfo, const AccountInfo& accountInfo) override;
+    int32_t ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element,
+        const CallerInfo& callerInfo) override;
 private:
     bool expectedTrue_ = false;
 };

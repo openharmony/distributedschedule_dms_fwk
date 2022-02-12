@@ -618,6 +618,120 @@ bool DistributedSchedProxy::CallerInfoMarshalling(const CallerInfo& callerInfo, 
     PARCEL_WRITE_HELPER_RET(data, Int32, callerInfo.dmsVersion, false);
     return true;
 }
+
+int32_t DistributedSchedProxy::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid, uint32_t accessToken)
+{
+    if (connect == nullptr) {
+        HILOGE("StartRemoteAbilityByCall connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("StartRemoteAbilityByCall remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    PARCEL_WRITE_HELPER(data, Int32, callerUid);
+    PARCEL_WRITE_HELPER(data, Int32, callerPid);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY_BY_CALL, data, reply);
+}
+
+int32_t DistributedSchedProxy::ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
+    const AppExecFwk::ElementName &element)
+{
+    if (connect == nullptr) {
+        HILOGE("ReleaseRemoteAbility connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("ReleaseRemoteAbility remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    if (!data.WriteParcelable(&element)) {
+        HILOGE("ReleaseRemoteAbility write element error.");
+        return ERR_INVALID_VALUE;
+    }
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, RELEASE_REMOTE_ABILITY, data, reply);
+}
+
+int32_t DistributedSchedProxy::StartAbilityByCallFromRemote(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo, const AccountInfo& accountInfo)
+{
+    if (connect == nullptr) {
+        HILOGE("StartAbilityByCallFromRemote connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("StartAbilityByCallFromRemote remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.pid);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
+    PARCEL_WRITE_HELPER(data, Int32, accountInfo.accountType);
+    PARCEL_WRITE_HELPER(data, StringVector, accountInfo.groupIdList);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.callerAppId);
+    nlohmann::json extraInfoJson;
+    extraInfoJson["accessTokenID"] = callerInfo.accessToken;
+    std::string extraInfo = extraInfoJson.dump();
+    PARCEL_WRITE_HELPER(data, String, extraInfo);
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_BY_CALL_FROM_REMOTE, data, reply);
+}
+
+int32_t DistributedSchedProxy::ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect,
+    const AppExecFwk::ElementName &element, const CallerInfo& callerInfo)
+{
+    if (connect == nullptr) {
+        HILOGE("ReleaseAbilityFromRemote connect is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("ReleaseAbilityFromRemote remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    if (!data.WriteParcelable(&element)) {
+        HILOGE("ReleaseAbilityFromRemote write element error.");
+        return ERR_INVALID_VALUE;
+    }
+    PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
+    std::string extraInfo = "";
+    PARCEL_WRITE_HELPER(data, String, extraInfo);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, RELEASE_ABILITY_FROM_REMOTE, data, reply);
+}
 } // namespace DistributedSchedule
 } // namespace OHOS
 

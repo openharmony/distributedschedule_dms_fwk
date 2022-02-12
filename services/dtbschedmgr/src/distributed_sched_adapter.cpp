@@ -171,6 +171,73 @@ void DistributedSchedAdapter::ProcessConnectDied(const sptr<IRemoteObject>& conn
     }
 }
 
+void DistributedSchedAdapter::ProcessCalleeDied(const sptr<IRemoteObject>& connect)
+{
+    if (dmsAdapterHandler_ == nullptr) {
+        HILOGE("ProcessCalleeDied dmsAdapterHandler is null");
+        return;
+    }
+    if (connect == nullptr) {
+        HILOGE("ProcessCalleeDied connect is null");
+        return;
+    }
+    HILOGD("process callee died");
+    auto callback = [connect] () {
+        DistributedSchedService::GetInstance().ProcessCalleeDied(connect);
+    };
+    if (!dmsAdapterHandler_->PostTask(callback)) {
+        HILOGE("ProcessCalleeDied PostTask failed");
+    }
+}
+
+void DistributedSchedAdapter::ProcessCallerDied(const sptr<IRemoteObject>& connect)
+{
+    if (dmsAdapterHandler_ == nullptr) {
+        HILOGE("ProcessCallerDied dmsAdapterHandler is null");
+        return;
+    }
+    if (connect == nullptr) {
+        HILOGE("ProcessCallerDied connect is null");
+        return;
+    }
+    HILOGD("process caller died");
+    auto callback = [connect] () {
+        DistributedSchedService::GetInstance().ProcessCallerDied(connect);
+    };
+    if (!dmsAdapterHandler_->PostTask(callback)) {
+        HILOGE("ProcessCallerDied PostTask failed");
+    }
+}
+
+int32_t DistributedSchedAdapter::ReleaseAbility(const sptr<IRemoteObject>& connect,
+    const AppExecFwk::ElementName &element)
+{
+    HILOGD("ReleaseAbility called");
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("ReleaseAbility:connect ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+    AppExecFwk::ElementName elementWithoutDeviceId("", element.GetBundleName(), element.GetAbilityName());
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ReleaseAbility(
+        iface_cast<AAFwk::IAbilityConnection>(connect), elementWithoutDeviceId);
+    return ret;
+}
+
+int32_t DistributedSchedAdapter::StartAbilityByCall(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, const sptr<IRemoteObject>& callerToken)
+{
+    HILOGD("ResolveAbility called");
+    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (errCode != ERR_OK) {
+        HILOGE("ResolveAbility:connect ability server failed, errCode=%{public}d", errCode);
+        return errCode;
+    }
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want,
+        iface_cast<AAFwk::IAbilityConnection>(connect), callerToken);
+    return ret;
+}
+
 int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid,
     std::vector<std::u16string>& u16BundleNameList)
 {

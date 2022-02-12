@@ -66,6 +66,10 @@ private:
     int32_t NotifyOsdSwitchChangedInner(MessageParcel& data, MessageParcel& reply);
     int32_t UpdateOsdSwitchValueFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     bool EnforceInterfaceToken(MessageParcel& data);
+    int32_t StartRemoteAbilityByCallInner(MessageParcel& data, MessageParcel& reply);
+    int32_t ReleaseRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
+    int32_t StartAbilityByCallFromRemoteInner(MessageParcel& data, MessageParcel& reply);
+    int32_t ReleaseAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
 
     bool CallerInfoUnmarshalling(CallerInfo& callerInfo, MessageParcel& data);
     using DistributedSchedFunc = int32_t(DistributedSchedStub::*)(MessageParcel& data, MessageParcel& reply);
