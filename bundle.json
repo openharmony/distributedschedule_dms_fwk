@@ -19,7 +19,8 @@
       "ram": "",
       "deps": {
         "components": [
-          "aafwk_standard",
+          "ability_base",
+          "ability_runtime",
           "appexecfwk_standard",
           "distributeddatamgr",
           "dsoftbus_standard",
