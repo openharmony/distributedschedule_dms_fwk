@@ -82,7 +82,7 @@ int32_t DSchedContinuationTest::StartContinuation(int32_t missionId, int32_t fla
     string devId = "devId";
     shared_ptr<Want> spWant = MockWant(bundleName, abilityName, flags);
     int callerUid = 0;
-    return DistributedSchedService::GetInstance().StartContinuation(*spWant, missionId, callerUid, 0);
+    return DistributedSchedService::GetInstance().StartContinuation(*spWant, missionId, callerUid, 0, 0);
 }
 
 /**

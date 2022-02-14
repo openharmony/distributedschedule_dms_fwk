@@ -25,7 +25,6 @@
 namespace OHOS {
 namespace DistributedSchedule {
 using namespace AccountSA;
-
 namespace {
 const std::string TAG = "BundleManagerInternal";
 }
