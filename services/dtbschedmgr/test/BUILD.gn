@@ -154,12 +154,26 @@ ohos_unittest("dschedmissionmanagertest") {
   }
 }
 
+ohos_unittest("dscheddatastoragetest") {
+  module_out_path = module_output_path
+  sources = [ "unittest/mission/distributed_data_storage_test.cpp" ]
+  configs = [ ":test_config" ]
+  configs += dsched_configs
+  deps = dsched_deps
+  deps += [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
+  if (is_standard_system) {
+    external_deps = dsched_external_deps
+    public_deps = dsched_public_deps
+  }
+}
+
 group("unittest") {
   testonly = true
   deps = [
     ":distributedschedsvrtest",
     ":dschedconnecttest",
     ":dschedcontinuetest",
+    ":dscheddatastoragetest",
     ":dschedmissionmanagertest",
     ":dschedpermissiontest",
   ]
