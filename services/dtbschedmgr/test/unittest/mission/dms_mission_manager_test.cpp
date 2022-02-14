@@ -38,6 +38,7 @@ namespace DistributedSchedule {
 namespace {
 const std::string DEVICE_NAME = "DEVICE_PHONE_001";
 const std::string DEVICE_ID = "123456789ABCD";
+const std::u16string U16DEVICE_ID = u"123456789ABCD";
 const std::string BUNDLE_NAME = "ohos.test.test";
 const int32_t NUM_MISSIONS = 100;
 }
@@ -57,6 +58,7 @@ void DMSMissionManagerTest::SetUp()
         return;
     }
     localDeviceId_ = localDeviceId;
+    u16localDeviceId_ = Str8ToStr16(localDeviceId);
 }
 
 void DMSMissionManagerTest::TearDown()
@@ -83,6 +85,21 @@ sptr<IDistributedSched> DMSMissionManagerTest::GetDms()
     }
     DTEST_LOG << "DMSMissionManagerTest DistributedSched is not nullptr" << std::endl;
     return proxy_;
+}
+
+void RemoteMissionListenerTest::NotifyMissionsChanged(const std::string& deviceId)
+{
+    DTEST_LOG << "NotifyMissionsChanged" << std::endl;
+}
+
+void RemoteMissionListenerTest::NotifySnapshot(const std::string& deviceId, int32_t missionId)
+{
+    DTEST_LOG << "NotifySnapshot" << std::endl;
+}
+
+void RemoteMissionListenerTest::NotifyNetDisconnect(const std::string& deviceId, int32_t state)
+{
+    DTEST_LOG << "NotifyNetDisconnect" << std::endl;
 }
 
 /**
@@ -143,7 +160,7 @@ HWTEST_F(DMSMissionManagerTest, testGetRemoteMissionInfo002, TestSize.Level1)
  * @tc.name: testStartSyncRemoteMissions001
  * @tc.desc: prepare and sync missions from remote
  * @tc.type: FUNC
- * @tc.require:AR000GK67M
+ * @tc.require:AR000GK67A
  */
 HWTEST_F(DMSMissionManagerTest, testStartSyncRemoteMissions001, TestSize.Level1)
 {
@@ -153,11 +170,161 @@ HWTEST_F(DMSMissionManagerTest, testStartSyncRemoteMissions001, TestSize.Level1)
     }
     auto ret = proxy->StartSyncRemoteMissions(DEVICE_ID, false, 0);
     EXPECT_TRUE(ret != ERR_NONE);
+}
 
-    ret = proxy->StartSyncRemoteMissions(localDeviceId_, false, 0);
+/**
+ * @tc.name: testStartSyncRemoteMissions002
+ * @tc.desc: prepare and sync missions from remote
+ * @tc.type: FUNC
+ * @tc.require:SR000GK679
+ */
+HWTEST_F(DMSMissionManagerTest, testStartSyncRemoteMissions002, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    auto ret = proxy->StartSyncRemoteMissions("", false, 0);
+    EXPECT_TRUE(ret != ERR_NONE);
+}
+
+/**
+ * @tc.name: testStartSyncRemoteMissions003
+ * @tc.desc: prepare and sync missions from remote
+ * @tc.type: FUNC
+ * @tc.require:AR000GK67A
+ */
+HWTEST_F(DMSMissionManagerTest, testStartSyncRemoteMissions003, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    auto ret = proxy->StartSyncRemoteMissions(localDeviceId_, false, 0);
+    EXPECT_TRUE(ret != ERR_NONE);
+}
+
+/**
+ * @tc.name: testStopSyncRemoteMissions001
+ * @tc.desc: stop sync missions from remote with fake deviceId
+ * @tc.type: FUNC
+ * @tc.require:AR000GK672
+ */
+HWTEST_F(DMSMissionManagerTest, testStopSyncRemoteMissions001, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    auto ret = proxy->StopSyncRemoteMissions(DEVICE_ID);
+    EXPECT_TRUE(ret != ERR_NONE);
+}
+
+/**
+ * @tc.name: testStopSyncRemoteMissions002
+ * @tc.desc: stop sync missions from remote with local deviceId
+ * @tc.type: FUNC
+ * @tc.require:SR000GK671
+ */
+HWTEST_F(DMSMissionManagerTest, testStopSyncRemoteMissions002, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    auto ret = proxy->StopSyncRemoteMissions(localDeviceId_);
+    EXPECT_TRUE(ret != ERR_NONE);
+}
+
+/**
+ * @tc.name: testStopSyncRemoteMissions003
+ * @tc.desc: stop sync missions from remote with empty deviceId
+ * @tc.type: FUNC
+ * @tc.require:SR000GK671
+ */
+HWTEST_F(DMSMissionManagerTest, testStopSyncRemoteMissions003, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    auto ret = proxy->StopSyncRemoteMissions("");
+    EXPECT_TRUE(ret != ERR_NONE);
+}
+
+/**
+ * @tc.name: testRegisterMissionListener001
+ * @tc.desc: register mission listener
+ * @tc.type: FUNC
+ * @tc.require:AR000GK5N7
+ */
+HWTEST_F(DMSMissionManagerTest, testRegisterMissionListener001, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    auto ret = proxy->RegisterMissionListener(U16DEVICE_ID, nullptr);
     EXPECT_TRUE(ret != ERR_NONE);
 
-    ret = proxy->StartSyncRemoteMissions("", false, 0);
+    ret = proxy->RegisterMissionListener(u16localDeviceId_, nullptr);
+    EXPECT_TRUE(ret != ERR_NONE);
+
+    ret = proxy->RegisterMissionListener(u"", nullptr);
+    EXPECT_TRUE(ret != ERR_NONE);
+}
+
+/**
+ * @tc.name: testRegisterMissionListener002
+ * @tc.desc: register mission listener
+ * @tc.type: FUNC
+ * @tc.require:SR000GK5N6
+ */
+HWTEST_F(DMSMissionManagerTest, testRegisterMissionListener002, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    sptr<IRemoteObject> listener = new RemoteMissionListenerTest();
+    auto ret = proxy->RegisterMissionListener(U16DEVICE_ID, listener);
+    EXPECT_TRUE(ret != ERR_NONE);
+
+    ret = proxy->RegisterMissionListener(u16localDeviceId_, listener);
+    EXPECT_TRUE(ret != ERR_NONE);
+
+    ret = proxy->RegisterMissionListener(u"", listener);
+    EXPECT_TRUE(ret != ERR_NONE);
+
+    ret = proxy->UnRegisterMissionListener(U16DEVICE_ID, listener);
+    EXPECT_TRUE(ret == ERR_NONE);
+
+    ret = proxy->UnRegisterMissionListener(u16localDeviceId_, listener);
+    EXPECT_TRUE(ret != ERR_NONE);
+
+    ret = proxy->UnRegisterMissionListener(u"", listener);
+    EXPECT_TRUE(ret != ERR_NONE);
+}
+
+/**
+ * @tc.name: testUnRegisterMissionListener001
+ * @tc.desc: register mission listener
+ * @tc.type: FUNC
+ * @tc.require:AR000GK5N7
+ */
+HWTEST_F(DMSMissionManagerTest, testUnRegisterMissionListener001, TestSize.Level1)
+{
+    sptr<IDistributedSched> proxy = GetDms();
+    if (proxy == nullptr) {
+        return;
+    }
+    auto ret = proxy->UnRegisterMissionListener(U16DEVICE_ID, nullptr);
+    EXPECT_TRUE(ret != ERR_NONE);
+
+    ret = proxy->UnRegisterMissionListener(u16localDeviceId_, nullptr);
+    EXPECT_TRUE(ret != ERR_NONE);
+
+    ret = proxy->UnRegisterMissionListener(u"", nullptr);
     EXPECT_TRUE(ret != ERR_NONE);
 }
 

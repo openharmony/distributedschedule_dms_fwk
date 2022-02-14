@@ -19,6 +19,7 @@
 #include "gtest/gtest.h"
 
 #include "distributed_sched_interface.h"
+#include "remote_mission_listener_stub.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -30,8 +31,16 @@ public:
     void TearDown() override;
 protected:
     std::string localDeviceId_;
+    std::u16string u16localDeviceId_;
     sptr<IDistributedSched> proxy_;
     sptr<IDistributedSched> GetDms();
+};
+
+class RemoteMissionListenerTest : public AAFwk::RemoteMissionListenerStub {
+public:
+    void NotifyMissionsChanged(const std::string& deviceId) override;
+    void NotifySnapshot(const std::string& deviceId, int32_t missionId) override;
+    void NotifyNetDisconnect(const std::string& deviceId, int32_t state) override;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
