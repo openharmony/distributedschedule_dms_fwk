@@ -24,7 +24,7 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace DistributedSchedule {
 int32_t MockDistributedSched::StartRemoteAbility(const OHOS::AAFwk::Want& want,
-    int32_t callerUid, int32_t requestCode)
+    int32_t callerUid, int32_t requestCode, uint32_t accessToken)
 {
     return 0;
 }
@@ -43,7 +43,7 @@ int32_t MockDistributedSched::ContinueMission(const std::string& srcDeviceId, co
 }
 
 int32_t MockDistributedSched::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId,
-    int32_t callerUid, int32_t status)
+    int32_t callerUid, int32_t status, uint32_t accessToken)
 {
     return 0;
 }
@@ -59,8 +59,8 @@ int32_t MockDistributedSched::NotifyContinuationResultFromRemote(int32_t session
     return 0;
 }
 
-int32_t MockDistributedSched::ConnectRemoteAbility(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid)
+int32_t MockDistributedSched::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+    int32_t callerUid, int32_t callerPid, uint32_t accessToken)
 {
     return 0;
 }

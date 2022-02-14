@@ -31,11 +31,12 @@ using namespace AAFwk;
 namespace {
 const std::string TAG = "DistributedSchedProxy";
 const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
+const std::string EXTRO_INFO_JSON_KEY_ACCESS_TOKEN = "accessTokenID";
 constexpr int32_t WAIT_TIME = 15;
 }
 
 int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& want,
-    int32_t callerUid, int32_t requestCode)
+    int32_t callerUid, int32_t requestCode, uint32_t accessToken)
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -48,6 +49,7 @@ int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
     PARCEL_WRITE_HELPER(data, Int32, callerUid);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY, data, reply);
 }
@@ -74,6 +76,10 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& w
     PARCEL_WRITE_HELPER(data, Int32, accountInfo.accountType);
     PARCEL_WRITE_HELPER(data, StringVector, accountInfo.groupIdList);
     PARCEL_WRITE_HELPER(data, String, callerInfo.callerAppId);
+    nlohmann::json extraInfoJson;
+    extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN] = callerInfo.accessToken;
+    std::string extraInfo = extraInfoJson.dump();
+    PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
 }
@@ -104,7 +110,7 @@ int32_t DistributedSchedProxy::ContinueMission(const std::string& srcDeviceId, c
 }
 
 int32_t DistributedSchedProxy::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
-    int32_t status)
+    int32_t status, uint32_t accessToken)
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -119,6 +125,7 @@ int32_t DistributedSchedProxy::StartContinuation(const OHOS::AAFwk::Want& want, 
     PARCEL_WRITE_HELPER(data, Int32, missionId);
     PARCEL_WRITE_HELPER(data, Int32, callerUid);
     PARCEL_WRITE_HELPER(data, Int32, status);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_CONTINUATION, data, reply);
 }
@@ -158,8 +165,8 @@ int32_t DistributedSchedProxy::NotifyContinuationResultFromRemote(int32_t sessio
     PARCEL_TRANSACT_SYNC_RET_INT(remote, NOTIFY_CONTINUATION_RESULT_FROM_REMOTE, data, reply);
 }
 
-int32_t DistributedSchedProxy::ConnectRemoteAbility(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid)
+int32_t DistributedSchedProxy::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+    int32_t callerUid, int32_t callerPid, uint32_t accessToken)
 {
     if (connect == nullptr) {
         HILOGE("ConnectRemoteAbility connect is null");
@@ -179,6 +186,7 @@ int32_t DistributedSchedProxy::ConnectRemoteAbility(const OHOS::AAFwk::Want& wan
     PARCEL_WRITE_HELPER(data, RemoteObject, connect);
     PARCEL_WRITE_HELPER(data, Int32, callerUid);
     PARCEL_WRITE_HELPER(data, Int32, callerPid);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_REMOTE_ABILITY, data, reply);
 }
@@ -233,6 +241,10 @@ int32_t DistributedSchedProxy::ConnectAbilityFromRemote(const OHOS::AAFwk::Want&
     PARCEL_WRITE_HELPER(data, Int32, accountInfo.accountType);
     PARCEL_WRITE_HELPER(data, StringVector, accountInfo.groupIdList);
     PARCEL_WRITE_HELPER(data, String, callerInfo.callerAppId);
+    nlohmann::json extraInfoJson;
+    extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN] = callerInfo.accessToken;
+    std::string extraInfo = extraInfoJson.dump();
+    PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_ABILITY_FROM_REMOTE, data, reply);
 }
@@ -696,7 +708,7 @@ int32_t DistributedSchedProxy::StartAbilityByCallFromRemote(const OHOS::AAFwk::W
     PARCEL_WRITE_HELPER(data, StringVector, accountInfo.groupIdList);
     PARCEL_WRITE_HELPER(data, String, callerInfo.callerAppId);
     nlohmann::json extraInfoJson;
-    extraInfoJson["accessTokenID"] = callerInfo.accessToken;
+    extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN] = callerInfo.accessToken;
     std::string extraInfo = extraInfoJson.dump();
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     PARCEL_WRITE_HELPER(data, Parcelable, &want);

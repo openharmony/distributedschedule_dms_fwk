@@ -39,6 +39,7 @@ namespace {
 constexpr int32_t HID_HAP = 10000; /* first hap user */
 const std::string TAG = "DistributedSchedStub";
 const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
+const std::string EXTRO_INFO_JSON_KEY_ACCESS_TOKEN = "accessTokenID";
 }
 
 DistributedSchedStub::DistributedSchedStub()
@@ -128,7 +129,10 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
     HILOGI("get callerUid = %{public}d", callerUid);
     int32_t requestCode = 0;
     PARCEL_READ_HELPER(data, Int32, requestCode);
-    int32_t result = StartRemoteAbility(*want, callerUid, requestCode);
+    uint32_t accessToken = 0;
+    PARCEL_READ_HELPER(data, Uint32, accessToken);
+    HILOGI("get AccessTokenID = %{public}d", accessToken);
+    int32_t result = StartRemoteAbility(*want, callerUid, requestCode, accessToken);
     HILOGI("StartRemoteAbilityInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -160,6 +164,16 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     accountInfo.accountType = data.ReadInt32();
     PARCEL_READ_HELPER(data, StringVector, &accountInfo.groupIdList);
     callerInfo.callerAppId = data.ReadString();
+    std::string extraInfo = data.ReadString();
+    if (extraInfo.empty()) {
+        HILOGD("extra info is empty!");
+    }
+    nlohmann::json extraInfoJson = nlohmann::json::parse(extraInfo, nullptr, false);
+    if (!extraInfoJson.is_discarded()) {
+        uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
+        callerInfo.accessToken = accessToken;
+        HILOGD("parse extra info, accessTokenID = %{public}d", accessToken);
+    }
     int32_t result = StartAbilityFromRemote(*want, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_HELPER(reply, Int32, result);
@@ -203,7 +217,10 @@ int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, Messag
     int32_t missionId = data.ReadInt32();
     int32_t callerUid = data.ReadInt32();
     int32_t status = data.ReadInt32();
-    int32_t result = StartContinuation(*want, missionId, callerUid, status);
+    uint32_t accessToken = 0;
+    PARCEL_READ_HELPER(data, Uint32, accessToken);
+    HILOGI("get AccessTokenID = %{public}d", accessToken);
+    int32_t result = StartContinuation(*want, missionId, callerUid, status, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -253,7 +270,10 @@ int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, Mes
     int32_t callerPid = 0;
     PARCEL_READ_HELPER(data, Int32, callerPid);
     HILOGI("get callerPid = %{public}d", callerPid);
-    int32_t result = ConnectRemoteAbility(*want, connect, callerUid, callerPid);
+    uint32_t accessToken = 0;
+    PARCEL_READ_HELPER(data, Uint32, accessToken);
+    HILOGI("get AccessTokenID = %{public}d", accessToken);
+    int32_t result = ConnectRemoteAbility(*want, connect, callerUid, callerPid, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -295,6 +315,16 @@ int32_t DistributedSchedStub::ConnectAbilityFromRemoteInner(MessageParcel& data,
     accountInfo.accountType = data.ReadInt32();
     PARCEL_READ_HELPER(data, StringVector, &accountInfo.groupIdList);
     callerInfo.callerAppId = data.ReadString();
+    std::string extraInfo = data.ReadString();
+    if (extraInfo.empty()) {
+        HILOGD("extra info is empty!");
+    }
+    nlohmann::json extraInfoJson = nlohmann::json::parse(extraInfo, nullptr, false);
+    if (!extraInfoJson.is_discarded()) {
+        uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
+        callerInfo.accessToken = accessToken;
+        HILOGD("parse extra info, accessTokenID = %{public}d", accessToken);
+    }
     std::string package = abilityInfo.bundleName;
     std::string deviceId = abilityInfo.deviceId;
     int64_t begin = GetTickCount();
@@ -714,15 +744,14 @@ int32_t DistributedSchedStub::StartAbilityByCallFromRemoteInner(MessageParcel& d
     accountInfo.accountType = data.ReadInt32();
     PARCEL_READ_HELPER(data, StringVector, &accountInfo.groupIdList);
     callerInfo.callerAppId = data.ReadString();
-    std::string extraInfo;
-    PARCEL_READ_HELPER(data, String, extraInfo);
+    std::string extraInfo = data.ReadString();
     if (extraInfo.empty()) {
         HILOGW("read extraInfo failed!");
         return ERR_NULL_OBJECT;
     }
     nlohmann::json extraInfoJson = nlohmann::json::parse(extraInfo, nullptr, false);
     if (!extraInfoJson.is_discarded()) {
-        uint32_t accessToken = extraInfoJson["accessTokenID"];
+        uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
         HILOGD("parse extra info, accessToken = %{public}d", accessToken);
     }

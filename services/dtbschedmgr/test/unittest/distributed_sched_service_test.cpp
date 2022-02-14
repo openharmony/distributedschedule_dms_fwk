@@ -115,7 +115,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_001, TestSize.Level1)
      * @tc.expected: step1. StartRemoteAbility return INVALID_PARAMETERS_ERR
      */
     AAFwk::Want want;
-    int result1 = proxy->StartRemoteAbility(want, 0, 0);
+    int result1 = proxy->StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result1:" << result1 << std::endl;
     /**
      * @tc.steps: step2. StartRemoteAbility with empty want's deviceId
@@ -124,7 +124,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_001, TestSize.Level1)
     AppExecFwk::ElementName element("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
     want.SetElement(element);
-    int result2 = proxy->StartRemoteAbility(want, 0, 0);
+    int result2 = proxy->StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result2:" << result2 << std::endl;
 
     EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result1);
@@ -152,14 +152,14 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_002, TestSize.Level0)
     AppExecFwk::ElementName element("123456", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
     want.SetElement(element);
-    int result1 = DistributedSchedService::GetInstance().StartRemoteAbility(want, 0, 0);
+    int result1 = DistributedSchedService::GetInstance().StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result:" << result1 << std::endl;
     std::string deviceId;
     DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(deviceId);
     AppExecFwk::ElementName element1(deviceId, "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
     want.SetElement(element1);
-    int result2 = DistributedSchedService::GetInstance().StartRemoteAbility(want, 0, 0);
+    int result2 = DistributedSchedService::GetInstance().StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result:" << result2 << std::endl;
     EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result1);
     EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result2);
@@ -182,7 +182,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_003, TestSize.Level0)
     AppExecFwk::ElementName element("123456", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
     want.SetElement(element);
-    int result = DistributedSchedService::GetInstance().StartRemoteAbility(want, 0, 0);
+    int result = DistributedSchedService::GetInstance().StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result);
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_003 end" << std::endl;
@@ -208,7 +208,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_004, TestSize.Level1)
     AppExecFwk::ElementName element("", "com.ohos.distributedmusicplayer",
         "com.ohos.distributedmusicplayer.MainAbility");
     want.SetElement(element);
-    int result = proxy->StartRemoteAbility(want, 0, 0);
+    int result = proxy->StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result);
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_004 end" << std::endl;
