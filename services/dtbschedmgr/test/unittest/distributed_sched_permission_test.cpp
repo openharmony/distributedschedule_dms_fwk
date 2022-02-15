@@ -178,7 +178,7 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_006, TestSize.Level1)
  * @tc.type: FUNC
  * @tc.require: AR000GK79E
  */
-HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_007, TestSize.Level0)
+HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_007, TestSize.Level1)
 {
     DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_007 begin" << std::endl;
     AAFwk::Want want;

@@ -54,7 +54,6 @@ bool DistributedDataStorage::Init()
         HILOGE("InitKvDataService failed!");
         return false;
     }
-    HILOGD("Init success!");
     return true;
 }
 

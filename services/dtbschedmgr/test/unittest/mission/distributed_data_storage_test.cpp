@@ -29,7 +29,7 @@ namespace {
 constexpr int32_t TASK_ID_1 = 11;
 constexpr int32_t TASK_ID_2 = 12;
 constexpr size_t BYTESTREAM_LENGTH = 100;
-constexpr uint8_t BYTE = '6';
+constexpr uint8_t ONE_BYTE = '6';
 }
 
 void DistributedDataStorageTest::SetUpTestCase()
@@ -57,7 +57,7 @@ uint8_t* DistributedDataStorageTest::InitByteStream()
 {
     uint8_t* byteStream = new uint8_t[BYTESTREAM_LENGTH];
     for (size_t i = 0; i < BYTESTREAM_LENGTH; ++i) {
-        byteStream[i] = BYTE;
+        byteStream[i] = ONE_BYTE;
     }
     return byteStream;
 }
