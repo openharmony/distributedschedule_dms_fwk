@@ -125,7 +125,7 @@ bool DistributedSchedPermission::CheckCustomPermission(const AppExecFwk::Ability
     HILOGI("[PerformanceTest] AllocLocalTokenID spend %{public}" PRId64 " ms", GetTickCount() - begin);
     if (dAccessToken == 0) {
         HILOGE("dAccessTokenID is invalid!");
-        return true;
+        return false;
     }
     for (const auto& permission : permissions) {
         if (permission.empty()) {

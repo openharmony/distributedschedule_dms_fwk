@@ -35,6 +35,7 @@
 #include "iservice_registry.h"
 #include "mission/distributed_mission_info.h"
 #include "mission/distributed_sched_mission_manager.h"
+#include "os_account_manager.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
@@ -42,6 +43,7 @@
 namespace OHOS {
 namespace DistributedSchedule {
 using namespace AAFwk;
+using namespace AccountSA;
 using namespace AppExecFwk;
 
 namespace {
@@ -161,7 +163,12 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
         HILOGE("connect ability server failed %{public}d", err);
         return err;
     }
-    err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
+    std::vector<int> ids;
+    ErrCode ret = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        return INVALID_PARAMETERS_ERR;
+    }
+    err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, ids[0]);
     if (err != ERR_OK) {
         HILOGE("StartAbility failed %{public}d", err);
     }
