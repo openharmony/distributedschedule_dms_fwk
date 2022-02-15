@@ -165,6 +165,7 @@ ohos_unittest("dscheddatastoragetest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
+  part_name = "dmsfwk_standard"
 }
 
 group("unittest") {
