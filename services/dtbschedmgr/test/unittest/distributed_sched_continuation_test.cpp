@@ -16,17 +16,17 @@
 #include "distributed_sched_continuation_test.h"
 #include "dtbschedmgr_device_info_storage.h"
 #include "mock_distributed_sched.h"
-using namespace std;
+
 using namespace testing;
 using namespace testing::ext;
-using namespace OHOS;
-using namespace AAFwk;
-using namespace AppExecFwk;
+using namespace OHOS::AAFwk;
+using namespace OHOS::AppExecFwk;
+using string = std::string;
 
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
-const u16string MOCK_DEVICE_ID = u"MOCK_DEVICE_ID";
+const std::u16string MOCK_DEVICE_ID = u"MOCK_DEVICE_ID";
 constexpr int32_t MOCK_SESSION_ID = 123;
 const string LOCAL_DEVICE_ID = "192.168.43.100";
 }
@@ -41,7 +41,7 @@ void DSchedContinuationTest::TearDownTestCase()
 
 void DSchedContinuationTest::SetUp()
 {
-    dschedContinuation_ = make_shared<DSchedContinuation>();
+    dschedContinuation_ = std::make_shared<DSchedContinuation>();
 }
 
 void DSchedContinuationTest::TearDown()
@@ -69,7 +69,7 @@ int32_t DSchedContinuationTest::PushAbilityToken()
 std::shared_ptr<Want> DSchedContinuationTest::MockWant(const string& bundleName, const string& ability, int32_t flags)
 {
     ElementName element("", bundleName, ability);
-    shared_ptr<Want> spWant = make_shared<Want>();
+    std::shared_ptr<Want> spWant = std::make_shared<Want>();
     spWant->SetElement(element);
     spWant->SetFlags(flags);
     return spWant;
@@ -80,7 +80,7 @@ int32_t DSchedContinuationTest::StartContinuation(int32_t missionId, int32_t fla
     string bundleName = "bundleName";
     string abilityName = "abilityName";
     string devId = "devId";
-    shared_ptr<Want> spWant = MockWant(bundleName, abilityName, flags);
+    std::shared_ptr<Want> spWant = MockWant(bundleName, abilityName, flags);
     int callerUid = 0;
     return DistributedSchedService::GetInstance().StartContinuation(*spWant, missionId, callerUid, 0, 0);
 }
