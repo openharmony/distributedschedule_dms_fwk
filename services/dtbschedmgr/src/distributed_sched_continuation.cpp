@@ -17,7 +17,6 @@
 #include "dtbschedmgr_log.h"
 #include "parcel_helper.h"
 
-using namespace std;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
@@ -32,7 +31,7 @@ constexpr int32_t NOTIFY_MISSION_CENTER_RESULT = 4;
 void DSchedContinuation::Init(const FuncContinuationCallback& contCallback)
 {
     auto runner = EventRunner::Create("dsched_continuation");
-    continuationHandler_ = make_shared<ContinuationHandler>(runner, shared_from_this(), contCallback);
+    continuationHandler_ = std::make_shared<ContinuationHandler>(runner, shared_from_this(), contCallback);
 }
 
 bool DSchedContinuation::PushAbilityToken(int32_t sessionId, const sptr<IRemoteObject>& abilityToken)
@@ -52,7 +51,7 @@ bool DSchedContinuation::PushAbilityToken(int32_t sessionId, const sptr<IRemoteO
         return false;
     }
 
-    lock_guard<mutex> autoLock(continuationLock_);
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
     bool ret = true;
     ret = continuationHandler_->SendEvent(sessionId, 0, CONTINUATION_DELAY_TIME);
     if (!ret) {
@@ -76,7 +75,7 @@ sptr<IRemoteObject> DSchedContinuation::PopAbilityToken(int32_t sessionId)
         return nullptr;
     }
 
-    lock_guard<mutex> autoLock(continuationLock_);
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
     auto iter = continuationMap_.find(sessionId);
     if (iter == continuationMap_.end()) {
         HILOGW("PopAbilityToken not found sessionId:%{public}d", sessionId);
@@ -92,7 +91,7 @@ sptr<IRemoteObject> DSchedContinuation::PopAbilityToken(int32_t sessionId)
 
 int32_t DSchedContinuation::GenerateSessionId()
 {
-    lock_guard<mutex> autoLock(continuationLock_);
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
     int32_t currValue = currSessionId_;
     if (++currSessionId_ <= 0) {
         currSessionId_ = 1;
@@ -120,7 +119,7 @@ void DSchedContinuation::RemoveTimeOut(int32_t missionId)
 
 bool DSchedContinuation::IsInContinuationProgress(int32_t missionId)
 {
-    lock_guard<mutex> autoLock(continuationLock_);
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
     auto iterSession = callbackMap_.find(missionId);
     if (iterSession != callbackMap_.end()) {
         HILOGE("Continuation in progress, missionId:%{public}d exist!", missionId);
@@ -148,7 +147,7 @@ bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObjec
         return false;
     }
 
-    lock_guard<mutex> autoLock(continuationLock_);
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
     auto iterSession = callbackMap_.find(missionId);
     if (iterSession != callbackMap_.end()) {
         HILOGE("PushCallback missionId:%{public}d exist!", missionId);
@@ -160,7 +159,7 @@ bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObjec
 
 sptr<IRemoteObject> DSchedContinuation::PopCallback(int32_t missionId)
 {
-    lock_guard<mutex> autoLock(continuationLock_);
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
     auto iter = callbackMap_.find(missionId);
     if (iter == callbackMap_.end()) {
         HILOGW("PopCallback not found missionId:%{public}d", missionId);
