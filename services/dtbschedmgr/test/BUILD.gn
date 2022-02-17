@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 import("//build/test.gni")
 
-module_output_path = "dmsfwk/distributedschedsvrtest"
+module_output_path = "dmsfwk_standard/distributedschedsvrtest"
 
 distributed_service = "//foundation/distributedschedule/dmsfwk/services"
 
@@ -94,6 +94,8 @@ ohos_unittest("distributedschedsvrtest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
+  part_name = "dmsfwk_standard"
+  subsystem_name = "distributedschedule"
 }
 
 ohos_unittest("dschedcontinuetest") {
@@ -111,6 +113,8 @@ ohos_unittest("dschedcontinuetest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
+  part_name = "dmsfwk_standard"
+  subsystem_name = "distributedschedule"
 }
 
 ohos_unittest("dschedconnecttest") {
@@ -125,6 +129,8 @@ ohos_unittest("dschedconnecttest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
+  part_name = "dmsfwk_standard"
+  subsystem_name = "distributedschedule"
 }
 
 ohos_unittest("dschedpermissiontest") {
@@ -139,6 +145,8 @@ ohos_unittest("dschedpermissiontest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
+  part_name = "dmsfwk_standard"
+  subsystem_name = "distributedschedule"
 }
 
 ohos_unittest("dschedmissionmanagertest") {
@@ -152,6 +160,8 @@ ohos_unittest("dschedmissionmanagertest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
+  part_name = "dmsfwk_standard"
+  subsystem_name = "distributedschedule"
 }
 
 ohos_unittest("dscheddatastoragetest") {
