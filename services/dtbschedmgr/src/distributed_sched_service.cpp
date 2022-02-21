@@ -526,26 +526,25 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
         HILOGE("ConnectRemoteAbility check uid failed");
         return INVALID_PARAMETERS_ERR;
     }
-    CallerInfo callerInfo;
+    CallerInfo callerInfo = { callerUid, callerPid, CALLER_TYPE_HARMONY, localDeviceId };
+    callerInfo.accessToken = accessToken;
     {
         std::lock_guard<std::mutex> autoLock(distributedLock_);
-        callerInfo = { callerUid, callerPid, CALLER_TYPE_HARMONY, localDeviceId };
-        callerInfo.accessToken = accessToken;
         int32_t checkResult = CheckDistributedConnectLocked(callerInfo);
         if (checkResult != ERR_OK) {
             return checkResult;
         }
+    }
 
-        if (!BundleManagerInternal::GetCallerAppIdFromBms(callerInfo.uid, callerInfo.callerAppId)) {
-            HILOGE("ConnectRemoteAbility GetCallerAppIdFromBms failed");
-            return INVALID_PARAMETERS_ERR;
-        }
-        int32_t ret = DistributedSchedAdapter::GetInstance().GetBundleNameListFromBms(
-            callerInfo.uid, callerInfo.bundleNames);
-        if (ret != ERR_OK) {
-            HILOGE("ConnectRemoteAbility GetBundleNameListFromBms failed");
-            return INVALID_PARAMETERS_ERR;
-        }
+    if (!BundleManagerInternal::GetCallerAppIdFromBms(callerInfo.uid, callerInfo.callerAppId)) {
+        HILOGE("ConnectRemoteAbility GetCallerAppIdFromBms failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    int32_t ret = DistributedSchedAdapter::GetInstance().GetBundleNameListFromBms(
+        callerInfo.uid, callerInfo.bundleNames);
+    if (ret != ERR_OK) {
+        HILOGE("ConnectRemoteAbility GetBundleNameListFromBms failed");
+        return INVALID_PARAMETERS_ERR;
     }
 
     HILOGD("[PerformanceTest] ConnectRemoteAbility begin");
@@ -889,19 +888,25 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
 
     HILOGD("ConnectAbilityFromRemote callerType is %{public}d", callerInfo.callerType);
     sptr<IRemoteObject> callbackWrapper = connect;
+    std::map<sptr<IRemoteObject>, ConnectInfo>::iterator itConnect;
     if (callerInfo.callerType == CALLER_TYPE_HARMONY) {
         std::lock_guard<std::mutex> autoLock(connectLock_);
-        auto itConnect = connectAbilityMap_.find(connect);
+        itConnect = connectAbilityMap_.find(connect);
         if (itConnect != connectAbilityMap_.end()) {
             callbackWrapper = itConnect->second.callbackWrapper;
         } else {
             callbackWrapper = new AbilityConnectionWrapperStub(connect);
-            ConnectInfo connectInfo {callerInfo, callbackWrapper};
-            connectAbilityMap_.emplace(connect, connectInfo);
         }
     }
     int32_t errCode = DistributedSchedAdapter::GetInstance().ConnectAbility(want, callbackWrapper, this);
     HILOGD("[PerformanceTest] ConnectAbilityFromRemote end");
+    if (errCode == ERR_OK) {
+        std::lock_guard<std::mutex> autoLock(connectLock_);
+        if (itConnect == connectAbilityMap_.end()) {
+            ConnectInfo connectInfo {callerInfo, callbackWrapper};
+            connectAbilityMap_.emplace(connect, connectInfo);
+        }
+    }
     return errCode;
 }
 
@@ -1103,8 +1108,7 @@ void DistributedSchedService::ProcessConnectDied(const sptr<IRemoteObject>& conn
         return;
     }
 
-    std::list<ConnectAbilitySession> sessionsList;
-    CallerInfo callerInfo;
+    std::list<ProcessDiedNotifyInfo> notifyList;
     {
         std::lock_guard<std::mutex> autoLock(distributedLock_);
         auto it = distributedConnectAbilityMap_.find(connect);
@@ -1115,11 +1119,24 @@ void DistributedSchedService::ProcessConnectDied(const sptr<IRemoteObject>& conn
         if (connectSessionsList.empty()) {
             return;
         }
-        callerInfo = connectSessionsList.front().GetCallerInfo();
+        CallerInfo callerInfo = connectSessionsList.front().GetCallerInfo();
+        std::set<std::string> processedDeviceSet;
         // to reduce the number of communications between devices, clean all the died process's connections
         for (auto iter = distributedConnectAbilityMap_.begin(); iter != distributedConnectAbilityMap_.end();) {
-            sessionsList = iter->second;
+            std::list<ConnectAbilitySession>& sessionsList = iter->second;
             if (!sessionsList.empty() && sessionsList.front().IsSameCaller(callerInfo)) {
+                for (const auto& session : sessionsList) {
+                    std::string remoteDeviceId = session.GetDestinationDeviceId();
+                    TargetComponent targetComponent = session.GetTargetComponent();
+                    // the same session can connect different types component on the same device
+                    std::string key = remoteDeviceId + std::to_string(static_cast<int32_t>(targetComponent));
+                    // just notify one time for same remote device
+                    auto [_, isSuccess] = processedDeviceSet.emplace(key);
+                    if (isSuccess) {
+                        ProcessDiedNotifyInfo notifyInfo = { remoteDeviceId, callerInfo, targetComponent };
+                        notifyList.push_back(notifyInfo);
+                    }
+                }
                 DecreaseConnectLocked(callerInfo.uid);
                 if (iter->first != nullptr) {
                     iter->first->RemoveDeathRecipient(connectDeathRecipient_);
@@ -1130,37 +1147,31 @@ void DistributedSchedService::ProcessConnectDied(const sptr<IRemoteObject>& conn
             }
         }
     }
-    std::set<std::string> processedDeviceSet;
-    if (!sessionsList.empty() && sessionsList.front().IsSameCaller(callerInfo)) {
-        for (const auto& session : sessionsList) {
-            std::string remoteDeviceId = session.GetDestinationDeviceId();
-            TargetComponent targetComponent = session.GetTargetComponent();
-            // the same session can connect different types component on the same device
-            std::string key = remoteDeviceId + std::to_string(static_cast<int32_t>(targetComponent));
-            // just notify one time for same remote device
-            auto [_, isSuccess] = processedDeviceSet.emplace(key);
-            if (isSuccess) {
-                NotifyProcessDiedLocked(remoteDeviceId, callerInfo, targetComponent);
-            }
-        }
+    NotifyProcessDiedAll(notifyList);
+}
+
+void DistributedSchedService::NotifyProcessDiedAll(const std::list<ProcessDiedNotifyInfo>& notifyList)
+{
+    for (auto it = notifyList.begin(); it != notifyList.end(); ++it) {
+        NotifyProcessDied(it->remoteDeviceId, it->callerInfo, it->targetComponent);
     }
 }
 
-void DistributedSchedService::NotifyProcessDiedLocked(const std::string& remoteDeviceId,
+void DistributedSchedService::NotifyProcessDied(const std::string& remoteDeviceId,
     const CallerInfo& callerInfo, TargetComponent targetComponent)
 {
     if (targetComponent != TargetComponent::HARMONY_COMPONENT) {
-        HILOGD("NotifyProcessDiedLocked not harmony component, no need to notify");
+        HILOGD("NotifyProcessDied not harmony component, no need to notify");
         return;
     }
 
     sptr<IDistributedSched> remoteDms = GetRemoteDms(remoteDeviceId);
     if (remoteDms == nullptr) {
-        HILOGE("NotifyProcessDiedLocked get remote dms failed");
+        HILOGE("NotifyProcessDied get remote dms failed");
         return;
     }
     int32_t result = remoteDms->NotifyProcessDiedFromRemote(callerInfo);
-    HILOGI("NotifyProcessDiedLocked result is %{public}d", result);
+    HILOGI("NotifyProcessDied result is %{public}d", result);
 }
 
 ConnectAbilitySession::ConnectAbilitySession(const std::string& sourceDeviceId, const std::string& destinationDeviceId,
