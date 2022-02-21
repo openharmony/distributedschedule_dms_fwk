@@ -49,6 +49,12 @@ struct ConnectInfo {
     AppExecFwk::ElementName element;
 };
 
+struct ProcessDiedNotifyInfo {
+    std::string remoteDeviceId;
+    CallerInfo callerInfo;
+    TargetComponent targetComponent;
+};
+
 class DistributedSchedService : public SystemAbility, public DistributedSchedStub {
 DECLARE_SYSTEM_ABILITY(DistributedSchedService);
 
@@ -130,7 +136,8 @@ private:
         const std::string& destinationDeviceId, const std::string& sourceDeviceId);
     void NotifyDeviceOfflineToAppLocked(const sptr<IRemoteObject>& connect, const ConnectAbilitySession& session);
     int32_t NotifyApp(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName& element, int32_t errCode);
-    void NotifyProcessDiedLocked(const std::string& remoteDeviceId, const CallerInfo& callerInfo,
+    void NotifyProcessDiedAll(const std::list<ProcessDiedNotifyInfo>& notifyList);
+    void NotifyProcessDied(const std::string& remoteDeviceId, const CallerInfo& callerInfo,
         TargetComponent targetComponent);
     int32_t CheckDistributedConnectLocked(const CallerInfo& callerInfo) const;
     void DecreaseConnectLocked(int32_t uid);
