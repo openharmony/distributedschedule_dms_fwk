@@ -39,17 +39,24 @@ constexpr int32_t RETRY_TIMES_WAIT_KV_DATA = 30;
 constexpr int32_t RETRY_TIMES_GET_KVSTORE = 5;
 }
 
+DistributedDataStorage::DistributedDataStorage()
+{
+    appId_.appId = APP_ID;
+    storeId_.storeId = STORE_ID;
+}
+
 bool DistributedDataStorage::Init()
 {
     HILOGD("begin.");
-    kvStoreDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new KvStoreDeathRecipient());
-    appId_.appId = APP_ID;
-    storeId_.storeId = STORE_ID;
-    InitHandler();
-    if (dmsDataStorageHandler_ == nullptr) {
+    if (kvStoreDeathRecipient_ == nullptr) {
+        kvStoreDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new KvStoreDeathRecipient());
+    }
+    bool ret = InitHandler();
+    if (!ret) {
+        HILOGE("InitHandler failed!");
         return false;
     }
-    bool ret = InitKvDataService();
+    ret = InitKvDataService();
     if (!ret) {
         HILOGE("InitKvDataService failed!");
         return false;
@@ -165,11 +172,24 @@ void DistributedDataStorage::SubscribeDistributedDataStorage()
     }
 }
 
-void DistributedDataStorage::InitHandler()
+bool DistributedDataStorage::InitHandler()
 {
     if (dmsDataStorageHandler_ == nullptr) {
         shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("dmsDataStorageHandler");
         dmsDataStorageHandler_ = make_shared<AppExecFwk::EventHandler>(runner);
+    }
+    if (dmsDataStorageHandler_ == nullptr) {
+        HILOGW("dmsDataStorageHandler_ is null!");
+        return false;
+    }
+    return true;
+}
+
+void DistributedDataStorage::NotifyRemoteDied(const wptr<IRemoteObject>& remote)
+{
+    HILOGD("begin.");
+    if (kvStoreDeathRecipient_ != nullptr) {
+        remote->RemoveDeathRecipient(kvStoreDeathRecipient_);
     }
 }
 
