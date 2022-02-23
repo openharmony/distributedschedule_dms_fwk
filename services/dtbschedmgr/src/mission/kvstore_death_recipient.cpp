@@ -27,6 +27,7 @@ const std::string TAG = "KvStoreDeathRecipient";
 void KvStoreDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
     HILOGD("called.");
+    DistributedSchedMissionManager::GetInstance().NotifyRemoteDied(remote);
     DistributedSchedMissionManager::GetInstance().InitDataStorage();
 }
 } // namespace DistributedSchedule

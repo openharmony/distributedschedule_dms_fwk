@@ -156,9 +156,20 @@ bool DistributedSchedMissionManager::IsDeviceIdValidated(const std::string& devi
     return true;
 }
 
+void DistributedSchedMissionManager::NotifyRemoteDied(const wptr<IRemoteObject>& remote)
+{
+    if (distributedDataStorage_ == nullptr) {
+        HILOGE("DistributedDataStorage null!");
+        return;
+    }
+    distributedDataStorage_->NotifyRemoteDied(remote);
+}
+
 int32_t DistributedSchedMissionManager::InitDataStorage()
 {
-    distributedDataStorage_ = std::make_shared<DistributedDataStorage>();
+    if (distributedDataStorage_ == nullptr) {
+        distributedDataStorage_ = std::make_shared<DistributedDataStorage>();
+    }
     if (!distributedDataStorage_->Init()) {
         HILOGE("InitDataStorage DistributedDataStorage init failed!");
         return ERR_NULL_OBJECT;

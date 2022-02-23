@@ -31,7 +31,7 @@ namespace OHOS {
 namespace DistributedSchedule {
 class DistributedDataStorage {
 public:
-    DistributedDataStorage() = default;
+    DistributedDataStorage();
     ~DistributedDataStorage() = default;
 
     /**
@@ -86,6 +86,8 @@ public:
      */
     bool Query(const std::string& networkId, int32_t missionId, DistributedKv::Value& value) const;
 
+    void NotifyRemoteDied(const wptr<IRemoteObject>& remote);
+
 private:
     bool InitKvDataService();
     bool WaitKvDataService();
@@ -98,7 +100,7 @@ private:
     bool DeleteInnerLocked(const std::string& uuid, int32_t missionId);
     bool FuzzyDeleteInnerLocked(const std::string& networkId);
     bool QueryInnerLocked(const std::string& uuid, int32_t missionId, DistributedKv::Value& value) const;
-    void InitHandler();
+    bool InitHandler();
     static void GenerateKey(const std::string& uuid, int32_t missionId, DistributedKv::Key& key);
     static void GenerateValue(const uint8_t* byteStream, size_t len, DistributedKv::Value& value);
 
