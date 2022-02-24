@@ -31,7 +31,6 @@ ohos_shared_library("zuri") {
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",
-      "ipc:ipc_core",
       "utils_base:utils",
     ]
     part_name = "dmsfwk_standard"
