@@ -430,6 +430,7 @@ void DistributedSchedService::NotifyContinuationCallbackResult(int32_t missionId
     if (dschedContinuation_->IsInContinuationProgress(missionId)) {
         if (!isSuccess) {
             result = CleanMission(missionId);
+            HILOGD("clean mission result:%{public}d", result);
         }
         result = dschedContinuation_->NotifyMissionCenterResult(missionId, isSuccess);
     } else {
