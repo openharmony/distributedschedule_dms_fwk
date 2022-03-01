@@ -445,10 +445,12 @@ int32_t DistributedSchedMissionManager::StartSyncRemoteMissions(const std::strin
         std::lock_guard<std::mutex> autoLock(listenDeviceLock_);
         auto iterItem = listenDeviceMap_.find(devId);
         if (iterItem == listenDeviceMap_.end()) {
+            return ERR_NONE;
         }
         bool callFlag = iterItem->second.called;
         if (callFlag) {
             HILOGI("StartSyncRemoteMissions already called!");
+            return ERR_NONE;
         }
     }
     sptr<IDistributedSched> remoteDms = GetRemoteDms(dstDevId);
