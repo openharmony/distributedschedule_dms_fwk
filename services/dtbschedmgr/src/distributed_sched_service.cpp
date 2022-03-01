@@ -738,7 +738,7 @@ int32_t DistributedSchedService::StartAbilityByCallFromRemote(const OHOS::AAFwk:
         HILOGE("StartAbilityByCallFromRemote CheckDPermission denied!!");
         return result;
     }
-    sptr<IRemoteObject> callbackWrapper = connect;
+    sptr<IRemoteObject> callbackWrapper;
     {
         std::lock_guard<std::mutex> autoLock(calleeLock_);
         auto itConnect = calleeMap_.find(connect);
@@ -777,7 +777,7 @@ int32_t DistributedSchedService::ReleaseAbilityFromRemote(const sptr<IRemoteObje
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
 
-    sptr<IRemoteObject> callbackWrapper = connect;
+    sptr<IRemoteObject> callbackWrapper;
     {
         std::lock_guard<std::mutex> autoLock(calleeLock_);
         auto itConnect = calleeMap_.find(connect);
