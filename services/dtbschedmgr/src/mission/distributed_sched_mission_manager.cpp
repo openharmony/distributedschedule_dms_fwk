@@ -575,7 +575,8 @@ int32_t DistributedSchedMissionManager::StartSyncRemoteMissions(const std::strin
     int64_t tag)
 {
     std::string localDeviceId;
-    if (!DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(localDeviceId)) {
+    if (!DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(localDeviceId)
+        || (dstDevId == localDeviceId)) {
         HILOGE("check deviceId fail");
         return INVALID_PARAMETERS_ERR;
     }
