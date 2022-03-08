@@ -202,7 +202,7 @@ HWTEST_F(DistributedSchedConnectTest, DumpConnectInfo_001, TestSize.Level1)
     if (samgr == nullptr) {
         DTEST_LOG << "DistributedSchedServiceTest DumpConnectInfo_001 samgr null" << std::endl;
     } else {
-        DTEST_LOG << "DistributedSchedServiceTest DumpConnectInfo_001 avaiable" << std::endl;
+        DTEST_LOG << "DistributedSchedServiceTest DumpConnectInfo_001 available" << std::endl;
     }
 
     auto dms = samgr->GetSystemAbility(DISTRIBUTED_SCHED_SA_ID);

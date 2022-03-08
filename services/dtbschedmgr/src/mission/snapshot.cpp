@@ -152,7 +152,7 @@ unique_ptr<PixelMap> Snapshot::CreatePixelMap(const uint8_t* buffer, uint32_t bu
     unique_ptr<PixelMap> pixelMap = imageSource->CreatePixelMap(decodeOpt, errCode);
     HILOGI("[PerformanceTest] Create PixelMap spend %{public}" PRId64 " ms", GetTickCount() - begin);
     if (pixelMap == nullptr || errCode != 0) {
-        HILOGW("Snapshot: CreatePixelMap failed, errCode:%{public}d!", errCode);
+        HILOGW("Snapshot: CreatePixelMap failed, errCode:%{public}u!", errCode);
         return nullptr;
     }
     return pixelMap;

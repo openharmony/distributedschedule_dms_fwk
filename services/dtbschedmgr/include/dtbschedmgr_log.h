@@ -153,11 +153,11 @@ enum {
      */
     IPC_CALL_NORESPONSE_ERR = 29360149,
     /**
-     * Result(29360150) for DistributedSched Service call bundle manger service error.
+     * Result(29360150) for DistributedSched Service call bundle manager service error.
      */
     BUNDLE_MANAGER_SERVICE_ERR = 29360150,
     /**
-     * Result(29360151) for DistributedSched Service call distributed manger error.
+     * Result(29360151) for DistributedSched Service call distributed manager error.
      */
     DISTRIBUTED_MANAGER_ERR = 29360151,
     /**
