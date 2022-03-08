@@ -870,7 +870,7 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
         HILOGE("ConnectAbilityFromRemote connect is null");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
-    HILOGD("ConnectAbilityFromRemote uid is %{public}d, pid is %{public}d, AccessTokenID is %{public}d",
+    HILOGD("ConnectAbilityFromRemote uid is %{public}d, pid is %{public}d, AccessTokenID is %{public}u",
         callerInfo.uid, callerInfo.pid, callerInfo.accessToken);
     std::string localDeviceId;
     std::string destinationDeviceId = want.GetElement().GetDeviceID();
