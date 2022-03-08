@@ -43,7 +43,7 @@ AbilityConnectionWrapperStub::AbilityConnectionWrapperStub(sptr<IRemoteObject> c
 int32_t AbilityConnectionWrapperStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     MessageParcel& reply, MessageOption& option)
 {
-    HILOGD("AbilityConnectionWrapperStub::OnRemoteRequest code = %{public}d", code);
+    HILOGD("AbilityConnectionWrapperStub::OnRemoteRequest code = %{public}u", code);
     std::u16string descriptor = IAbilityConnection::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
