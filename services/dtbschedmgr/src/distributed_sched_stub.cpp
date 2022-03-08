@@ -131,7 +131,7 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
     PARCEL_READ_HELPER(data, Int32, requestCode);
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
-    HILOGI("get AccessTokenID = %{public}d", accessToken);
+    HILOGI("get AccessTokenID = %{public}u", accessToken);
     int32_t result = StartRemoteAbility(*want, callerUid, requestCode, accessToken);
     HILOGI("StartRemoteAbilityInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
@@ -172,7 +172,7 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     if (!extraInfoJson.is_discarded()) {
         uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
-        HILOGD("parse extra info, accessTokenID = %{public}d", accessToken);
+        HILOGD("parse extra info, accessTokenID = %{public}u", accessToken);
     }
     int32_t result = StartAbilityFromRemote(*want, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("result = %{public}d", result);
@@ -219,7 +219,7 @@ int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, Messag
     int32_t status = data.ReadInt32();
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
-    HILOGI("get AccessTokenID = %{public}d", accessToken);
+    HILOGI("get AccessTokenID = %{public}u", accessToken);
     int32_t result = StartContinuation(*want, missionId, callerUid, status, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
@@ -272,7 +272,7 @@ int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, Mes
     HILOGI("get callerPid = %{public}d", callerPid);
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
-    HILOGI("get AccessTokenID = %{public}d", accessToken);
+    HILOGI("get AccessTokenID = %{public}u", accessToken);
     int32_t result = ConnectRemoteAbility(*want, connect, callerUid, callerPid, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
@@ -323,7 +323,7 @@ int32_t DistributedSchedStub::ConnectAbilityFromRemoteInner(MessageParcel& data,
     if (!extraInfoJson.is_discarded()) {
         uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
-        HILOGD("parse extra info, accessTokenID = %{public}d", accessToken);
+        HILOGD("parse extra info, accessTokenID = %{public}u", accessToken);
     }
     std::string package = abilityInfo.bundleName;
     std::string deviceId = abilityInfo.deviceId;
@@ -753,7 +753,7 @@ int32_t DistributedSchedStub::StartAbilityByCallFromRemoteInner(MessageParcel& d
     if (!extraInfoJson.is_discarded()) {
         uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
-        HILOGD("parse extra info, accessToken = %{public}d", accessToken);
+        HILOGD("parse extra info, accessToken = %{public}u", accessToken);
     }
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {

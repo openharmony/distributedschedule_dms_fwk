@@ -45,7 +45,7 @@ int32_t DistributedSchedPermission::CheckDPermission(const AAFwk::Want& want, co
     HILOGD("target ability info bundleName:%{public}s abilityName:%{public}s uri:%{private}s visible:%{public}d",
         targetAbility.bundleName.c_str(), targetAbility.name.c_str(), targetAbility.uri.c_str(),
         targetAbility.visible);
-    HILOGD("callerType:%{public}d accountType:%{public}d callerUid:%{public}d AccessTokenID:%{public}d",
+    HILOGD("callerType:%{public}d accountType:%{public}d callerUid:%{public}d AccessTokenID:%{public}u",
         callerInfo.callerType, accountInfo.accountType, callerInfo.uid, callerInfo.accessToken);
     // 2.check component access permission, when the ability is not visible.
     if (!CheckComponentAccessPermission(targetAbility, callerInfo, accountInfo, want)) {
@@ -133,10 +133,10 @@ bool DistributedSchedPermission::CheckCustomPermission(const AppExecFwk::Ability
         }
         int32_t result = AccessToken::AccessTokenKit::VerifyAccessToken(dAccessToken, permission);
         if (result == AccessToken::PermissionState::PERMISSION_DENIED) {
-            HILOGD("dAccessTokenID:%{public}d, permission:%{public}s denied!", dAccessToken, permission.c_str());
+            HILOGD("dAccessTokenID:%{public}u, permission:%{public}s denied!", dAccessToken, permission.c_str());
             return false;
         }
-        HILOGD("dAccessTokenID:%{public}d, permission:%{public}s matched!", dAccessToken, permission.c_str());
+        HILOGD("dAccessTokenID:%{public}u, permission:%{public}s matched!", dAccessToken, permission.c_str());
     }
     return true;
 }
