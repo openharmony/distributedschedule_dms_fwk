@@ -14,6 +14,7 @@
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 import("//build/test.gni")
+import("//foundation/distributedschedule/dmsfwk/dmsfwk.gni")
 
 module_output_path = "dmsfwk_standard/distributedschedsvrtest"
 
@@ -41,13 +42,16 @@ dsched_external_deps = [
   "eventhandler:libeventhandler",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
-  "multimedia_image_standard:image_native",
   "os_account_standard:os_account_innerkits",
   "permission_standard:libpermissionsdk_standard",
   "safwk:system_ability_fwk",
   "samgr_standard:samgr_proxy",
   "utils_base:utils",
 ]
+
+if (dmsfwk_standard_mission_manager) {
+  dsched_external_deps += [ "multimedia_image_standard:image_native" ]
+}
 
 dsched_public_deps = [
   "//third_party/googletest:gtest_main",
@@ -70,17 +74,22 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/distributed_sched_service.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_data_change_listener.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_data_storage.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_change_listener.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_info.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/distributed_sched_mission_manager.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/kvstore_death_recipient.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/mission_changed_notify.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/mission_info_converter.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/snapshot.cpp",
-  "${distributed_service}/dtbschedmgr/src/mission/snapshot_converter.cpp",
 ]
+
+if (dmsfwk_standard_mission_manager) {
+  dtbschedmgr_sources += [
+    "${distributed_service}/dtbschedmgr/src/mission/distributed_data_change_listener.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/distributed_data_storage.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_change_listener.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/distributed_mission_info.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/distributed_sched_mission_manager.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/kvstore_death_recipient.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/mission_changed_notify.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/mission_info_converter.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/snapshot.cpp",
+    "${distributed_service}/dtbschedmgr/src/mission/snapshot_converter.cpp",
+  ]
+}
 
 ohos_unittest("distributedschedsvrtest") {
   module_out_path = module_output_path
@@ -113,6 +122,11 @@ ohos_unittest("dschedcontinuetest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
+
+  if (dmsfwk_standard_mission_manager) {
+    defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
+  }
+
   part_name = "dmsfwk_standard"
   subsystem_name = "distributedschedule"
 }
@@ -184,8 +198,12 @@ group("unittest") {
     ":distributedschedsvrtest",
     ":dschedconnecttest",
     ":dschedcontinuetest",
-    ":dscheddatastoragetest",
-    ":dschedmissionmanagertest",
-    ":dschedpermissiontest",
   ]
+  if (dmsfwk_standard_mission_manager) {
+    deps += [
+      ":dscheddatastoragetest",
+      ":dschedmissionmanagertest",
+      ":dschedpermissiontest",
+    ]
+  }
 }
