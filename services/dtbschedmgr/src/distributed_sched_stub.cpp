@@ -21,12 +21,15 @@
 #include "datetime_ex.h"
 #include "dtbschedmgr_log.h"
 #include "dtbschedmgr_device_info_storage.h"
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "image_source.h"
-#include "ipc_skeleton.h"
-#include "message_parcel.h"
 #include "mission/distributed_sched_mission_manager.h"
 #include "mission/mission_info_converter.h"
 #include "mission/snapshot_converter.h"
+#endif
+#include "ipc_skeleton.h"
+#include "message_parcel.h"
+
 #include "parcel_helper.h"
 
 namespace OHOS {
@@ -51,6 +54,7 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[CONNECT_REMOTE_ABILITY] = &DistributedSchedStub::ConnectRemoteAbilityInner;
     localFuncsMap_[DISCONNECT_REMOTE_ABILITY] = &DistributedSchedStub::DisconnectRemoteAbilityInner;
     // request codes for mission mananger
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     localFuncsMap_[CHECK_SUPPORTED_OSD] = &DistributedSchedStub::CheckSupportOsdInner;
     localFuncsMap_[STORE_SNAPSHOT_INFO] = &DistributedSchedStub::StoreSnapshotInfoInner;
     localFuncsMap_[REMOVE_SNAPSHOT_INFO] = &DistributedSchedStub::RemoveSnapshotInfoInner;
@@ -63,13 +67,14 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[STOP_SYNC_MISSIONS] = &DistributedSchedStub::StopSyncRemoteMissionsInner;
     localFuncsMap_[SWITCH_CHANGED] = &DistributedSchedStub::NotifyOsdSwitchChangedInner;
     localFuncsMap_[GET_CACHED_SUPPORTED_OSD] = &DistributedSchedStub::GetCachedOsdSwitchInner;
-
+#endif
     remoteFuncsMap_[START_ABILITY_FROM_REMOTE] = &DistributedSchedStub::StartAbilityFromRemoteInner;
     remoteFuncsMap_[NOTIFY_CONTINUATION_RESULT_FROM_REMOTE] =
         &DistributedSchedStub::NotifyContinuationResultFromRemoteInner;
     remoteFuncsMap_[CONNECT_ABILITY_FROM_REMOTE] = &DistributedSchedStub::ConnectAbilityFromRemoteInner;
     remoteFuncsMap_[DISCONNECT_ABILITY_FROM_REMOTE] = &DistributedSchedStub::DisconnectAbilityFromRemoteInner;
     remoteFuncsMap_[NOTIFY_PROCESS_DIED_FROM_REMOTE] = &DistributedSchedStub::NotifyProcessDiedFromRemoteInner;
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     // request codes for mission mananger
     remoteFuncsMap_[CHECK_SUPPORT_OSD_FROM_REMOTE] = &DistributedSchedStub::GetOsdSwitchValueFromRemoteInner;
     remoteFuncsMap_[START_SYNC_MISSIONS_FROM_REMOTE] =
@@ -78,8 +83,8 @@ DistributedSchedStub::DistributedSchedStub()
         &DistributedSchedStub::StopSyncMissionsFromRemoteInner;
     remoteFuncsMap_[NOTIFY_MISSIONS_CHANGED_FROM_REMOTE] = &DistributedSchedStub::NotifyMissionsChangedFromRemoteInner;
     remoteFuncsMap_[NOTIFY_SWITCH_CHANGED_FROM_REMOTE] = &DistributedSchedStub::UpdateOsdSwitchValueFromRemoteInner;
+#endif
     remoteFuncsMap_[CONTINUE_MISSION] = &DistributedSchedStub::ContinueMissionInner;
-
     // request codes for call ability
     localFuncsMap_[START_REMOTE_ABILITY_BY_CALL] = &DistributedSchedStub::StartRemoteAbilityByCallInner;
     localFuncsMap_[RELEASE_REMOTE_ABILITY] = &DistributedSchedStub::ReleaseRemoteAbilityInner;
@@ -391,6 +396,7 @@ bool DistributedSchedStub::EnforceInterfaceToken(MessageParcel& data)
     return interfaceToken == DMS_STUB_INTERFACE_TOKEN;
 }
 
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 int32_t DistributedSchedStub::GetMissionInfosInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
@@ -667,6 +673,7 @@ int32_t DistributedSchedStub::StartSyncRemoteMissionsInner(MessageParcel& data, 
     int32_t result = StartSyncRemoteMissions(deviceId, fixConflict, tag);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
+#endif
 
 bool DistributedSchedStub::CallerInfoUnmarshalling(CallerInfo& callerInfo, MessageParcel& data)
 {

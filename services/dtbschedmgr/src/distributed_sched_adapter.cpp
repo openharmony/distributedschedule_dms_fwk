@@ -23,8 +23,10 @@
 #include "dtbschedmgr_log.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "mission/distributed_sched_mission_manager.h"
 #include "mission/mission_info_converter.h"
+#endif
 #include "os_account_manager.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
@@ -271,6 +273,7 @@ int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid, std::vect
     return result ? ERR_OK : BUNDLE_MANAGER_SERVICE_ERR;
 }
 
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 int32_t DistributedSchedAdapter::GetLocalMissionInfos(int32_t numMissions,
     std::vector<DstbMissionInfo>& missionInfos)
 
@@ -371,6 +374,7 @@ int32_t DistributedSchedAdapter::GetOsdSwitch()
 {
     return MISSION_OSD_ENABLED;
 }
+#endif
 
 void DistributedSchedAdapter::OnOsdEventOccur(int32_t flag)
 {

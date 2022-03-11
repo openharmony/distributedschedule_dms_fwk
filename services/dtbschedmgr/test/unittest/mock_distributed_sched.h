@@ -47,6 +47,7 @@ public:
     int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
         int32_t uid, const std::string& sourceDeviceId) override;
     int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) override;
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
     int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
     int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
@@ -67,6 +68,7 @@ public:
         std::vector<DstbMissionInfo>& missionInfos) override;
     int32_t StopSyncMissionsFromRemote(const CallerInfo& callerInfo) override;
     int32_t StopSyncRemoteMissions(const std::string& devId) override;
+#endif
     int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         int32_t callerUid, int32_t callerPid, uint32_t accessToken) override;
     int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,

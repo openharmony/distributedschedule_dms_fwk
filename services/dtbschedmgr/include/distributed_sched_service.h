@@ -25,8 +25,10 @@
 #include "distributed_sched_continuation.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "mission/distributed_mission_info.h"
 #include "nocopyable.h"
+#endif
 #include "single_instance.h"
 #include "system_ability.h"
 
@@ -83,6 +85,7 @@ public:
     int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
         int32_t uid, const std::string& sourceDeviceId) override;
     int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) override;
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
         std::vector<AAFwk::MissionInfo>& missionInfos) override;
     int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
@@ -90,12 +93,14 @@ public:
     int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) override;
     int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
         const CallerInfo& callerInfo) override;
+#endif
     void ProcessConnectDied(const sptr<IRemoteObject>& connect);
     void ProcessDeviceOffline(const std::string& deviceId);
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void DumpConnectInfo(std::string& info);
     void DumpSessionsLocked(const std::list<ConnectAbilitySession>& sessionsList, std::string& info);
     void DumpElementLocked(const std::list<AppExecFwk::ElementName>& elementsList, std::string& info);
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     int32_t CheckSupportOsd(const std::string& deviceId) override;
     void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values) override;
     int32_t GetOsdSwitchValueFromRemote() override;
@@ -110,6 +115,7 @@ public:
     int32_t StopSyncMissionsFromRemote(const CallerInfo& callerInfo) override;
     int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
     int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
+#endif
     int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         int32_t callerUid, int32_t callerPid, uint32_t accessToken) override;
     int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
@@ -144,10 +150,10 @@ private:
     static int32_t GetUidLocked(const std::list<ConnectAbilitySession>& sessionList);
     int32_t TryConnectRemoteAbility(const OHOS::AAFwk::Want& want,
         const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo);
+    sptr<IRemoteObject> GetAbilityManagerProxy();
     int32_t ContinueToAbilityManager(const std::string& deviceId, int32_t missionId);
     int32_t NotifyResultToAbilityManager(int32_t missionId, int32_t isSuccess);
     int32_t CleanMission(int32_t missionId);
-    sptr<IRemoteObject> GetAbilityManagerProxy();
     int32_t ContinueLocalMission(const std::string& dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject>& callback);
     int32_t ContinueRemoteMission(const std::string& srcDeviceId, const std::string& dstDeviceId, int32_t missionId,

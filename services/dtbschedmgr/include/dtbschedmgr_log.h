@@ -19,6 +19,7 @@
 #include "errors.h"
 #include "hilog/log_c.h"
 #include "hilog/log_cpp.h"
+#include "inttypes.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
