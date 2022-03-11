@@ -139,6 +139,11 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
 
 int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!CheckCallingUid()) {
+        HILOGW("request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
+    
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOGW("want readParcelable failed!");
