@@ -926,13 +926,18 @@ int32_t DistributedSchedService::DisconnectEachRemoteAbilityLocked(const std::st
     return result;
 }
 
-int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect)
+int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
+    uint32_t accessToken)
 {
     if (connect == nullptr) {
         HILOGE("DisconnectRemoteAbility connect is null");
         return INVALID_PARAMETERS_ERR;
     }
 
+    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
+        HILOGE("DisconnectRemoteAbility check uid failed");
+        return INVALID_PARAMETERS_ERR;
+    }
     std::list<ConnectAbilitySession> sessionsList;
     {
         std::lock_guard<std::mutex> autoLock(distributedLock_);

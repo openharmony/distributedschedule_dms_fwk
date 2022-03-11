@@ -127,8 +127,8 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_001, TestSize.Level1)
     int result2 = proxy->StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result2:" << result2 << std::endl;
 
-    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result1);
-    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result2);
+    EXPECT_EQ(static_cast<int>(DMS_PERMISSION_DENIED), result1);
+    EXPECT_EQ(static_cast<int>(DMS_PERMISSION_DENIED), result2);
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_001 end" << std::endl;
 }
 
@@ -210,7 +210,7 @@ HWTEST_F(DistributedSchedServiceTest, StartRemoteAbility_004, TestSize.Level1)
     want.SetElement(element);
     int result = proxy->StartRemoteAbility(want, 0, 0, 0);
     DTEST_LOG << "result:" << result << std::endl;
-    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result);
+    EXPECT_EQ(static_cast<int>(DMS_PERMISSION_DENIED), result);
     DTEST_LOG << "DistributedSchedServiceTest StartRemoteAbility_004 end" << std::endl;
 }
 
