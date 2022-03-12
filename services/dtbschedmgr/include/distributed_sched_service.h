@@ -77,7 +77,8 @@ public:
     int32_t NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess) override;
     int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         int32_t callerUid, int32_t callerPid, uint32_t accessToken) override;
-    int32_t DisconnectRemoteAbility(const sptr<IRemoteObject>& connect) override;
+    int32_t DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
+        uint32_t accessToken) override;
     int32_t ConnectAbilityFromRemote(const OHOS::AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
         const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo, const AccountInfo& accountInfo) override;
     int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
