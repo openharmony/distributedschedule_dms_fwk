@@ -65,7 +65,8 @@ int32_t MockDistributedSched::ConnectRemoteAbility(const OHOS::AAFwk::Want& want
     return 0;
 }
 
-int32_t MockDistributedSched::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect)
+int32_t MockDistributedSched::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
+    uint32_t accessToken)
 {
     return 0;
 }

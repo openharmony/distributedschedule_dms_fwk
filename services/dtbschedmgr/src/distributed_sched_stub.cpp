@@ -19,6 +19,7 @@
 #include "adapter/dnetwork_adapter.h"
 #include "caller_info.h"
 #include "datetime_ex.h"
+#include "distributed_sched_permission.h"
 #include "dtbschedmgr_log.h"
 #include "dtbschedmgr_device_info_storage.h"
 #include "image_source.h"
@@ -40,6 +41,7 @@ constexpr int32_t HID_HAP = 10000; /* first hap user */
 const std::string TAG = "DistributedSchedStub";
 const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 const std::string EXTRO_INFO_JSON_KEY_ACCESS_TOKEN = "accessTokenID";
+const std::string PERMISSION_DISTRIBUTED_DATASYNC = "ohos.permission.DISTRIBUTED_DATASYNC";
 }
 
 DistributedSchedStub::DistributedSchedStub()
@@ -132,6 +134,11 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
     HILOGI("get AccessTokenID = %{public}u", accessToken);
+    if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
+        PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
+        HILOGE("check data_sync permission failed!");
+        return DMS_PERMISSION_DENIED;
+    }
     int32_t result = StartRemoteAbility(*want, callerUid, requestCode, accessToken);
     HILOGI("StartRemoteAbilityInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
@@ -225,6 +232,11 @@ int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, Messag
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
     HILOGI("get AccessTokenID = %{public}u", accessToken);
+    if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
+        PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
+        HILOGE("check data_sync permission failed!");
+        return DMS_PERMISSION_DENIED;
+    }
     int32_t result = StartContinuation(*want, missionId, callerUid, status, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
@@ -278,6 +290,11 @@ int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, Mes
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
     HILOGI("get AccessTokenID = %{public}u", accessToken);
+    if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
+        PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
+        HILOGE("check data_sync permission failed!");
+        return DMS_PERMISSION_DENIED;
+    }
     int32_t result = ConnectRemoteAbility(*want, connect, callerUid, callerPid, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
@@ -286,7 +303,18 @@ int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, Mes
 int32_t DistributedSchedStub::DisconnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
-    int32_t result = DisconnectRemoteAbility(connect);
+    int32_t callerUid = 0;
+    PARCEL_READ_HELPER(data, Int32, callerUid);
+    HILOGI("get callerUid = %{public}d", callerUid);
+    uint32_t accessToken = 0;
+    PARCEL_READ_HELPER(data, Uint32, accessToken);
+    HILOGI("get AccessTokenID = %{public}u", accessToken);
+    if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
+        PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
+        HILOGE("check data_sync permission failed!");
+        return DMS_PERMISSION_DENIED;
+    }
+    int32_t result = DisconnectRemoteAbility(connect, callerUid, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -715,6 +743,11 @@ int32_t DistributedSchedStub::StartRemoteAbilityByCallInner(MessageParcel& data,
     PARCEL_READ_HELPER(data, Int32, callerPid);
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
+    if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
+        PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
+        HILOGE("check data_sync permission failed!");
+        return DMS_PERMISSION_DENIED;
+    }
     int32_t result = StartRemoteAbilityByCall(*want, connect, callerUid, callerPid, accessToken);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
