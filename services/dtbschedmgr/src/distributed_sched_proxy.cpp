@@ -191,7 +191,8 @@ int32_t DistributedSchedProxy::ConnectRemoteAbility(const OHOS::AAFwk::Want& wan
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_REMOTE_ABILITY, data, reply);
 }
 
-int32_t DistributedSchedProxy::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect)
+int32_t DistributedSchedProxy::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
+    uint32_t accessToken)
 {
     if (connect == nullptr) {
         HILOGE("DisconnectRemoteAbility connect is null");
@@ -208,6 +209,8 @@ int32_t DistributedSchedProxy::DisconnectRemoteAbility(const sptr<IRemoteObject>
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    PARCEL_WRITE_HELPER(data, Int32, callerUid);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, DISCONNECT_REMOTE_ABILITY, data, reply);
 }

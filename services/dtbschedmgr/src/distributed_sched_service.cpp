@@ -738,7 +738,7 @@ int32_t DistributedSchedService::StartAbilityByCallFromRemote(const OHOS::AAFwk:
         HILOGE("StartAbilityByCallFromRemote CheckDPermission denied!!");
         return result;
     }
-    sptr<IRemoteObject> callbackWrapper = connect;
+    sptr<IRemoteObject> callbackWrapper;
     {
         std::lock_guard<std::mutex> autoLock(calleeLock_);
         auto itConnect = calleeMap_.find(connect);
@@ -777,7 +777,7 @@ int32_t DistributedSchedService::ReleaseAbilityFromRemote(const sptr<IRemoteObje
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
 
-    sptr<IRemoteObject> callbackWrapper = connect;
+    sptr<IRemoteObject> callbackWrapper;
     {
         std::lock_guard<std::mutex> autoLock(calleeLock_);
         auto itConnect = calleeMap_.find(connect);
@@ -870,7 +870,7 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
         HILOGE("ConnectAbilityFromRemote connect is null");
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
-    HILOGD("ConnectAbilityFromRemote uid is %{public}d, pid is %{public}d, AccessTokenID is %{public}d",
+    HILOGD("ConnectAbilityFromRemote uid is %{public}d, pid is %{public}d, AccessTokenID is %{public}u",
         callerInfo.uid, callerInfo.pid, callerInfo.accessToken);
     std::string localDeviceId;
     std::string destinationDeviceId = want.GetElement().GetDeviceID();
@@ -926,13 +926,18 @@ int32_t DistributedSchedService::DisconnectEachRemoteAbilityLocked(const std::st
     return result;
 }
 
-int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect)
+int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
+    uint32_t accessToken)
 {
     if (connect == nullptr) {
         HILOGE("DisconnectRemoteAbility connect is null");
         return INVALID_PARAMETERS_ERR;
     }
 
+    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
+        HILOGE("DisconnectRemoteAbility check uid failed");
+        return INVALID_PARAMETERS_ERR;
+    }
     std::list<ConnectAbilitySession> sessionsList;
     {
         std::lock_guard<std::mutex> autoLock(distributedLock_);
