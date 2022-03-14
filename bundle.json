@@ -15,6 +15,9 @@
       "name": "dmsfwk_standard",
       "subsystem": "distributedschedule",
       "adapted_system_type": [ "standard" ],
+      "features" : [
+        "dmsfwk_standard_mission_manager"
+      ],
       "rom": "",
       "ram": "",
       "deps": {
