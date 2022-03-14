@@ -18,9 +18,11 @@
 #include "dtbschedmgr_log.h"
 
 #include "ipc_types.h"
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "mission/mission_info_converter.h"
-#include "parcel_helper.h"
 #include "pixel_map.h"
+#endif
+#include "parcel_helper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -32,7 +34,9 @@ namespace {
 const std::string TAG = "DistributedSchedProxy";
 const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 const std::string EXTRO_INFO_JSON_KEY_ACCESS_TOKEN = "accessTokenID";
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 constexpr int32_t WAIT_TIME = 15;
+#endif
 }
 
 int32_t DistributedSchedProxy::StartRemoteAbility(const OHOS::AAFwk::Want& want,
@@ -295,6 +299,7 @@ int32_t DistributedSchedProxy::NotifyProcessDiedFromRemote(const CallerInfo& cal
     PARCEL_TRANSACT_SYNC_RET_INT(remote, NOTIFY_PROCESS_DIED_FROM_REMOTE, data, reply);
 }
 
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 int32_t DistributedSchedProxy::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
     HILOGI("called");
@@ -621,6 +626,7 @@ int32_t DistributedSchedProxy::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
     HILOGD("%{public}s get result from server data = %{public}d", __func__, result);
     return result;
 }
+#endif
 
 bool DistributedSchedProxy::CallerInfoMarshalling(const CallerInfo& callerInfo, MessageParcel& data)
 {

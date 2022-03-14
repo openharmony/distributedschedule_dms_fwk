@@ -25,7 +25,9 @@
 #include "ipc_object_proxy.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "mission/distributed_sched_mission_manager.h"
+#endif
 #include "system_ability_definition.h"
 
 using namespace std;
@@ -263,13 +265,17 @@ void DtbschedmgrDeviceInfoStorage::DeviceOnlineNotify(const std::shared_ptr<DmsD
             DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str(),
             DnetworkAdapter::AnonymizeDeviceId(uuid).c_str(), devInfo->GetDeviceName().c_str());
         DistributedSchedAdapter::GetInstance().DeviceOnline(deviceId);
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
         DistributedSchedMissionManager::GetInstance().UpdateConnCapSupportOsd(deviceId);
         DistributedSchedMissionManager::GetInstance().DeviceOnlineNotify(deviceId);
+#endif
         {
             lock_guard<mutex> autoLock(deviceLock_);
             remoteDevices_[deviceId] = devInfo;
         }
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
         DistributedSchedMissionManager::GetInstance().UpdateSwitchValueToRemote();
+#endif
     };
     if (!networkIdMgrHandler_->PostTask(nodeOnline)) {
         HILOGE("DeviceOnlineNotify handler postTask failed");
@@ -293,7 +299,9 @@ void DtbschedmgrDeviceInfoStorage::DeviceOfflineNotify(const std::string& device
         HILOGI("DeviceOfflineNotify process deviceId = %{public}s, uuid = %{public}s",
             DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str(), DnetworkAdapter::AnonymizeDeviceId(uuid).c_str());
         DistributedSchedAdapter::GetInstance().DeviceOffline(deviceId);
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
         DistributedSchedMissionManager::GetInstance().DeviceOfflineNotify(deviceId);
+#endif
         UnregisterUuidNetworkIdMap(deviceId);
         lock_guard<mutex> autoLock(deviceLock_);
         remoteDevices_.erase(deviceId);

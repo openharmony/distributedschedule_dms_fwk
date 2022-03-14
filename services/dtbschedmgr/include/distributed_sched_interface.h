@@ -20,9 +20,11 @@
 #include "ability_info.h"
 #include "caller_info.h"
 #include "iremote_broker.h"
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "mission_info.h"
 #include "mission/distributed_mission_info.h"
 #include "mission_snapshot.h"
+#endif
 #include "ohos/aafwk/content/want.h"
 
 namespace OHOS {
@@ -59,6 +61,7 @@ public:
     virtual int32_t DisconnectAbilityFromRemote(const sptr<IRemoteObject>& connect,
         int32_t uid, const std::string& sourceDeviceId) = 0;
     virtual int32_t NotifyProcessDiedFromRemote(const CallerInfo& callerInfo) = 0;
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     virtual int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) = 0;
     virtual int32_t StartSyncMissionsFromRemote(const CallerInfo& callerInfo,
         std::vector<DstbMissionInfo>& missionInfos) = 0;
@@ -79,6 +82,7 @@ public:
     virtual void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values) = 0;
     virtual int32_t GetOsdSwitchValueFromRemote() = 0;
     virtual int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) = 0;
+#endif
     virtual int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         int32_t callerUid, int32_t callerPid, uint32_t accessToken) = 0;
     virtual int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,

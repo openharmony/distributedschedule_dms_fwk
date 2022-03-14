@@ -89,6 +89,7 @@ int32_t MockDistributedSched::NotifyProcessDiedFromRemote(const CallerInfo& call
     return 0;
 }
 
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 int32_t MockDistributedSched::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
     return ERR_NONE;
@@ -172,6 +173,7 @@ int32_t MockDistributedSched::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
 {
     return ERR_NONE;
 }
+#endif
 
 int32_t MockDistributedSched::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want,
     const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid, uint32_t accessToken)

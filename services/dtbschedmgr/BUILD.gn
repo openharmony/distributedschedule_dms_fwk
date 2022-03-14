@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("//foundation/distributedschedule/dmsfwk/dmsfwk.gni")
 
 group("unittest") {
   testonly = true
@@ -22,6 +23,9 @@ group("unittest") {
 config("distributed_sched_config") {
   visibility = [ ":*" ]
   include_dirs = [ "include" ]
+  if (dmsfwk_standard_mission_manager) {
+    defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
+  }
 }
 
 ohos_shared_library("distributedschedsvr") {
@@ -42,16 +46,6 @@ ohos_shared_library("distributedschedsvr") {
     "src/distributed_sched_service.cpp",
     "src/distributed_sched_stub.cpp",
     "src/dtbschedmgr_device_info_storage.cpp",
-    "src/mission/distributed_data_change_listener.cpp",
-    "src/mission/distributed_data_storage.cpp",
-    "src/mission/distributed_mission_change_listener.cpp",
-    "src/mission/distributed_mission_info.cpp",
-    "src/mission/distributed_sched_mission_manager.cpp",
-    "src/mission/kvstore_death_recipient.cpp",
-    "src/mission/mission_changed_notify.cpp",
-    "src/mission/mission_info_converter.cpp",
-    "src/mission/snapshot.cpp",
-    "src/mission/snapshot_converter.cpp",
   ]
 
   configs = [ ":distributed_sched_config" ]
@@ -69,12 +63,28 @@ ohos_shared_library("distributedschedsvr") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "multimedia_image_standard:image_native",
     "os_account_standard:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
+
+  if (dmsfwk_standard_mission_manager) {
+    defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
+    sources += [
+      "src/mission/distributed_data_change_listener.cpp",
+      "src/mission/distributed_data_storage.cpp",
+      "src/mission/distributed_mission_change_listener.cpp",
+      "src/mission/distributed_mission_info.cpp",
+      "src/mission/distributed_sched_mission_manager.cpp",
+      "src/mission/kvstore_death_recipient.cpp",
+      "src/mission/mission_changed_notify.cpp",
+      "src/mission/mission_info_converter.cpp",
+      "src/mission/snapshot.cpp",
+      "src/mission/snapshot_converter.cpp",
+    ]
+    external_deps += [ "multimedia_image_standard:image_native" ]
+  }
 
   part_name = "dmsfwk_standard"
   subsystem_name = "distributedschedule"

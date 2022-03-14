@@ -33,8 +33,10 @@
 #include "file_ex.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "mission/distributed_mission_info.h"
 #include "mission/distributed_sched_mission_manager.h"
+#endif
 #include "os_account_manager.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
@@ -86,8 +88,9 @@ void DistributedSchedService::OnStart()
 bool DistributedSchedService::Init()
 {
     HILOGD("Init ready to init.");
-
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     DistributedSchedMissionManager::GetInstance().Init();
+#endif
     bool ret = Publish(this);
     if (!ret) {
         HILOGE("Init Publish failed!");
@@ -100,7 +103,9 @@ bool DistributedSchedService::Init()
     HILOGD("Init init success.");
     DistributedSchedAdapter::GetInstance().Init();
     DnetworkAdapter::GetInstance()->Init();
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     DistributedSchedMissionManager::GetInstance().InitDataStorage();
+#endif
     connectDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ConnectDeathRecipient());
     callerDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new CallerDeathRecipient());
     return true;
@@ -1275,6 +1280,7 @@ void DistributedSchedService::DumpElementLocked(const std::list<AppExecFwk::Elem
     }
 }
 
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 int32_t DistributedSchedService::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
     std::vector<MissionInfo>& missionInfos)
 {
@@ -1369,6 +1375,7 @@ int32_t DistributedSchedService::UpdateOsdSwitchValueFromRemote(int32_t switchVa
     return DistributedSchedMissionManager::GetInstance()
         .UpdateOsdSwitchValueFromRemote(switchVal, sourceDeviceId);
 }
+#endif
 
 void CallerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
