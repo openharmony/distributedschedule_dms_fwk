@@ -763,7 +763,7 @@ int32_t DistributedSchedStub::StartRemoteAbilityByCallInner(MessageParcel& data,
 int32_t DistributedSchedStub::ReleaseRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
-    auto element = data.ReadParcelable<AppExecFwk::ElementName>();
+    shared_ptr<AppExecFwk::ElementName> element(data.ReadParcelable<AppExecFwk::ElementName>());
     if (element == nullptr) {
         HILOGE("ReleaseRemoteAbilityInner receive element is nullptr");
         return ERR_INVALID_VALUE;
@@ -819,7 +819,7 @@ int32_t DistributedSchedStub::ReleaseAbilityFromRemoteInner(MessageParcel& data,
     }
 
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
-    auto element = data.ReadParcelable<AppExecFwk::ElementName>();
+    shared_ptr<AppExecFwk::ElementName> element(data.ReadParcelable<AppExecFwk::ElementName>());
     if (element == nullptr) {
         HILOGE("ReleaseAbilityFromRemoteInner receive element is nullptr");
         return ERR_INVALID_VALUE;
