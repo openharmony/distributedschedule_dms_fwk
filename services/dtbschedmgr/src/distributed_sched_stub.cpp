@@ -55,7 +55,7 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[NOTIFY_COMPLETE_CONTINUATION] = &DistributedSchedStub::NotifyCompleteContinuationInner;
     localFuncsMap_[CONNECT_REMOTE_ABILITY] = &DistributedSchedStub::ConnectRemoteAbilityInner;
     localFuncsMap_[DISCONNECT_REMOTE_ABILITY] = &DistributedSchedStub::DisconnectRemoteAbilityInner;
-    // request codes for mission mananger
+    // request codes for mission manager
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     localFuncsMap_[CHECK_SUPPORTED_OSD] = &DistributedSchedStub::CheckSupportOsdInner;
     localFuncsMap_[STORE_SNAPSHOT_INFO] = &DistributedSchedStub::StoreSnapshotInfoInner;
@@ -77,7 +77,7 @@ DistributedSchedStub::DistributedSchedStub()
     remoteFuncsMap_[DISCONNECT_ABILITY_FROM_REMOTE] = &DistributedSchedStub::DisconnectAbilityFromRemoteInner;
     remoteFuncsMap_[NOTIFY_PROCESS_DIED_FROM_REMOTE] = &DistributedSchedStub::NotifyProcessDiedFromRemoteInner;
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
-    // request codes for mission mananger
+    // request codes for mission manager
     remoteFuncsMap_[CHECK_SUPPORT_OSD_FROM_REMOTE] = &DistributedSchedStub::GetOsdSwitchValueFromRemoteInner;
     remoteFuncsMap_[START_SYNC_MISSIONS_FROM_REMOTE] =
         &DistributedSchedStub::StartSyncMissionsFromRemoteInner;
