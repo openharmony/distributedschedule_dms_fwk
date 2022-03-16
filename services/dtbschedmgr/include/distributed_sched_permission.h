@@ -34,8 +34,12 @@ public:
         const std::string& localDeviceId);
     int32_t CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo, const std::string& localDeviceId);
+    int32_t CheckPermission(uint32_t accessToken, const std::string& permissionName) const;
 
 private:
+    bool IsNativeCall(uint32_t accessToken) const;
+    bool IsFoundationCall(uint32_t accessToken) const;
+    bool VerifyPermission(uint32_t accessToken, const std::string& permissionName) const;
     bool CheckComponentAccessPermission(const AppExecFwk::AbilityInfo& targetAbility,
         const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
     bool CheckCustomPermission(const AppExecFwk::AbilityInfo& targetAbility,

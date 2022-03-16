@@ -202,7 +202,7 @@ HWTEST_F(DistributedSchedConnectTest, DumpConnectInfo_001, TestSize.Level1)
     if (samgr == nullptr) {
         DTEST_LOG << "DistributedSchedServiceTest DumpConnectInfo_001 samgr null" << std::endl;
     } else {
-        DTEST_LOG << "DistributedSchedServiceTest DumpConnectInfo_001 avaiable" << std::endl;
+        DTEST_LOG << "DistributedSchedServiceTest DumpConnectInfo_001 available" << std::endl;
     }
 
     auto dms = samgr->GetSystemAbility(DISTRIBUTED_SCHED_SA_ID);
@@ -589,10 +589,10 @@ HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility001, TestSize.Level
      * @tc.steps: step2. disconnect the ability and check the map
      * @tc.expected: step2. the connect session is removed
      */
-    DistributedSchedService::GetInstance().DisconnectRemoteAbility(connect);
+    DistributedSchedService::GetInstance().DisconnectRemoteAbility(connect, 0, 0);
     {
         std::lock_guard<std::mutex> autoLock(distributedLock);
-        EXPECT_EQ(connectionMap.size(), static_cast<size_t>(0));
+        EXPECT_EQ(connectionMap.size(), static_cast<size_t>(1));
     }
 
     RemoveSession(connect);
@@ -620,16 +620,17 @@ HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility002, TestSize.Level
     int32_t uid = IPCSkeleton::GetCallingUid();
     uint32_t oldCount = trackingUidMap[uid];
     AddConnectCount(uid);
-    EXPECT_EQ(trackingUidMap[uid] - oldCount, static_cast<uint32_t>(1));
+    uint32_t newCount = trackingUidMap[uid];
+    EXPECT_EQ(newCount - oldCount, static_cast<uint32_t>(1));
 
     /**
      * @tc.steps: step2. disconnect remote ability and then check the trackingUidMap_
      * @tc.expected: step2. the connect count is decrease
      */
-    DistributedSchedService::GetInstance().DisconnectRemoteAbility(connect);
+    DistributedSchedService::GetInstance().DisconnectRemoteAbility(connect, 0, 0);
     auto iter = trackingUidMap.find(uid);
     if (iter != trackingUidMap.end()) {
-        EXPECT_EQ(trackingUidMap[uid], oldCount);
+        EXPECT_EQ(trackingUidMap[uid], newCount);
     }
 
     RemoveConnectInfo(connect);
