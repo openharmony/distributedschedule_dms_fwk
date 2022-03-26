@@ -52,9 +52,9 @@ namespace {
 const std::string TAG = "DistributedSchedService";
 const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
 const std::u16string ABILITY_MANAGER_SERVICE_TOKEN = u"ohos.aafwk.AbilityManager";
-constexpr int32_t IAbilityManager_CONTINUE_ABILITY = 1104;
-constexpr int32_t IAbilityManager_NOTIFY_CONTINUATION_RESULT = 1102;
-constexpr int32_t IAbilityManager_CLEAN_MISSION = 45;
+constexpr int32_t ABILITY_MANAGER_CONTINUE_ABILITY = 1104;
+constexpr int32_t ABILITY_MANAGER_NOTIFY_CONTINUATION_RESULT = 1102;
+constexpr int32_t ABILITY_MANAGER_CLEAN_MISSION = 45;
 constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
@@ -202,7 +202,7 @@ int32_t DistributedSchedService::ContinueToAbilityManager(const std::string& dev
         HILOGE("get ability manager failed");
         return INVALID_PARAMETERS_ERR;
     }
-    auto error = abilityManager->SendRequest(IAbilityManager_CONTINUE_ABILITY, data, reply, option);
+    auto error = abilityManager->SendRequest(ABILITY_MANAGER_CONTINUE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOGE("Send request error: %{public}d", error);
         return error;
@@ -386,7 +386,7 @@ int32_t DistributedSchedService::NotifyResultToAbilityManager(int32_t missionId,
         HILOGE("get ability manager failed");
         return INVALID_PARAMETERS_ERR;
     }
-    auto error = abilityManager->SendRequest(IAbilityManager_NOTIFY_CONTINUATION_RESULT,
+    auto error = abilityManager->SendRequest(ABILITY_MANAGER_NOTIFY_CONTINUATION_RESULT,
         data, reply, option);
     if (error != NO_ERROR) {
         HILOGE("NotifyResultToAbilityManager Send request error: %{public}d", error);
@@ -414,7 +414,7 @@ int32_t DistributedSchedService::CleanMission(int32_t missionId)
         HILOGE("get ability manager failed");
         return INVALID_PARAMETERS_ERR;
     }
-    auto error = abilityManager->SendRequest(IAbilityManager_CLEAN_MISSION, data, reply, option);
+    auto error = abilityManager->SendRequest(ABILITY_MANAGER_CLEAN_MISSION, data, reply, option);
     if (error != NO_ERROR) {
         HILOGE("CleanMission error: %{public}d", error);
         return error;
