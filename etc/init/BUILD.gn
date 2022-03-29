@@ -20,7 +20,11 @@ group("etc") {
 }
 
 ohos_prebuilt_etc("distributedsched.rc") {
-  source = "distributedsched.cfg"
+  if (use_musl) {
+    source = "distributedsched_musl.cfg"
+  } else {
+    source = "distributedsched.cfg"
+  }
   relative_install_dir = "init"
   subsystem_name = "distributedschedule"
   part_name = "dmsfwk_standard"
