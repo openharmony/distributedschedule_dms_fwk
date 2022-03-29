@@ -702,7 +702,7 @@ int32_t DistributedSchedStub::StartSyncRemoteMissionsInner(MessageParcel& data, 
     }
     string deviceId = Str16ToStr8(devId);
     bool fixConflict = data.ReadBool();
-    long tag = data.ReadInt64();
+    int64_t tag = data.ReadInt64();
     int32_t result = StartSyncRemoteMissions(deviceId, fixConflict, tag);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
