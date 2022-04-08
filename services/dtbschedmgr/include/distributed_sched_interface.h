@@ -37,7 +37,7 @@ public:
         DIFF_ACCOUNT_TYPE,
     };
     struct AccountInfo {
-        int32_t accountType = SAME_ACCOUNT_TYPE;
+        int32_t accountType = DIFF_ACCOUNT_TYPE;
         std::vector<std::string> groupIdList;
     };
 
