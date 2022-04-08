@@ -37,6 +37,7 @@ dsched_external_deps = [
   "access_token:libaccesstoken_sdk",
   "bundle_framework:appexecfwk_base",
   "bundle_framework:appexecfwk_core",
+  "deviceauth_standard:deviceauth_sdk",
   "distributeddatamgr:distributeddata_inner",
   "dsoftbus_standard:softbus_client",
   "eventhandler:libeventhandler",
