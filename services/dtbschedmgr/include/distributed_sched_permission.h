@@ -19,10 +19,23 @@
 #include <string>
 
 #include "distributed_sched_interface.h"
+#include "nlohmann/json.hpp"
 #include "single_instance.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
+struct GroupInfo {
+    std::string groupName;
+    std::string groupId;
+    std::string groupOwner;
+    int32_t groupType;
+    int32_t groupVisibility;
+
+    GroupInfo() : groupName(""), groupId(""), groupOwner(""), groupType(0), groupVisibility(0) {}
+};
+
+void from_json(const nlohmann::json& jsonObject, GroupInfo& groupInfo);
+
 class DistributedSchedPermission {
     DECLARE_SINGLE_INSTANCE(DistributedSchedPermission);
 
@@ -35,11 +48,18 @@ public:
     int32_t CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo, const std::string& localDeviceId);
     int32_t CheckPermission(uint32_t accessToken, const std::string& permissionName) const;
+    int32_t GetAccountInfo(const std::string& remoteNetworkId, const CallerInfo& callerInfo,
+        AccountInfo& accountInfo);
 
 private:
+    bool GetRelatedGroups(const std::string& udid, const std::vector<std::string>& bundleNames,
+        AccountInfo& accountInfo);
+    bool ParseGroupInfos(const std::string& returnGroupStr, std::vector<GroupInfo>& groupInfos);
     bool IsNativeCall(uint32_t accessToken) const;
     bool IsFoundationCall(uint32_t accessToken) const;
     bool VerifyPermission(uint32_t accessToken, const std::string& permissionName) const;
+    bool CheckAccountAccessPermission(const CallerInfo& callerInfo,
+        const AccountInfo& accountInfo, const std::string& targetBundleName);
     bool CheckComponentAccessPermission(const AppExecFwk::AbilityInfo& targetAbility,
         const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
     bool CheckCustomPermission(const AppExecFwk::AbilityInfo& targetAbility,

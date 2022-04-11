@@ -155,7 +155,7 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
         HILOGW("request DENIED!");
         return DMS_PERMISSION_DENIED;
     }
-    
+
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOGW("want readParcelable failed!");
