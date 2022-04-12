@@ -167,6 +167,7 @@ ohos_unittest("dschedpermissiontest") {
 ohos_unittest("dschedmissionmanagertest") {
   module_out_path = module_output_path
   sources = [ "unittest/mission/dms_mission_manager_test.cpp" ]
+  sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
   deps = dsched_deps
@@ -182,6 +183,7 @@ ohos_unittest("dschedmissionmanagertest") {
 ohos_unittest("dscheddatastoragetest") {
   module_out_path = module_output_path
   sources = [ "unittest/mission/distributed_data_storage_test.cpp" ]
+  sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
   deps = dsched_deps
