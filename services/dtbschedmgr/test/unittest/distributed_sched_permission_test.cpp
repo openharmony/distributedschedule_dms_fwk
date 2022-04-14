@@ -224,7 +224,7 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_008, TestSize.Level0)
  * @tc.name: CheckDPermission_009
  * @tc.desc: call CheckDPermission with illegal account info
  * @tc.type: FUNC
- * @tc.require: AR000H23VS
+ * @tc.require: AR000H1RID
  */
 HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_009, TestSize.Level1)
 {
