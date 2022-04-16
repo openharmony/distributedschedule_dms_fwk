@@ -58,7 +58,6 @@ constexpr int32_t ABILITY_MANAGER_CLEAN_MISSION = 45;
 constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
-constexpr int32_t SYSTEM_UID = 1000;
 constexpr int32_t INVALID_CALLER_UID = -1;
 }
 
@@ -123,10 +122,6 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& wan
     std::string deviceId = want.GetElement().GetDeviceID();
     if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, deviceId)) {
         HILOGE("check deviceId failed");
-        return INVALID_PARAMETERS_ERR;
-    }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("check uid failed");
         return INVALID_PARAMETERS_ERR;
     }
     sptr<IDistributedSched> remoteDms = GetRemoteDms(deviceId);
@@ -294,12 +289,6 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
         want.GetElement().GetDeviceID().c_str(),
         want.GetElement().GetBundleName().c_str(),
         want.GetElement().GetAbilityName().c_str());
-
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    if (uid != SYSTEM_UID) {
-        HILOGE("StartContinuation not allowed!");
-        return INVALID_REMOTE_PARAMETERS_ERR;
-    }
     std::string devId;
     if (!GetLocalDeviceId(devId)) {
         HILOGE("StartContinuation get local deviceId failed!");
@@ -493,10 +482,6 @@ int32_t DistributedSchedService::CheckDistributedConnectLocked(const CallerInfo&
         HILOGE("uid %d is invalid", callerInfo.uid);
         return BIND_ABILITY_UID_INVALID_ERR;
     }
-
-    if (callerInfo.uid == SYSTEM_UID) {
-        return ERR_OK;
-    }
     auto it = trackingUidMap_.find(callerInfo.uid);
     if (it != trackingUidMap_.end() && it->second >= MAX_DISTRIBUTED_CONNECT_NUM) {
         HILOGE("uid %{public}d connected too much abilities, it maybe leak", callerInfo.uid);
@@ -539,10 +524,6 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
     std::string remoteDeviceId = want.GetElement().GetDeviceID();
     if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, remoteDeviceId)) {
         HILOGE("ConnectRemoteAbility check deviceId failed");
-        return INVALID_PARAMETERS_ERR;
-    }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("ConnectRemoteAbility check uid failed");
         return INVALID_PARAMETERS_ERR;
     }
     CallerInfo callerInfo = { callerUid, callerPid, CALLER_TYPE_HARMONY, localDeviceId };
@@ -690,10 +671,6 @@ int32_t DistributedSchedService::StartRemoteAbilityByCall(const OHOS::AAFwk::Wan
     std::string remoteDeviceId = want.GetElement().GetDeviceID();
     if (!GetLocalDeviceId(localDeviceId) || !CheckDeviceId(localDeviceId, remoteDeviceId)) {
         HILOGE("StartRemoteAbilityByCall check deviceId failed");
-        return INVALID_PARAMETERS_ERR;
-    }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("StartRemoteAbilityByCall check system uid failed");
         return INVALID_PARAMETERS_ERR;
     }
     CallerInfo callerInfo;
@@ -959,11 +936,6 @@ int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObjec
 {
     if (connect == nullptr) {
         HILOGE("DisconnectRemoteAbility connect is null");
-        return INVALID_PARAMETERS_ERR;
-    }
-
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("DisconnectRemoteAbility check uid failed");
         return INVALID_PARAMETERS_ERR;
     }
     std::list<ConnectAbilitySession> sessionsList;
