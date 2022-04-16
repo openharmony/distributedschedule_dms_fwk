@@ -282,8 +282,8 @@ bool DistributedSchedPermission::CheckCustomPermission(const AppExecFwk::Ability
         return true;
     }
     if (callerInfo.accessToken == 0) {
-        HILOGW("kernel is not support or field is not parsed, so granted!");
-        return true;
+        HILOGW("kernel is not support or field is not parsed, so denied!");
+        return false;
     }
     int64_t begin = GetTickCount();
     uint32_t dAccessToken = AccessToken::AccessTokenKit::AllocLocalTokenID(
