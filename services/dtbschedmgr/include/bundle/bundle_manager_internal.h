@@ -34,6 +34,9 @@ public:
     static bool GetBundleNameListFromBms(int32_t callingUid, std::vector<std::u16string>& u16BundleNameList);
     static bool QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo);
     static bool IsSameAppId(const std::string& callerAppId, const std::string& targetBundleName);
+    static int32_t GetLocalBundleInfo(const std::string& bundleName, AppExecFwk::BundleInfo &localBundleInfo);
+    static int32_t CheckRemoteBundleInfoForContinuation(const std::string& dstDeviceId,
+        const std::string& bundleName, AppExecFwk::DistributedBundleInfo& remoteBundleInfo);
     static sptr<AppExecFwk::IBundleMgr> GetBundleManager();
 };
 } // namespace DistributedSchedule
