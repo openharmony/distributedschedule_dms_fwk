@@ -345,6 +345,18 @@ enum {
      * Result(29360201) for continue get content failed.
      */
     CALL_PERMISSION_DENIED = 29360201,
+    /*
+     * Result(29360202) for continue remote not install and support free install.
+     */
+    CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL = 29360202,
+    /*
+     * Result(29360203) for continue remote not install and not support free install.
+     */
+    CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL = 29360203,
+    /*
+     * Result(29360204) for continue remote version not match.
+     */
+    CONTINUE_REMOTE_VERSION_MISMATCH = 29360204,
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
