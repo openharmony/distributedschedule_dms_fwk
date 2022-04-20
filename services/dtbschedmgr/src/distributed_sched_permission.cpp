@@ -35,16 +35,20 @@ const std::string FOUNDATION_PROCESS_NAME = "foundation";
 IMPLEMENT_SINGLE_INSTANCE(DistributedSchedPermission);
 void from_json(const nlohmann::json& jsonObject, GroupInfo& groupInfo)
 {
-    try {
+    if (jsonObject.find(FIELD_GROUP_NAME) != jsonObject.end()) {
         jsonObject.at(FIELD_GROUP_NAME).get_to(groupInfo.groupName);
+    }
+    if (jsonObject.find(FIELD_GROUP_ID) != jsonObject.end()) {
         jsonObject.at(FIELD_GROUP_ID).get_to(groupInfo.groupId);
+    }
+    if (jsonObject.find(FIELD_GROUP_OWNER) != jsonObject.end()) {
         jsonObject.at(FIELD_GROUP_OWNER).get_to(groupInfo.groupOwner);
+    }
+    if (jsonObject.find(FIELD_GROUP_TYPE) != jsonObject.end()) {
         jsonObject.at(FIELD_GROUP_TYPE).get_to(groupInfo.groupType);
+    }
+    if (jsonObject.find(FIELD_GROUP_VISIBILITY) != jsonObject.end()) {
         jsonObject.at(FIELD_GROUP_VISIBILITY).get_to(groupInfo.groupVisibility);
-    } catch (nlohmann::detail::type_error& ex) {
-        HILOGE("from_json type error");
-    } catch (nlohmann::detail::out_of_range& ex) {
-        HILOGE("from_json out of range");
     }
 }
 
