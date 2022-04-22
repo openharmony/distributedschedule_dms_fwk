@@ -128,6 +128,62 @@ bool BundleManagerInternal::IsSameAppId(const std::string& callerAppId, const st
     return callerAppId == calleeAppId;
 }
 
+int32_t BundleManagerInternal::GetLocalBundleInfo(const std::string& bundleName,
+    AppExecFwk::BundleInfo &localBundleInfo)
+{
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOGE("get bundle manager failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+
+    std::vector<int> ids;
+    ErrCode ret = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        HILOGE("QueryActiveOsAccountIds failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+        localBundleInfo, ids[0])) {
+        HILOGE("get local bundle info failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    return ERR_OK;
+}
+
+int32_t BundleManagerInternal::CheckRemoteBundleInfoForContinuation(const std::string& dstDeviceId,
+    const std::string& bundleName, AppExecFwk::DistributedBundleInfo& remoteBundleInfo)
+{
+    if (bundleName.empty()) {
+        HILOGE("bundle name empty");
+        return INVALID_PARAMETERS_ERR;
+    }
+    HILOGI("bundleName: %{public}s", bundleName.c_str());
+
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOGE("get bundle manager failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+
+    bool isInstalled = bms->GetDistributedBundleInfo(dstDeviceId, bundleName, remoteBundleInfo);
+    if (isInstalled) {
+        return ERR_OK;
+    }
+
+    AppExecFwk::BundleInfo localBundleInfo;
+    if (GetLocalBundleInfo(bundleName, localBundleInfo) != ERR_OK) {
+        HILOGE("get local bundle info failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (localBundleInfo.entryInstallationFree) {
+        HILOGE("remote not installed and support free install");
+        return CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL;
+    }
+    HILOGE("remote not installed and not support free install");
+    return CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL;
+}
+
 sptr<AppExecFwk::IBundleMgr> BundleManagerInternal::GetBundleManager()
 {
     sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
