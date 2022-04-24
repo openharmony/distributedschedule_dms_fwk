@@ -297,7 +297,7 @@ HWTEST_F(DMSMissionManagerTest, testRegisterMissionListener002, TestSize.Level1)
     EXPECT_TRUE(ret != ERR_NONE);
 
     ret = proxy->UnRegisterMissionListener(U16DEVICE_ID, listener);
-    EXPECT_TRUE(ret != ERR_NONE);
+    EXPECT_TRUE(ret == ERR_NONE);
 
     ret = proxy->UnRegisterMissionListener(u16localDeviceId_, listener);
     EXPECT_TRUE(ret != ERR_NONE);
