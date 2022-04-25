@@ -29,8 +29,6 @@ config("test_config") {
       [ "//foundation/distributedschedule/dmsfwk/utils/native/include" ]
 }
 
-dsched_deps = [ "//foundation/appexecfwk/standard/common:libappexecfwk_common" ]
-
 dsched_external_deps = [
   "ability_base:want",
   "ability_runtime:ability_manager",
@@ -99,7 +97,6 @@ ohos_unittest("distributedschedsvrtest") {
   sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
-  deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
@@ -118,7 +115,6 @@ ohos_unittest("dschedcontinuetest") {
   sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
-  deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
@@ -139,7 +135,6 @@ ohos_unittest("dschedconnecttest") {
   sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
-  deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
@@ -155,7 +150,6 @@ ohos_unittest("dschedpermissiontest") {
   sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
-  deps = dsched_deps
   if (is_standard_system) {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
@@ -170,8 +164,7 @@ ohos_unittest("dschedmissionmanagertest") {
   sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
-  deps = dsched_deps
-  deps += [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
+  deps = [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
   if (is_standard_system) {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
@@ -186,8 +179,7 @@ ohos_unittest("dscheddatastoragetest") {
   sources += dtbschedmgr_sources
   configs = [ ":test_config" ]
   configs += dsched_configs
-  deps = dsched_deps
-  deps += [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
+  deps = [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
   if (is_standard_system) {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
