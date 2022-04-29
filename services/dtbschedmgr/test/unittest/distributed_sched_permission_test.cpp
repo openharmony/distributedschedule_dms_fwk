@@ -82,11 +82,10 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_002, TestSize.Level0)
     CallerInfo callerInfo;
     IDistributedSched::AccountInfo accountInfo;
     accountInfo.accountType = IDistributedSched::DIFF_ACCOUNT_TYPE;
-    AppExecFwk::AbilityInfo abilityInfo;
-    abilityInfo.visible = false;
+    bool needQueryExtension = false;
     std::string localDeviceId = "255.255.255.255";
     int32_t ret = DistributedSchedPermission::GetInstance().CheckDPermission(want,
-        callerInfo, accountInfo, abilityInfo, localDeviceId);
+        callerInfo, accountInfo, needQueryExtension, localDeviceId);
     EXPECT_TRUE(ret != ERR_OK);
     DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_002 end ret:" << ret << std::endl;
 }
