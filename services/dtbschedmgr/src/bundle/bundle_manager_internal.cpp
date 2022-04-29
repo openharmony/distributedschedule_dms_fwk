@@ -111,6 +111,67 @@ bool BundleManagerInternal::QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk
     return true;
 }
 
+bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want, AppExecFwk::ExtensionAbilityInfo& extensionInfo)
+{
+    std::vector<int> ids;
+    int32_t ret = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        return false;
+    }
+    auto bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOGE("failed to get bms");
+        return false;
+    }
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    bundleMgr->QueryExtensionAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, ids[0], extensionInfos);
+    if (extensionInfos.size() <= 0) {
+        HILOGE("QueryExtensionAbilityInfo failed.");
+        return false;
+    }
+    extensionInfo = extensionInfos.front();
+    if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
+        HILOGE("ExtensionAbilityInfo is empty.");
+         return false;
+    }
+    HILOGD("ExtensionAbilityInfo found, name=%{public}s.",
+            extensionInfo.name.c_str());
+    return true;
+}
+
+int32_t BundleManagerInternal::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
+    AppExecFwk::AbilityInfo &abilityInfo)
+{
+    abilityInfo.applicationName = extensionAbilityInfo.applicationInfo.name;
+    abilityInfo.applicationInfo = extensionAbilityInfo.applicationInfo;
+    abilityInfo.bundleName = extensionAbilityInfo.bundleName;
+    abilityInfo.package = extensionAbilityInfo.moduleName;
+    abilityInfo.moduleName = extensionAbilityInfo.moduleName;
+    abilityInfo.name = extensionAbilityInfo.name;
+    abilityInfo.srcEntrance = extensionAbilityInfo.srcEntrance;
+    abilityInfo.srcPath = extensionAbilityInfo.srcEntrance;
+    abilityInfo.iconPath = extensionAbilityInfo.icon;
+    abilityInfo.iconId = extensionAbilityInfo.iconId;
+    abilityInfo.label = extensionAbilityInfo.label;
+    abilityInfo.labelId = extensionAbilityInfo.labelId;
+    abilityInfo.description = extensionAbilityInfo.description;
+    abilityInfo.descriptionId = extensionAbilityInfo.descriptionId;
+    abilityInfo.permissions = extensionAbilityInfo.permissions;
+    abilityInfo.readPermission = extensionAbilityInfo.readPermission;
+    abilityInfo.writePermission = extensionAbilityInfo.writePermission;
+    abilityInfo.extensionAbilityType = extensionAbilityInfo.type;
+    abilityInfo.visible = extensionAbilityInfo.visible;
+    abilityInfo.resourcePath = extensionAbilityInfo.resourcePath;
+    abilityInfo.enabled = extensionAbilityInfo.enabled;
+    abilityInfo.isModuleJson = true;
+    abilityInfo.isStageBasedModel = true;
+    abilityInfo.process = extensionAbilityInfo.process;
+    abilityInfo.metadata = extensionAbilityInfo.metadata;
+    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+    return 0;
+}
+
 bool BundleManagerInternal::IsSameAppId(const std::string& callerAppId, const std::string& targetBundleName)
 {
     if (targetBundleName.empty() || callerAppId.empty()) {

@@ -53,13 +53,13 @@ void from_json(const nlohmann::json& jsonObject, GroupInfo& groupInfo)
 }
 
 int32_t DistributedSchedPermission::CheckDPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
-    const AccountInfo& accountInfo, const AppExecFwk::AbilityInfo& abilityInfo, const std::string& localDeviceId)
+    const AccountInfo& accountInfo, bool needQueryExtension, const std::string& localDeviceId)
 {
     if (localDeviceId.empty()) {
         return INVALID_PARAMETERS_ERR;
     }
     AppExecFwk::AbilityInfo targetAbility;
-    bool result = getTargetAbility(want, abilityInfo, localDeviceId, targetAbility, callerInfo);
+    bool result = getTargetAbility(want, needQueryExtension, localDeviceId, targetAbility, callerInfo);
     if (!result) {
         HILOGE("CheckDPermission can not find the target ability");
         return INVALID_PARAMETERS_ERR;
@@ -156,21 +156,31 @@ bool DistributedSchedPermission::ParseGroupInfos(const std::string& returnGroupS
 }
 
 bool DistributedSchedPermission::getTargetAbility(const AAFwk::Want& want,
-    const AppExecFwk::AbilityInfo& abilityInfo, const std::string& localDeviceId,
+    bool needQueryExtension, const std::string& localDeviceId,
     AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const
 {
-    if (!BundleManagerInternal::QueryAbilityInfo(want, targetAbility)) {
-        HILOGE("QueryAbilityInfo failed");
-        return false;
+    if (BundleManagerInternal::QueryAbilityInfo(want, targetAbility)) {
+        return true;
     }
-    return true;
+    if(needQueryExtension){
+        HILOGI("QueryAbilityInfo failed, try to QueryExtensionAbilityInfo");
+        // try to find extension
+        AppExecFwk::ExtensionAbilityInfo extensionAbility;
+        if(BundleManagerInternal::QueryExtensionAbilityInfo(want, extensionAbility)){
+            // extensionAbilityInfo translates to abilityInfo
+            BundleManagerInternal::InitAbilityInfoFromExtension(extensionAbility, targetAbility);
+            return true;
+        }
+    }
+    HILOGE("QueryAbilityInfo failed");
+    return false;
 }
 
 int32_t DistributedSchedPermission::CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
     const AccountInfo& accountInfo, const std::string& localDeviceId)
 {
-    AppExecFwk::AbilityInfo abilityInfo;
-    int32_t result = CheckDPermission(want, callerInfo, accountInfo, abilityInfo, localDeviceId);
+    bool needQueryExtension = false;
+    int32_t result = CheckDPermission(want, callerInfo, accountInfo, needQueryExtension, localDeviceId);
     if (result != ERR_OK) {
         HILOGE("CheckGetCallerPermission fail, error:%{public}d", result);
         return result;
