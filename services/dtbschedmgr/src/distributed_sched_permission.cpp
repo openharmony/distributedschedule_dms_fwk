@@ -162,11 +162,11 @@ bool DistributedSchedPermission::getTargetAbility(const AAFwk::Want& want,
     if (BundleManagerInternal::QueryAbilityInfo(want, targetAbility)) {
         return true;
     }
-    if(needQueryExtension){
+    if (needQueryExtension) {
         HILOGI("QueryAbilityInfo failed, try to QueryExtensionAbilityInfo");
         // try to find extension
         AppExecFwk::ExtensionAbilityInfo extensionAbility;
-        if(BundleManagerInternal::QueryExtensionAbilityInfo(want, extensionAbility)){
+        if (BundleManagerInternal::QueryExtensionAbilityInfo(want, extensionAbility)) {
             // extensionAbilityInfo translates to abilityInfo
             BundleManagerInternal::InitAbilityInfoFromExtension(extensionAbility, targetAbility);
             return true;

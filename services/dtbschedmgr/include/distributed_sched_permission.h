@@ -64,7 +64,7 @@ private:
         const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
     bool CheckCustomPermission(const AppExecFwk::AbilityInfo& targetAbility,
         const CallerInfo& callerInfo) const;
-    bool getTargetAbility(const AAFwk::Want& want, bool needQueryExtension, const std::string& localDeviceId, 
+    bool getTargetAbility(const AAFwk::Want& want, bool needQueryExtension, const std::string& localDeviceId,
         AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const;
 };
 } // namespace DistributedSchedule
