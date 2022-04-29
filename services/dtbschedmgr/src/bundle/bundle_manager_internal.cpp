@@ -111,7 +111,8 @@ bool BundleManagerInternal::QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk
     return true;
 }
 
-bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want, AppExecFwk::ExtensionAbilityInfo& extensionInfo)
+bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want,
+    AppExecFwk::ExtensionAbilityInfo& extensionInfo)
 {
     std::vector<int> ids;
     int32_t ret = OsAccountManager::QueryActiveOsAccountIds(ids);
@@ -133,10 +134,9 @@ bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want, A
     extensionInfo = extensionInfos.front();
     if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
         HILOGE("ExtensionAbilityInfo is empty.");
-         return false;
+        return false;
     }
-    HILOGD("ExtensionAbilityInfo found, name=%{public}s.",
-            extensionInfo.name.c_str());
+    HILOGD("ExtensionAbilityInfo found, name=%{public}s.", extensionInfo.name.c_str());
     return true;
 }
 

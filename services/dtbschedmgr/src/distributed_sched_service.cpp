@@ -923,7 +923,8 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
 
     DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
     bool needQueryExtension = true;
-    int32_t result = permissionInstance.CheckDPermission(want, callerInfo, accountInfo, needQueryExtension, localDeviceId);
+    int32_t result = permissionInstance.CheckDPermission(want, callerInfo, accountInfo,
+        needQueryExtension, localDeviceId);
     if (result != ERR_OK) {
         HILOGE("ConnectAbilityFromRemote CheckDPermission denied!!");
         return result;
