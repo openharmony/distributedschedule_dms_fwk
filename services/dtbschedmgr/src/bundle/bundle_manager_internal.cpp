@@ -143,32 +143,10 @@ bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want,
 int32_t BundleManagerInternal::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
     AppExecFwk::AbilityInfo &abilityInfo)
 {
-    abilityInfo.applicationName = extensionAbilityInfo.applicationInfo.name;
-    abilityInfo.applicationInfo = extensionAbilityInfo.applicationInfo;
     abilityInfo.bundleName = extensionAbilityInfo.bundleName;
-    abilityInfo.package = extensionAbilityInfo.moduleName;
-    abilityInfo.moduleName = extensionAbilityInfo.moduleName;
     abilityInfo.name = extensionAbilityInfo.name;
-    abilityInfo.srcEntrance = extensionAbilityInfo.srcEntrance;
-    abilityInfo.srcPath = extensionAbilityInfo.srcEntrance;
-    abilityInfo.iconPath = extensionAbilityInfo.icon;
-    abilityInfo.iconId = extensionAbilityInfo.iconId;
-    abilityInfo.label = extensionAbilityInfo.label;
-    abilityInfo.labelId = extensionAbilityInfo.labelId;
-    abilityInfo.description = extensionAbilityInfo.description;
-    abilityInfo.descriptionId = extensionAbilityInfo.descriptionId;
     abilityInfo.permissions = extensionAbilityInfo.permissions;
-    abilityInfo.readPermission = extensionAbilityInfo.readPermission;
-    abilityInfo.writePermission = extensionAbilityInfo.writePermission;
-    abilityInfo.extensionAbilityType = extensionAbilityInfo.type;
     abilityInfo.visible = extensionAbilityInfo.visible;
-    abilityInfo.resourcePath = extensionAbilityInfo.resourcePath;
-    abilityInfo.enabled = extensionAbilityInfo.enabled;
-    abilityInfo.isModuleJson = true;
-    abilityInfo.isStageBasedModel = true;
-    abilityInfo.process = extensionAbilityInfo.process;
-    abilityInfo.metadata = extensionAbilityInfo.metadata;
-    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
     return 0;
 }
 

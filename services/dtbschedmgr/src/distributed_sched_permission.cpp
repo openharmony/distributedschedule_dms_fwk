@@ -53,13 +53,13 @@ void from_json(const nlohmann::json& jsonObject, GroupInfo& groupInfo)
 }
 
 int32_t DistributedSchedPermission::CheckDPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
-    const AccountInfo& accountInfo, bool needQueryExtension, const std::string& localDeviceId)
+    const AccountInfo& accountInfo, const std::string& localDeviceId, bool needQueryExtension)
 {
     if (localDeviceId.empty()) {
         return INVALID_PARAMETERS_ERR;
     }
     AppExecFwk::AbilityInfo targetAbility;
-    bool result = getTargetAbility(want, needQueryExtension, localDeviceId, targetAbility, callerInfo);
+    bool result = GetTargetAbility(want, needQueryExtension, localDeviceId, targetAbility, callerInfo);
     if (!result) {
         HILOGE("CheckDPermission can not find the target ability");
         return INVALID_PARAMETERS_ERR;
@@ -155,7 +155,7 @@ bool DistributedSchedPermission::ParseGroupInfos(const std::string& returnGroupS
     return true;
 }
 
-bool DistributedSchedPermission::getTargetAbility(const AAFwk::Want& want,
+bool DistributedSchedPermission::GetTargetAbility(const AAFwk::Want& want,
     bool needQueryExtension, const std::string& localDeviceId,
     AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const
 {
@@ -172,15 +172,14 @@ bool DistributedSchedPermission::getTargetAbility(const AAFwk::Want& want,
             return true;
         }
     }
-    HILOGE("QueryAbilityInfo failed");
+    HILOGE("QueryAbilityInfo failed, want bundle name=%{public}s.", want.GetBundle());
     return false;
 }
 
 int32_t DistributedSchedPermission::CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
     const AccountInfo& accountInfo, const std::string& localDeviceId)
 {
-    bool needQueryExtension = false;
-    int32_t result = CheckDPermission(want, callerInfo, accountInfo, needQueryExtension, localDeviceId);
+    int32_t result = CheckDPermission(want, callerInfo, accountInfo, localDeviceId);
     if (result != ERR_OK) {
         HILOGE("CheckGetCallerPermission fail, error:%{public}d", result);
         return result;
