@@ -168,8 +168,7 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
     DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
-    bool needQueryExtension = false;
-    ErrCode err = permissionInstance.CheckDPermission(want, callerInfo, accountInfo, needQueryExtension, deviceId);
+    ErrCode err = permissionInstance.CheckDPermission(want, callerInfo, accountInfo, deviceId);
     if (err != ERR_OK) {
         HILOGE("CheckDPermission denied!!");
         return err;
@@ -922,9 +921,8 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
     }
 
     DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
-    bool needQueryExtension = true;
     int32_t result = permissionInstance.CheckDPermission(want, callerInfo, accountInfo,
-        needQueryExtension, localDeviceId);
+        localDeviceId, true);
     if (result != ERR_OK) {
         HILOGE("ConnectAbilityFromRemote CheckDPermission denied!!");
         return result;
