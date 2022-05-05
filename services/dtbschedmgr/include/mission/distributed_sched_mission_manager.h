@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-#include "common_event_manager.h"
 #include "distributed_data_storage.h"
 #include "distributed_mission_change_listener.h"
 #include "distributed_mission_info.h"
