@@ -92,7 +92,7 @@ bool BundleManagerInternal::GetBundleNameListFromBms(int32_t callingUid,
 
 bool BundleManagerInternal::QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo)
 {
-    std::vector<int> ids;
+    std::vector<int32_t> ids;
     int32_t ret = OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {
         return false;
@@ -114,7 +114,7 @@ bool BundleManagerInternal::QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk
 bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want,
     AppExecFwk::ExtensionAbilityInfo& extensionInfo)
 {
-    std::vector<int> ids;
+    std::vector<int32_t> ids;
     int32_t ret = OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {
         return false;
