@@ -140,14 +140,13 @@ bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want,
     return true;
 }
 
-int32_t BundleManagerInternal::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
+void BundleManagerInternal::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
     AppExecFwk::AbilityInfo &abilityInfo)
 {
     abilityInfo.bundleName = extensionAbilityInfo.bundleName;
     abilityInfo.name = extensionAbilityInfo.name;
     abilityInfo.permissions = extensionAbilityInfo.permissions;
     abilityInfo.visible = extensionAbilityInfo.visible;
-    return 0;
 }
 
 bool BundleManagerInternal::IsSameAppId(const std::string& callerAppId, const std::string& targetBundleName)
