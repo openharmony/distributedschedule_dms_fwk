@@ -48,5 +48,12 @@ void DistributedMissionChangeListener::OnMissionMovedToFront(int32_t missionId)
     HILOGI("OnMissionMovedToFront, missionId = %{public}d", missionId);
     DistributedSchedMissionManager::GetInstance().NotifyLocalMissionsChanged();
 }
+
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
+void DistributedMissionChangeListener::OnMissionIconUpdated(int32_t missionId,
+    const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+{
+}
+#endif
 }
 }
