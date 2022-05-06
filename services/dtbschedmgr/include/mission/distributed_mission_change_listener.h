@@ -54,7 +54,6 @@ public:
      */
     void OnMissionMovedToFront(int32_t missionId) override;
 
-#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     /**
      * @brief Called when a mission has changed it's icon.
      *
@@ -62,7 +61,6 @@ public:
      * @param icon, mission icon.
      */
     void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-#endif
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
