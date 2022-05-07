@@ -56,7 +56,6 @@ constexpr int32_t IAbilityManager_CLEAN_MISSION = 45;
 constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
-constexpr int32_t SYSTEM_UID = 1000;
 constexpr int32_t INVALID_CALLER_UID = -1;
 }
 
@@ -120,10 +119,6 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& wan
         HILOGE("check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("check uid failed");
-        return INVALID_PARAMETERS_ERR;
-    }
     sptr<IDistributedSched> remoteDms = GetRemoteDms(deviceId);
     if (remoteDms == nullptr) {
         HILOGE("get remoteDms failed");
@@ -134,7 +129,20 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& wan
     callerInfo.sourceDeviceId = localDeviceId;
     callerInfo.uid = callerUid;
     callerInfo.accessToken = accessToken;
+    if (!BundleManagerInternal::GetCallerAppIdFromBms(callerInfo.uid, callerInfo.callerAppId)) {
+        HILOGE("GetCallerAppIdFromBms failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!BundleManagerInternal::GetBundleNameListFromBms(callerInfo.uid, callerInfo.bundleNames)) {
+        HILOGE("GetBundleNameListFromBms failed");
+        return INVALID_PARAMETERS_ERR;
+    }
     AccountInfo accountInfo;
+    int32_t ret = DistributedSchedPermission::GetInstance().GetAccountInfo(deviceId, callerInfo, accountInfo);
+    if (ret != ERR_OK) {
+        HILOGE("GetAccountInfo failed");
+        return ret;
+    }
     HILOGI("[PerformanceTest] StartRemoteAbility transact begin");
     int32_t result = remoteDms->StartAbilityFromRemote(want, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("[PerformanceTest] StartRemoteAbility transact end");
@@ -276,12 +284,6 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
         want.GetElement().GetDeviceID().c_str(),
         want.GetElement().GetBundleName().c_str(),
         want.GetElement().GetAbilityName().c_str());
-
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    if (uid != SYSTEM_UID) {
-        HILOGE("StartContinuation not allowed!");
-        return INVALID_REMOTE_PARAMETERS_ERR;
-    }
     std::string devId;
     if (!GetLocalDeviceId(devId)) {
         HILOGE("StartContinuation get local deviceId failed!");
@@ -475,10 +477,6 @@ int32_t DistributedSchedService::CheckDistributedConnectLocked(const CallerInfo&
         HILOGE("uid %d is invalid", callerInfo.uid);
         return BIND_ABILITY_UID_INVALID_ERR;
     }
-
-    if (callerInfo.uid == SYSTEM_UID) {
-        return ERR_OK;
-    }
     auto it = trackingUidMap_.find(callerInfo.uid);
     if (it != trackingUidMap_.end() && it->second >= MAX_DISTRIBUTED_CONNECT_NUM) {
         HILOGE("uid %{public}d connected too much abilities, it maybe leak", callerInfo.uid);
@@ -523,10 +521,6 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
         HILOGE("ConnectRemoteAbility check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("ConnectRemoteAbility check uid failed");
-        return INVALID_PARAMETERS_ERR;
-    }
     CallerInfo callerInfo = { callerUid, callerPid, CALLER_TYPE_HARMONY, localDeviceId };
     callerInfo.accessToken = accessToken;
     {
@@ -536,15 +530,12 @@ int32_t DistributedSchedService::ConnectRemoteAbility(const OHOS::AAFwk::Want& w
             return checkResult;
         }
     }
-
     if (!BundleManagerInternal::GetCallerAppIdFromBms(callerInfo.uid, callerInfo.callerAppId)) {
-        HILOGE("ConnectRemoteAbility GetCallerAppIdFromBms failed");
+        HILOGE("GetCallerAppIdFromBms failed");
         return INVALID_PARAMETERS_ERR;
     }
-    int32_t ret = DistributedSchedAdapter::GetInstance().GetBundleNameListFromBms(
-        callerInfo.uid, callerInfo.bundleNames);
-    if (ret != ERR_OK) {
-        HILOGE("ConnectRemoteAbility GetBundleNameListFromBms failed");
+    if (!BundleManagerInternal::GetBundleNameListFromBms(callerInfo.uid, callerInfo.bundleNames)) {
+        HILOGE("GetBundleNameListFromBms failed");
         return INVALID_PARAMETERS_ERR;
     }
 
@@ -568,7 +559,11 @@ int32_t DistributedSchedService::TryConnectRemoteAbility(const OHOS::AAFwk::Want
         HILOGE("TryConnectRemoteAbility invalid parameters");
         return INVALID_PARAMETERS_ERR;
     }
-
+    int32_t ret = DistributedSchedPermission::GetInstance().GetAccountInfo(remoteDeviceId, callerInfo, accountInfo);
+    if (ret != ERR_OK) {
+        HILOGE("GetAccountInfo failed");
+        return ret;
+    }
     int32_t retryTimes = BIND_CONNECT_RETRY_TIMES;
     int32_t result = REMOTE_DEVICE_BIND_ABILITY_ERR;
     while (retryTimes--) {
@@ -647,7 +642,12 @@ int32_t DistributedSchedService::TryStartRemoteAbilityByCall(const OHOS::AAFwk::
     }
     HILOGD("[PerformanceTest] TryStartRemoteAbilityByCall RPC begin");
     AccountInfo accountInfo;
-    int result = remoteDms->StartAbilityByCallFromRemote(want, connect, callerInfo, accountInfo);
+    int32_t ret = DistributedSchedPermission::GetInstance().GetAccountInfo(remoteDeviceId, callerInfo, accountInfo);
+    if (ret != ERR_OK) {
+        HILOGE("GetAccountInfo failed");
+        return ret;
+    }
+    int32_t result = remoteDms->StartAbilityByCallFromRemote(want, connect, callerInfo, accountInfo);
     HILOGD("[PerformanceTest] TryStartRemoteAbilityByCall RPC end");
     if (result != ERR_OK) {
         HILOGE("TryStartRemoteAbilityByCall failed, result : %{public}d", result);
@@ -668,16 +668,16 @@ int32_t DistributedSchedService::StartRemoteAbilityByCall(const OHOS::AAFwk::Wan
         HILOGE("StartRemoteAbilityByCall check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("StartRemoteAbilityByCall check system uid failed");
-        return INVALID_PARAMETERS_ERR;
-    }
     CallerInfo callerInfo;
     callerInfo = { callerUid, callerPid };
     callerInfo.sourceDeviceId = localDeviceId;
     callerInfo.accessToken = accessToken;
     if (!BundleManagerInternal::GetCallerAppIdFromBms(callerInfo.uid, callerInfo.callerAppId)) {
-        HILOGE("StartRemoteAbilityByCall GetCallerAppIdFromBms failed");
+        HILOGE("GetCallerAppIdFromBms failed");
+        return INVALID_PARAMETERS_ERR;
+    }
+    if (!BundleManagerInternal::GetBundleNameListFromBms(callerInfo.uid, callerInfo.bundleNames)) {
+        HILOGE("GetBundleNameListFromBms failed");
         return INVALID_PARAMETERS_ERR;
     }
     int32_t ret = TryStartRemoteAbilityByCall(want, connect, callerInfo);
@@ -931,11 +931,6 @@ int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObjec
 {
     if (connect == nullptr) {
         HILOGE("DisconnectRemoteAbility connect is null");
-        return INVALID_PARAMETERS_ERR;
-    }
-
-    if (IPCSkeleton::GetCallingUid() != SYSTEM_UID) {
-        HILOGE("DisconnectRemoteAbility check uid failed");
         return INVALID_PARAMETERS_ERR;
     }
     std::list<ConnectAbilitySession> sessionsList;
