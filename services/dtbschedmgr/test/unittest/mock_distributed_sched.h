@@ -78,6 +78,8 @@ public:
         const CallerInfo& callerInfo, const AccountInfo& accountInfo) override;
     int32_t ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element,
         const CallerInfo& callerInfo) override;
+    int32_t RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback) override;
+    int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) override;
 private:
     bool expectedTrue_ = false;
 };
