@@ -32,9 +32,12 @@ IMPLEMENT_SINGLE_INSTANCE(BundleManagerInternal);
 bool BundleManagerInternal::GetCallerAppIdFromBms(int32_t callingUid, std::string& appId)
 {
     std::vector<std::string> bundleNameList;
-    int32_t ret = DistributedSchedAdapter::GetInstance().GetBundleNameListFromBms(callingUid, bundleNameList);
-    if (ret != ERR_OK || bundleNameList.empty()) {
-        HILOGE("GetBundleNameListFromBms error");
+    if (!GetBundleNameListFromBms(callingUid, bundleNameList)) {
+        HILOGE("GetBundleNameListFromBms failed");
+        return false;
+    }
+    if (bundleNameList.empty()) {
+        HILOGE("bundleNameList empty");
         return false;
     }
     // getting an arbitrary bundlename for they sharing a same appId, here we get the first one
@@ -56,6 +59,73 @@ bool BundleManagerInternal::GetCallerAppIdFromBms(const std::string& bundleName,
     appId = bundleMgr->GetAppIdByBundleName(bundleName, ids[0]);
     HILOGD("appId:%s", appId.c_str());
     return true;
+}
+
+bool BundleManagerInternal::GetBundleNameListFromBms(int32_t callingUid, std::vector<std::string>& bundleNameList)
+{
+    auto bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOGE("failed to get bms");
+        return false;
+    }
+    bool result = bundleMgr->GetBundlesForUid(callingUid, bundleNameList);
+    if (!result) {
+        HILOGE("GetBundlesForUid failed, result: %{public}d", result);
+        return false;
+    }
+    return result;
+}
+
+bool BundleManagerInternal::GetBundleNameListFromBms(int32_t callingUid,
+    std::vector<std::u16string>& u16BundleNameList)
+{
+    std::vector<std::string> bundleNameList;
+    if (!GetBundleNameListFromBms(callingUid, bundleNameList)) {
+        HILOGE("GetBundleNameListFromBms failed");
+        return false;
+    }
+    for (const std::string& bundleName : bundleNameList) {
+        u16BundleNameList.emplace_back(Str8ToStr16(bundleName));
+    }
+    return true;
+}
+
+bool BundleManagerInternal::QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo)
+{
+    std::vector<int> ids;
+    int32_t ret = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        return false;
+    }
+    auto bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOGE("failed to get bms");
+        return false;
+    }
+    bool result = bundleMgr->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, ids[0], abilityInfo);
+    if (!result) {
+        HILOGE("QueryAbilityInfo failed");
+        return false;
+    }
+    return true;
+}
+
+bool BundleManagerInternal::IsSameAppId(const std::string& callerAppId, const std::string& targetBundleName)
+{
+    if (targetBundleName.empty() || callerAppId.empty()) {
+        HILOGE("targetBundleName:%{public}s or callerAppId:%s is empty",
+            targetBundleName.c_str(), callerAppId.c_str());
+        return false;
+    }
+    HILOGD("callerAppId:%s", callerAppId.c_str());
+    std::string calleeAppId;
+    if (!GetCallerAppIdFromBms(targetBundleName, calleeAppId)) {
+        HILOGE("GetCallerAppIdFromBms failed");
+        return false;
+    }
+    HILOGD("calleeAppId:%s", calleeAppId.c_str());
+    return callerAppId == calleeAppId;
 }
 
 sptr<AppExecFwk::IBundleMgr> BundleManagerInternal::GetBundleManager()

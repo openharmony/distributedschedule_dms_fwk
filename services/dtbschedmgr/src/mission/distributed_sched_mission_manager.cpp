@@ -417,7 +417,7 @@ int32_t DistributedSchedMissionManager::RegisterMissionListener(const std::u16st
         std::lock_guard<std::mutex> autoLock(listenDeviceLock_);
         auto& listenerInfo = listenDeviceMap_[devId];
         if (!listenerInfo.Emplace(listener)) {
-            HILOGW("RegisterSyncListener listener has alread inserted!");
+            HILOGW("RegisterSyncListener listener has already inserted!");
             return ERR_NONE;
         }
         bool ret = listener->AddDeathRecipient(listenerDeath_);
@@ -1505,5 +1505,5 @@ void DistributedSchedMissionManager::OnDnetDied()
         missionHandler_->PostTask(dnetDiedFunc);
     }
 }
-} // naemespace DistributedSchedule
+} // namespace DistributedSchedule
 } // namespace OHOS

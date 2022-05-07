@@ -592,7 +592,7 @@ HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility001, TestSize.Level
     DistributedSchedService::GetInstance().DisconnectRemoteAbility(connect, 0, 0);
     {
         std::lock_guard<std::mutex> autoLock(distributedLock);
-        EXPECT_EQ(connectionMap.size(), static_cast<size_t>(1));
+        EXPECT_EQ(connectionMap.size(), static_cast<size_t>(0));
     }
 
     RemoveSession(connect);
@@ -630,7 +630,7 @@ HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility002, TestSize.Level
     DistributedSchedService::GetInstance().DisconnectRemoteAbility(connect, 0, 0);
     auto iter = trackingUidMap.find(uid);
     if (iter != trackingUidMap.end()) {
-        EXPECT_EQ(trackingUidMap[uid], newCount);
+        EXPECT_EQ(trackingUidMap[uid], oldCount);
     }
 
     RemoveConnectInfo(connect);
