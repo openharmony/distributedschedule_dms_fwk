@@ -51,9 +51,15 @@ using namespace AppExecFwk;
 namespace {
 const std::string TAG = "DistributedSchedService";
 const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
+const std::u16string COMPONENT_CHANGE_INTERFACE_TOKEN = u"ohos.rms.DistributedComponent";
 const std::u16string ABILITY_MANAGER_SERVICE_TOKEN = u"ohos.aafwk.AbilityManager";
 const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string VERSION_CODE_KEY = "version";
+const std::string PID_KEY = "pid";
+const std::string UID_KEY = "uid";
+const std::string COMPONENT_TYPE_KEY = "componentType";
+const std::string DEVICE_TYPE_KEY = "deviceType";
+const std::string CHANGE_TYPE_KEY = "changeType";
 constexpr int32_t ABILITY_MANAGER_CONTINUE_ABILITY = 1104;
 constexpr int32_t ABILITY_MANAGER_NOTIFY_CONTINUATION_RESULT = 1102;
 constexpr int32_t ABILITY_MANAGER_CLEAN_MISSION = 45;
@@ -61,6 +67,9 @@ constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
 constexpr int32_t INVALID_CALLER_UID = -1;
+constexpr int32_t DISTRIBUTED_COMPONENT_ADD = 1;
+constexpr int32_t DISTRIBUTED_COMPONENT_REMOVE = 2;
+constexpr int32_t REPORT_DISTRIBUTED_COMPONENT_CHANGE_CODE = 1;
 }
 
 IMPLEMENT_SINGLE_INSTANCE(DistributedSchedService);
@@ -109,6 +118,12 @@ bool DistributedSchedService::Init()
 #endif
     connectDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ConnectDeathRecipient());
     callerDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new CallerDeathRecipient());
+    callerDeathRecipientForLocalDevice_ = sptr<IRemoteObject::DeathRecipient>(
+        new CallerDeathRecipient(IDistributedSched::CALLER));
+    if (componentChangeHandler_ == nullptr) {
+        auto runner = AppExecFwk::EventRunner::Create("DmsComponentChange");
+        componentChangeHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
+    }
     return true;
 }
 
@@ -496,6 +511,8 @@ void DistributedSchedService::RemoteConnectAbilityMappingLocked(const sptr<IRemo
         HILOGD("uid %d has %u connection(s), targetComponent:%d", callerInfo.uid, number, targetComponent);
         // new connect, add death recipient
         connect->AddDeathRecipient(connectDeathRecipient_);
+        ReportDistributedComponentChange(callerInfo, DISTRIBUTED_COMPONENT_ADD, IDistributedSched::CONNECT,
+            IDistributedSched::CALLER);
     }
     auto& sessionsList = distributedConnectAbilityMap_[connect];
     for (auto& session : sessionsList) {
@@ -629,10 +646,15 @@ int32_t DistributedSchedService::TryConnectRemoteAbility(const OHOS::AAFwk::Want
     return result;
 }
 
-void DistributedSchedService::ProcessCallerDied(const sptr<IRemoteObject>& connect)
+void DistributedSchedService::ProcessCallerDied(const sptr<IRemoteObject>& connect, int32_t deviceType)
 {
     if (connect == nullptr) {
         HILOGE("ProcessCallerDied connect is null");
+        return;
+    }
+    HILOGI("Caller Died DeviceType : %{public}d", deviceType);
+    if (deviceType == IDistributedSched::CALLER) {
+        HandleLocalCallerDied(connect);
         return;
     }
     sptr<IRemoteObject> callbackWrapper = connect;
@@ -643,6 +665,8 @@ void DistributedSchedService::ProcessCallerDied(const sptr<IRemoteObject>& conne
         if (itConnect != calleeMap_.end()) {
             callbackWrapper = itConnect->second.callbackWrapper;
             element = itConnect->second.element;
+            ReportDistributedComponentChange(itConnect->second, DISTRIBUTED_COMPONENT_REMOVE,
+                IDistributedSched::CALL, IDistributedSched::CALLEE);
             calleeMap_.erase(itConnect);
         } else {
             HILOGW("ProcessCallerDied connect not found");
@@ -651,6 +675,21 @@ void DistributedSchedService::ProcessCallerDied(const sptr<IRemoteObject>& conne
     int32_t result = DistributedSchedAdapter::GetInstance().ReleaseAbility(callbackWrapper, element);
     if (result != ERR_OK) {
         HILOGW("ProcessCallerDied failed, error: %{public}d", result);
+    }
+}
+
+void DistributedSchedService::HandleLocalCallerDied(const sptr<IRemoteObject>& connect)
+{
+    std::lock_guard<std::mutex> autoLock(callerLock_);
+    auto it = callerMap_.find(connect);
+    if (it != callerMap_.end()) {
+        std::list<ConnectAbilitySession> sessionsList = it->second;
+        if (!sessionsList.empty()) {
+            ReportDistributedComponentChange(sessionsList.front().GetCallerInfo(), DISTRIBUTED_COMPONENT_REMOVE,
+                IDistributedSched::CALL, IDistributedSched::CALLER);
+        }
+        callerMap_.erase(it);
+        HILOGI("remove connection success");
     }
 }
 
@@ -663,6 +702,8 @@ void DistributedSchedService::ProcessCalleeDied(const sptr<IRemoteObject>& conne
     std::lock_guard<std::mutex> autoLock(calleeLock_);
     auto itConnect = calleeMap_.find(connect);
     if (itConnect != calleeMap_.end()) {
+        ReportDistributedComponentChange(itConnect->second, DISTRIBUTED_COMPONENT_REMOVE,
+            IDistributedSched::CALL, IDistributedSched::CALLEE);
         calleeMap_.erase(itConnect);
     } else {
         HILOGW("ProcessCalleeDied connect not found");
@@ -689,10 +730,80 @@ int32_t DistributedSchedService::TryStartRemoteAbilityByCall(const OHOS::AAFwk::
     }
     int32_t result = remoteDms->StartAbilityByCallFromRemote(want, connect, callerInfo, accountInfo);
     HILOGD("[PerformanceTest] TryStartRemoteAbilityByCall RPC end");
-    if (result != ERR_OK) {
+    if (result == ERR_OK) {
+        SaveCallerComponent(want, connect, callerInfo);
+    } else {
         HILOGE("TryStartRemoteAbilityByCall failed, result : %{public}d", result);
     }
     return result;
+}
+
+void DistributedSchedService::SaveCallerComponent(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo)
+{
+    std::lock_guard<std::mutex> autoLock(callerLock_);
+    auto itConnect = callerMap_.find(connect);
+    if (itConnect == callerMap_.end()) {
+        connect->AddDeathRecipient(callerDeathRecipientForLocalDevice_);
+        ReportDistributedComponentChange(callerInfo, DISTRIBUTED_COMPONENT_ADD, IDistributedSched::CALL,
+            IDistributedSched::CALLER);
+    }
+    auto& sessionsList = callerMap_[connect];
+    std::string remoteDeviceId = want.GetElement().GetDeviceID();
+    for (auto& session : sessionsList) {
+        if (remoteDeviceId == session.GetDestinationDeviceId()) {
+            session.AddElement(want.GetElement());
+            // already added session for remote device
+            return;
+        }
+    }
+    // connect to another remote device, add a new session to list
+    auto& session = sessionsList.emplace_back(callerInfo.sourceDeviceId, remoteDeviceId, callerInfo);
+    session.AddElement(want.GetElement());
+    HILOGD("add connection success");
+}
+
+void DistributedSchedService::RemoveCallerComponent(const sptr<IRemoteObject>& connect)
+{
+    std::lock_guard<std::mutex> autoLock(callerLock_);
+    auto it = callerMap_.find(connect);
+    if (it != callerMap_.end()) {
+        std::list<ConnectAbilitySession> sessionsList = it->second;
+        connect->RemoveDeathRecipient(callerDeathRecipientForLocalDevice_);
+        if (!sessionsList.empty()) {
+            ReportDistributedComponentChange(sessionsList.front().GetCallerInfo(), DISTRIBUTED_COMPONENT_REMOVE,
+                IDistributedSched::CALL, IDistributedSched::CALLER);
+        }
+        callerMap_.erase(it);
+        HILOGI("remove connection success");
+    }
+}
+
+void DistributedSchedService::ProcessCalleeOffline(const std::string& deviceId)
+{
+    std::lock_guard<std::mutex> autoLock(callerLock_);
+    for (auto iter = callerMap_.begin(); iter != callerMap_.end();) {
+        std::list<ConnectAbilitySession>& sessionsList = iter->second;
+        auto itSession = std::find_if(sessionsList.begin(), sessionsList.end(), [&deviceId](const auto& session) {
+            return session.GetDestinationDeviceId() == deviceId;
+        });
+        CallerInfo callerInfo;
+        if (itSession != sessionsList.end()) {
+            callerInfo = itSession->GetCallerInfo();
+            sessionsList.erase(itSession);
+        }
+
+        if (sessionsList.empty()) {
+            if (iter->first != nullptr) {
+                iter->first->RemoveDeathRecipient(callerDeathRecipientForLocalDevice_);
+            }
+            ReportDistributedComponentChange(callerInfo, DISTRIBUTED_COMPONENT_REMOVE,
+                IDistributedSched::CALL, IDistributedSched::CALLER);
+            callerMap_.erase(iter++);
+        } else {
+            iter++;
+        }
+    }
 }
 
 int32_t DistributedSchedService::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want,
@@ -750,7 +861,9 @@ int32_t DistributedSchedService::ReleaseRemoteAbility(const sptr<IRemoteObject>&
         return INVALID_PARAMETERS_ERR;
     }
     int32_t result = remoteDms->ReleaseAbilityFromRemote(connect, element, callerInfo);
-    if (result != ERR_OK) {
+    if (result == ERR_OK) {
+        RemoveCallerComponent(connect);
+    } else {
         HILOGE("ReleaseRemoteAbility result is %{public}d", result);
     }
     return result;
@@ -794,6 +907,8 @@ int32_t DistributedSchedService::StartAbilityByCallFromRemote(const OHOS::AAFwk:
         {
             std::lock_guard<std::mutex> autoLock(calleeLock_);
             ConnectInfo connectInfo {callerInfo, callbackWrapper, want.GetElement()};
+            ReportDistributedComponentChange(connectInfo, DISTRIBUTED_COMPONENT_ADD,
+                IDistributedSched::CALL, IDistributedSched::CALLEE);
             calleeMap_.emplace(connect, connectInfo);
         }
         connect->AddDeathRecipient(callerDeathRecipient_);
@@ -826,6 +941,8 @@ int32_t DistributedSchedService::ReleaseAbilityFromRemote(const sptr<IRemoteObje
             return INVALID_REMOTE_PARAMETERS_ERR;
         }
         callbackWrapper = itConnect->second.callbackWrapper;
+        ReportDistributedComponentChange(itConnect->second, DISTRIBUTED_COMPONENT_REMOVE,
+            IDistributedSched::CALL, IDistributedSched::CALLEE);
         calleeMap_.erase(itConnect);
         connect->RemoveDeathRecipient(callerDeathRecipient_);
     }
@@ -835,6 +952,166 @@ int32_t DistributedSchedService::ReleaseAbilityFromRemote(const sptr<IRemoteObje
         HILOGE("ReleaseAbilityFromRemote failed, error: %{public}d", result);
     }
     return result;
+}
+
+int32_t DistributedSchedService::RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback)
+{
+    if (callback == nullptr) {
+        HILOGE("RegisterDistributedComponentListener callback is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    distributedComponentListener_ = callback;
+    return ERR_OK;
+}
+
+int32_t DistributedSchedService::GetDistributedComponentList(std::vector<std::string>& distributedComponents)
+{
+    GetConnectComponentList(distributedComponents);
+    GetCallComponentList(distributedComponents);
+    return ERR_OK;
+}
+
+void DistributedSchedService::GetConnectComponentList(std::vector<std::string>& distributedComponents)
+{
+    {
+        std::lock_guard<std::mutex> autoLock(distributedLock_);
+        for (const auto& iter : distributedConnectAbilityMap_) {
+            if (iter.second.empty()) {
+                continue;
+            }
+            CallerInfo callerInfo = iter.second.front().GetCallerInfo();
+            nlohmann::json componentInfoJson;
+            componentInfoJson[PID_KEY] = callerInfo.pid;
+            componentInfoJson[UID_KEY] = callerInfo.uid;
+            componentInfoJson[BUNDLE_NAME_KEY] =
+                callerInfo.bundleNames.empty() ? std::string() : callerInfo.bundleNames.front();
+            componentInfoJson[COMPONENT_TYPE_KEY] = IDistributedSched::CONNECT;
+            componentInfoJson[DEVICE_TYPE_KEY] = IDistributedSched::CALLER;
+            std::string componentInfo = componentInfoJson.dump();
+            distributedComponents.emplace_back(componentInfo);
+        }
+    }
+    {
+        std::lock_guard<std::mutex> autoLock(connectLock_);
+        for (const auto& iter : connectAbilityMap_) {
+            ConnectInfo connectInfo = iter.second;
+            nlohmann::json componentInfoJson;
+            componentInfoJson[UID_KEY] = BundleManagerInternal::GetUidFromBms(connectInfo.element.GetBundleName());
+            componentInfoJson[BUNDLE_NAME_KEY] = connectInfo.element.GetBundleName();
+            componentInfoJson[COMPONENT_TYPE_KEY] = IDistributedSched::CONNECT;
+            componentInfoJson[DEVICE_TYPE_KEY] = IDistributedSched::CALLEE;
+            std::string componentInfo = componentInfoJson.dump();
+            distributedComponents.emplace_back(componentInfo);
+        }
+    }
+}
+
+void DistributedSchedService::GetCallComponentList(std::vector<std::string>& distributedComponents)
+{
+    {
+        std::lock_guard<std::mutex> autoLock(callerLock_);
+        for (const auto& iter : callerMap_) {
+            if (iter.second.empty()) {
+                continue;
+            }
+            CallerInfo callerInfo = iter.second.front().GetCallerInfo();
+            nlohmann::json componentInfoJson;
+            componentInfoJson[PID_KEY] = callerInfo.pid;
+            componentInfoJson[UID_KEY] = callerInfo.uid;
+            componentInfoJson[BUNDLE_NAME_KEY] =
+                callerInfo.bundleNames.empty() ? std::string() : callerInfo.bundleNames.front();
+            componentInfoJson[COMPONENT_TYPE_KEY] = IDistributedSched::CALL;
+            componentInfoJson[DEVICE_TYPE_KEY] = IDistributedSched::CALLER;
+            std::string componentInfo = componentInfoJson.dump();
+            distributedComponents.emplace_back(componentInfo);
+        }
+    }
+    {
+        std::lock_guard<std::mutex> autoLock(calleeLock_);
+        for (const auto& iter : calleeMap_) {
+            ConnectInfo connectInfo = iter.second;
+            nlohmann::json componentInfoJson;
+            componentInfoJson[UID_KEY] = BundleManagerInternal::GetUidFromBms(connectInfo.element.GetBundleName());
+            componentInfoJson[BUNDLE_NAME_KEY] = connectInfo.element.GetBundleName();
+            componentInfoJson[COMPONENT_TYPE_KEY] = IDistributedSched::CALL;
+            componentInfoJson[DEVICE_TYPE_KEY] = IDistributedSched::CALLEE;
+            std::string componentInfo = componentInfoJson.dump();
+            distributedComponents.emplace_back(componentInfo);
+        }
+    }
+}
+
+bool DistributedSchedService::HandleDistributedComponentChange(const std::string& componentInfo)
+{
+    if (componentChangeHandler_ == nullptr) {
+        HILOGE("HandleDistributedComponentChange componentChangeHandler_ is null");
+        return false;
+    }
+    auto func = [this, componentInfo]() {
+        HILOGI("HandleDistributedComponentChange call callback");
+        if (distributedComponentListener_ == nullptr) {
+            HILOGW("HandleDistributedComponentChange distributedComponentListener_ is null");
+            return;
+        }
+        MessageParcel data;
+        if (!data.WriteInterfaceToken(COMPONENT_CHANGE_INTERFACE_TOKEN)) {
+            HILOGE("HandleDistributedComponentChange WriteInterfaceToken error");
+            return;
+        }
+        PARCEL_WRITE_HELPER_NORET(data, String, componentInfo);
+        MessageParcel reply;
+        MessageOption option;
+        int32_t result = distributedComponentListener_->SendRequest(REPORT_DISTRIBUTED_COMPONENT_CHANGE_CODE,
+            data, reply, option);
+        HILOGD("HandleDistributedComponentChange result is %{public}d", result);
+    };
+    if (!componentChangeHandler_->PostTask(func)) {
+        HILOGE("HandleDistributedComponentChange handler postTask failed");
+        return false;
+    }
+    return true;
+}
+
+void DistributedSchedService::ReportDistributedComponentChange(const CallerInfo& callerInfo, int32_t changeType,
+    int32_t componentType, int32_t deviceType)
+{
+    if (distributedComponentListener_ == nullptr) {
+        HILOGI("distributedComponentListener_ nullptr");
+        return;
+    }
+    HILOGI("caller report");
+    nlohmann::json componentInfoJson;
+    componentInfoJson[PID_KEY] = callerInfo.pid;
+    componentInfoJson[UID_KEY] = callerInfo.uid;
+    componentInfoJson[BUNDLE_NAME_KEY] =
+        callerInfo.bundleNames.empty() ? std::string() : callerInfo.bundleNames.front();
+    componentInfoJson[COMPONENT_TYPE_KEY] = componentType;
+    componentInfoJson[DEVICE_TYPE_KEY] = deviceType;
+    componentInfoJson[CHANGE_TYPE_KEY] = changeType;
+    std::string componentInfo = componentInfoJson.dump();
+    if (!HandleDistributedComponentChange(componentInfo)) {
+        HILOGW("ReportDistributedComponentChange notify rms failed");
+    }
+}
+
+void DistributedSchedService::ReportDistributedComponentChange(const ConnectInfo& connectInfo, int32_t changeType,
+    int32_t componentType, int32_t deviceType)
+{
+    if (distributedComponentListener_ == nullptr) {
+        HILOGI("distributedComponentListener_ nullptr");
+        return;
+    }
+    HILOGI("callee report");
+    nlohmann::json componentInfoJson;
+    componentInfoJson[UID_KEY] = BundleManagerInternal::GetUidFromBms(connectInfo.element.GetBundleName());
+    componentInfoJson[BUNDLE_NAME_KEY] = connectInfo.element.GetBundleName();
+    componentInfoJson[COMPONENT_TYPE_KEY] = componentType;
+    componentInfoJson[DEVICE_TYPE_KEY] = deviceType;
+    componentInfoJson[CHANGE_TYPE_KEY] = changeType;
+    std::string componentInfo = componentInfoJson.dump();
+    if (!HandleDistributedComponentChange(componentInfo)) {
+        HILOGW("ReportDistributedComponentChange notify rms failed");
+    }
 }
 
 sptr<IDistributedSched> DistributedSchedService::GetRemoteDms(const std::string& remoteDeviceId)
@@ -944,7 +1221,9 @@ int32_t DistributedSchedService::ConnectAbilityFromRemote(const OHOS::AAFwk::Wan
     if (errCode == ERR_OK) {
         std::lock_guard<std::mutex> autoLock(connectLock_);
         if (itConnect == connectAbilityMap_.end()) {
-            ConnectInfo connectInfo {callerInfo, callbackWrapper};
+            ConnectInfo connectInfo {callerInfo, callbackWrapper, want.GetElement()};
+            ReportDistributedComponentChange(connectInfo, DISTRIBUTED_COMPONENT_ADD,
+                IDistributedSched::CONNECT, IDistributedSched::CALLEE);
             connectAbilityMap_.emplace(connect, connectInfo);
         }
     }
@@ -983,6 +1262,10 @@ int32_t DistributedSchedService::DisconnectRemoteAbility(const sptr<IRemoteObjec
             // also decrease number when erase connect
             DecreaseConnectLocked(uid);
             connect->RemoveDeathRecipient(connectDeathRecipient_);
+            if (!sessionsList.empty()) {
+                ReportDistributedComponentChange(sessionsList.front().GetCallerInfo(), DISTRIBUTED_COMPONENT_REMOVE,
+                    IDistributedSched::CONNECT, IDistributedSched::CALLER);
+            }
             distributedConnectAbilityMap_.erase(it);
             HILOGI("remove connection success");
         }
@@ -1024,6 +1307,8 @@ int32_t DistributedSchedService::DisconnectAbilityFromRemote(const sptr<IRemoteO
         auto itConnect = connectAbilityMap_.find(connect);
         if (itConnect != connectAbilityMap_.end()) {
             callbackWrapper = itConnect->second.callbackWrapper;
+            ReportDistributedComponentChange(itConnect->second, DISTRIBUTED_COMPONENT_REMOVE,
+                IDistributedSched::CONNECT, IDistributedSched::CALLEE);
             connectAbilityMap_.erase(itConnect);
         } else {
             if (!IPCSkeleton::IsLocalCalling()) {
@@ -1054,6 +1339,8 @@ int32_t DistributedSchedService::NotifyProcessDiedFromRemote(const CallerInfo& c
                 if (ret != ERR_OK) {
                     errCode = ret;
                 }
+                ReportDistributedComponentChange(connectInfo, DISTRIBUTED_COMPONENT_REMOVE,
+                    IDistributedSched::CONNECT, IDistributedSched::CALLEE);
                 connectAbilityMap_.erase(iter++);
             } else {
                 iter++;
@@ -1080,9 +1367,10 @@ void DistributedSchedService::ProcessDeviceOffline(const std::string& deviceId)
             auto itSession = std::find_if(sessionsList.begin(), sessionsList.end(), [&deviceId](const auto& session) {
                 return session.GetDestinationDeviceId() == deviceId;
             });
+            CallerInfo callerInfo;
             if (itSession != sessionsList.end()) {
                 NotifyDeviceOfflineToAppLocked(iter->first, *itSession);
-                CallerInfo callerInfo = itSession->GetCallerInfo();
+                callerInfo = itSession->GetCallerInfo();
                 sessionsList.erase(itSession);
             }
 
@@ -1091,6 +1379,8 @@ void DistributedSchedService::ProcessDeviceOffline(const std::string& deviceId)
                     iter->first->RemoveDeathRecipient(connectDeathRecipient_);
                 }
                 DecreaseConnectLocked(uid);
+                ReportDistributedComponentChange(callerInfo, DISTRIBUTED_COMPONENT_REMOVE,
+                    IDistributedSched::CONNECT, IDistributedSched::CALLER);
                 distributedConnectAbilityMap_.erase(iter++);
             } else {
                 iter++;
@@ -1104,6 +1394,8 @@ void DistributedSchedService::ProcessDeviceOffline(const std::string& deviceId)
             ConnectInfo& connectInfo = iter->second;
             if (deviceId == connectInfo.callerInfo.sourceDeviceId) {
                 DistributedSchedAdapter::GetInstance().DisconnectAbility(connectInfo.callbackWrapper);
+                ReportDistributedComponentChange(connectInfo, DISTRIBUTED_COMPONENT_REMOVE,
+                    IDistributedSched::CONNECT, IDistributedSched::CALLEE);
                 connectAbilityMap_.erase(iter++);
                 HILOGI("ProcessDeviceOffline erase connection success");
             } else {
@@ -1111,6 +1403,7 @@ void DistributedSchedService::ProcessDeviceOffline(const std::string& deviceId)
             }
         }
     }
+    ProcessCalleeOffline(deviceId);
 }
 
 void DistributedSchedService::NotifyDeviceOfflineToAppLocked(const sptr<IRemoteObject>& connect,
@@ -1182,6 +1475,8 @@ void DistributedSchedService::ProcessConnectDied(const sptr<IRemoteObject>& conn
                 if (iter->first != nullptr) {
                     iter->first->RemoveDeathRecipient(connectDeathRecipient_);
                 }
+                ReportDistributedComponentChange(callerInfo, DISTRIBUTED_COMPONENT_REMOVE,
+                    IDistributedSched::CONNECT, IDistributedSched::CALLER);
                 distributedConnectAbilityMap_.erase(iter++);
             } else {
                 iter++;
@@ -1410,7 +1705,7 @@ int32_t DistributedSchedService::UpdateOsdSwitchValueFromRemote(int32_t switchVa
 void CallerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
     HILOGI("CallerDeathRecipient OnRemoteDied called");
-    DistributedSchedAdapter::GetInstance().ProcessCallerDied(remote.promote());
+    DistributedSchedAdapter::GetInstance().ProcessCallerDied(remote.promote(), deviceType_);
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

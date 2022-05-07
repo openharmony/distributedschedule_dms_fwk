@@ -92,6 +92,9 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[RELEASE_REMOTE_ABILITY] = &DistributedSchedStub::ReleaseRemoteAbilityInner;
     remoteFuncsMap_[START_ABILITY_BY_CALL_FROM_REMOTE] = &DistributedSchedStub::StartAbilityByCallFromRemoteInner;
     remoteFuncsMap_[RELEASE_ABILITY_FROM_REMOTE] = &DistributedSchedStub::ReleaseAbilityFromRemoteInner;
+    localFuncsMap_[REGISTER_DISTRIBUTED_COMPONENT_LISTENER] =
+        &DistributedSchedStub::RegisterDistributedComponentListenerInner;
+    localFuncsMap_[GET_DISTRIBUTED_COMPONENT_LIST] = &DistributedSchedStub::GetDistributedComponentListInner;
 }
 
 DistributedSchedStub::~DistributedSchedStub()
@@ -831,6 +834,32 @@ int32_t DistributedSchedStub::ReleaseAbilityFromRemoteInner(MessageParcel& data,
     int32_t result = ReleaseAbilityFromRemote(connect, *element, callerInfo);
     HILOGI("result %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::RegisterDistributedComponentListenerInner(MessageParcel& data, MessageParcel& reply)
+{
+    if (!CheckCallingUid()) {
+        HILOGW("request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    int32_t result = RegisterDistributedComponentListener(callback);
+    HILOGI("result = %{public}d", result);
+    PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
+}
+
+int32_t DistributedSchedStub::GetDistributedComponentListInner(MessageParcel& data, MessageParcel& reply)
+{
+    if (!CheckCallingUid()) {
+        HILOGW("request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
+    std::vector<std::string> distributedComponents;
+    int32_t result = GetDistributedComponentList(distributedComponents);
+    HILOGI("result = %{public}d", result);
+    PARCEL_WRITE_HELPER(reply, Int32, result);
+    PARCEL_WRITE_HELPER(reply, StringVector, distributedComponents);
+    return ERR_NONE;
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

@@ -38,6 +38,7 @@ public:
     static int32_t CheckRemoteBundleInfoForContinuation(const std::string& dstDeviceId,
         const std::string& bundleName, AppExecFwk::DistributedBundleInfo& remoteBundleInfo);
     static sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    static int32_t GetUidFromBms(const std::string& bundleName);
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
