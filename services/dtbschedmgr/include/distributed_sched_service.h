@@ -125,8 +125,10 @@ public:
         const CallerInfo& callerInfo, const AccountInfo& accountInfo) override;
     int32_t ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element,
         const CallerInfo& callerInfo) override;
-    void ProcessCallerDied(const sptr<IRemoteObject>& connect);
+    void ProcessCallerDied(const sptr<IRemoteObject>& connect, int32_t deviceType);
     void ProcessCalleeDied(const sptr<IRemoteObject>& connect);
+    int32_t RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback) override;
+    int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) override;
 private:
     DistributedSchedService();
     bool Init();
@@ -162,6 +164,18 @@ private:
         const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
     int32_t TryStartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         const CallerInfo& callerInfo);
+    bool HandleDistributedComponentChange(const std::string& componentInfo);
+    void ReportDistributedComponentChange(const CallerInfo& callerInfo, int32_t changeType,
+        int32_t componentType, int32_t deviceType);
+    void ReportDistributedComponentChange(const ConnectInfo& connectInfo, int32_t changeType,
+        int32_t componentType, int32_t deviceType);
+    void HandleLocalCallerDied(const sptr<IRemoteObject>& connect);
+    void SaveCallerComponent(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
+        const CallerInfo& callerInfo);
+    void RemoveCallerComponent(const sptr<IRemoteObject>& connect);
+    void ProcessCalleeOffline(const std::string& deviceId);
+    void GetConnectComponentList(std::vector<std::string>& distributedComponents);
+    void GetCallComponentList(std::vector<std::string>& distributedComponents);
 
     std::shared_ptr<DSchedContinuation> dschedContinuation_;
     std::map<sptr<IRemoteObject>, std::list<ConnectAbilitySession>> distributedConnectAbilityMap_;
@@ -174,6 +188,11 @@ private:
     std::mutex calleeLock_;
     std::map<sptr<IRemoteObject>, ConnectInfo> calleeMap_;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_;
+    sptr<IRemoteObject> distributedComponentListener_;
+    std::shared_ptr<AppExecFwk::EventHandler> componentChangeHandler_;
+    std::mutex callerLock_;
+    std::map<sptr<IRemoteObject>, std::list<ConnectAbilitySession>> callerMap_;
+    sptr<IRemoteObject::DeathRecipient> callerDeathRecipientForLocalDevice_;
 };
 
 class ConnectAbilitySession {
@@ -221,8 +240,14 @@ private:
 class CallerDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
     CallerDeathRecipient() = default;
+    explicit CallerDeathRecipient(int32_t deviceType)
+    {
+        deviceType_ = deviceType;
+    }
     ~CallerDeathRecipient() override = default;
     void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+private:
+    int32_t deviceType_ = IDistributedSched::CALLEE;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

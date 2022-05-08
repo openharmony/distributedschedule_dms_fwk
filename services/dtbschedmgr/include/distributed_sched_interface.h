@@ -40,6 +40,14 @@ public:
         int32_t accountType = DIFF_ACCOUNT_TYPE;
         std::vector<std::string> groupIdList;
     };
+    enum {
+        CALLER = 0,
+        CALLEE,
+    };
+    enum {
+        CONNECT = 0,
+        CALL,
+    };
 
     virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& want, int32_t callerUid, int32_t requestCode,
         uint32_t accessToken) = 0;
@@ -91,6 +99,8 @@ public:
         const CallerInfo& callerInfo, const AccountInfo& accountInfo) = 0;
     virtual int32_t ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element,
         const CallerInfo& callerInfo) = 0;
+    virtual int32_t RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback) = 0;
+    virtual int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) = 0;
     enum {
         START_REMOTE_ABILITY = 1,
         STOP_REMOTE_ABILITY = 3,
@@ -137,6 +147,10 @@ public:
         RELEASE_REMOTE_ABILITY = 151,
         START_ABILITY_BY_CALL_FROM_REMOTE = 152,
         RELEASE_ABILITY_FROM_REMOTE = 153,
+
+        // request code for upload distributed component info
+        REGISTER_DISTRIBUTED_COMPONENT_LISTENER = 160,
+        GET_DISTRIBUTED_COMPONENT_LIST = 161,
     };
 };
 } // namespace DistributedSchedule
