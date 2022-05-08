@@ -57,7 +57,7 @@ public:
     int32_t ReleaseAbility(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element);
     int32_t StartAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         const sptr<IRemoteObject>& callerToken);
-    void ProcessCallerDied(const sptr<IRemoteObject>& connect);
+    void ProcessCallerDied(const sptr<IRemoteObject>& connect, int32_t deviceType);
     void ProcessCalleeDied(const sptr<IRemoteObject>& connect);
     bool InitHichainService();
     bool CheckAccessToGroup(const std::string& groupId, const std::string& targetBundleName);

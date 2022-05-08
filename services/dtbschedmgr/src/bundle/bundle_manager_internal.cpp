@@ -197,5 +197,20 @@ sptr<AppExecFwk::IBundleMgr> BundleManagerInternal::GetBundleManager()
     }
     return iface_cast<AppExecFwk::IBundleMgr>(bmsProxy);
 }
+
+int32_t BundleManagerInternal::GetUidFromBms(const std::string& bundleName)
+{
+    auto bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOGE("failed to get bms");
+        return -1;
+    }
+    std::vector<int> ids;
+    ErrCode result = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (result != ERR_OK || ids.empty()) {
+        return -1;
+    }
+    return bundleMgr->GetUidByBundleName(bundleName, ids[0]);
+}
 } // namespace DistributedSchedule
 } // namespace OHOS

@@ -173,7 +173,7 @@ void DistributedSchedAdapter::ProcessCalleeDied(const sptr<IRemoteObject>& conne
     }
 }
 
-void DistributedSchedAdapter::ProcessCallerDied(const sptr<IRemoteObject>& connect)
+void DistributedSchedAdapter::ProcessCallerDied(const sptr<IRemoteObject>& connect, int32_t deviceType)
 {
     if (dmsAdapterHandler_ == nullptr) {
         HILOGE("ProcessCallerDied dmsAdapterHandler is null");
@@ -184,8 +184,8 @@ void DistributedSchedAdapter::ProcessCallerDied(const sptr<IRemoteObject>& conne
         return;
     }
     HILOGD("process caller died");
-    auto callback = [connect] () {
-        DistributedSchedService::GetInstance().ProcessCallerDied(connect);
+    auto callback = [connect, deviceType] () {
+        DistributedSchedService::GetInstance().ProcessCallerDied(connect, deviceType);
     };
     if (!dmsAdapterHandler_->PostTask(callback)) {
         HILOGE("ProcessCallerDied PostTask failed");

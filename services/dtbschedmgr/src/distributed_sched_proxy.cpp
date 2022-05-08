@@ -753,6 +753,53 @@ int32_t DistributedSchedProxy::ReleaseAbilityFromRemote(const sptr<IRemoteObject
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, RELEASE_ABILITY_FROM_REMOTE, data, reply);
 }
+
+int32_t DistributedSchedProxy::RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback)
+{
+    if (callback == nullptr) {
+        HILOGE("RegisterDistributedComponentListener callback is null");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("RegisterDistributedComponentListener remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, RemoteObject, callback);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, REGISTER_DISTRIBUTED_COMPONENT_LISTENER, data, reply);
+}
+
+int32_t DistributedSchedProxy::GetDistributedComponentList(std::vector<std::string>& distributedComponents)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("RegisterDistributedComponentListener remote is null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int32_t error = remote->SendRequest(GET_DISTRIBUTED_COMPONENT_LIST, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOGE("GetDistributedComponentList SendRequest error = %{public}d", error);
+        return error;
+    }
+    int32_t result = reply.ReadInt32();
+    if (result != ERR_NONE) {
+        HILOGE("GetDistributedComponentList result = %{public}d", result);
+        return result;
+    }
+    PARCEL_READ_HELPER(reply, StringVector, &distributedComponents);
+    return ERR_NONE;
+}
 } // namespace DistributedSchedule
 } // namespace OHOS
 
