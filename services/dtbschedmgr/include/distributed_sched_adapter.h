@@ -19,6 +19,8 @@
 #include "ability_info.h"
 #include "ability_manager_client.h"
 #include "caller_info.h"
+#include "device_auth.h"
+#include "distributed_sched_interface.h"
 #include "event_handler.h"
 #include "if_system_ability_manager.h"
 #include "iremote_object.h"
@@ -33,6 +35,8 @@ class DistributedSchedAdapter {
     DECLARE_SINGLE_INSTANCE(DistributedSchedAdapter);
 
 public:
+    using AccountInfo = IDistributedSched::AccountInfo;
+
     void Init();
     void UnInit();
 
@@ -41,11 +45,8 @@ public:
     int32_t DisconnectAbility(const sptr<IRemoteObject>& connect);
     void DeviceOnline(const std::string& deviceId);
     void DeviceOffline(const std::string& deviceId);
-    bool QueryAbilityInfo(const OHOS::AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo);
     void ProcessConnectDied(const sptr<IRemoteObject>& connect);
-    int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::u16string>& u16BundleNameList);
     int32_t GetLocalMissionInfos(int32_t numMissions, std::vector<DstbMissionInfo>& missionInfos);
-    int32_t GetBundleNameListFromBms(int32_t uid, std::vector<std::string>& bundleNameList);
     bool AllowMissionUid(int32_t uid);
     int32_t RegisterMissionListener(const sptr<DistributedMissionChangeListener>& listener);
     int32_t UnRegisterMissionListener(const sptr<DistributedMissionChangeListener>& listener);
@@ -58,12 +59,15 @@ public:
         const sptr<IRemoteObject>& callerToken);
     void ProcessCallerDied(const sptr<IRemoteObject>& connect);
     void ProcessCalleeDied(const sptr<IRemoteObject>& connect);
-
+    bool InitHichainService();
+    bool CheckAccessToGroup(const std::string& groupId, const std::string& targetBundleName);
+    bool GetRelatedGroups(const std::string& udid, const std::string& bundleName, std::string& returnGroups);
 private:
     void ProcessDeviceOffline(const std::string& deviceId);
 
     std::shared_ptr<AppExecFwk::EventHandler> dmsAdapterHandler_;
-    friend class BundleManagerInternal;
+    const DeviceGroupManager* hichainGmInstance_ = nullptr;
+    std::mutex hichainLock_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
