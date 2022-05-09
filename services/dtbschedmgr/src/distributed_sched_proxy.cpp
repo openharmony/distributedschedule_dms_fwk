@@ -300,7 +300,7 @@ int32_t DistributedSchedProxy::StartSyncRemoteMissions(const std::string& devId,
     HILOGI("called");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote system abiity is null");
+        HILOGE("remote system ability is null");
         return ERR_NULL_OBJECT;
     }
 
@@ -348,7 +348,7 @@ int32_t DistributedSchedProxy::StopSyncRemoteMissions(const std::string& devId)
     HILOGI("called");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote system abiity is null");
+        HILOGE("remote system ability is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -391,7 +391,7 @@ int32_t DistributedSchedProxy::RegisterMissionListener(const std::u16string& dev
     HILOGI("RegisterMissionListener called");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote system abiity is null");
+        HILOGE("remote system ability is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -410,7 +410,7 @@ int32_t DistributedSchedProxy::UnRegisterMissionListener(const std::u16string& d
     HILOGI("UnRegisterMissionListener called");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote system abiity is null");
+        HILOGE("remote system ability is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -429,7 +429,7 @@ int32_t DistributedSchedProxy::GetMissionInfos(const std::string& deviceId, int3
     HILOGI("called");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote system abiity is null");
+        HILOGE("remote system ability is null");
         return ERR_NULL_OBJECT;
     }
 

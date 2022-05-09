@@ -15,8 +15,6 @@
 
 #include "distributed_sched_adapter.h"
 
-#include "ability_manager_client.h"
-#include "bundle/bundle_manager_internal.h"
 #include "datetime_ex.h"
 #include "distributed_sched_service.h"
 #include "dtbschedmgr_device_info_storage.h"
@@ -128,27 +126,6 @@ void DistributedSchedAdapter::DeviceOffline(const std::string& deviceId)
     }
 }
 
-bool DistributedSchedAdapter::QueryAbilityInfo(const OHOS::AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo)
-{
-    std::vector<int> ids;
-    ErrCode ret = OsAccountManager::QueryActiveOsAccountIds(ids);
-    if (ret != ERR_OK || ids.empty()) {
-        return false;
-    }
-    auto bundleMgr = BundleManagerInternal::GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOGE("QueryAbilityInfo failed to get bms");
-        return false;
-    }
-    bool result = bundleMgr->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
-        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, ids[0], abilityInfo);
-    if (!result) {
-        HILOGE("QueryAbilityInfo fail");
-        return false;
-    }
-    return true;
-}
-
 void DistributedSchedAdapter::ProcessDeviceOffline(const std::string& deviceId)
 {
     HILOGD("ProcessDeviceOffline");
@@ -242,33 +219,65 @@ int32_t DistributedSchedAdapter::StartAbilityByCall(const OHOS::AAFwk::Want& wan
     return ret;
 }
 
-int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid,
-    std::vector<std::u16string>& u16BundleNameList)
+bool DistributedSchedAdapter::InitHichainService()
 {
-    vector<string> bundleNameList;
-    int32_t ret = GetBundleNameListFromBms(uid, bundleNameList);
-    if (ret != ERR_OK) {
-        HILOGE("GetBundleNameListFromBms failed");
-        return ret;
+    if (hichainGmInstance_ != nullptr) {
+        HILOGI("hichain GmInstance is already exist");
+        return true;
     }
-    for (const string& bundleName : bundleNameList) {
-        u16BundleNameList.emplace_back(Str8ToStr16(bundleName));
+    if (InitDeviceAuthService() != ERR_OK) {
+        HILOGE("hichain init DeviceAuthService failed");
+        return false;
     }
-    return ERR_OK;
+    hichainGmInstance_ = GetGmInstance();
+    if (hichainGmInstance_ == nullptr) {
+        HILOGE("hichain get GmInstance failed");
+        return false;
+    }
+    return true;
 }
 
-int32_t DistributedSchedAdapter::GetBundleNameListFromBms(int32_t uid, std::vector<std::string>& bundleNameList)
+bool DistributedSchedAdapter::CheckAccessToGroup(const std::string& groupId, const std::string& targetBundleName)
 {
-    auto bundleMgr = BundleManagerInternal::GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOGE("GetBundleNameListFromBms failed to get bms");
-        return OBJECT_NULL;
+    std::lock_guard<std::mutex> autoLock(hichainLock_);
+    int64_t begin = GetTickCount();
+    if (!InitHichainService()) {
+        return false;
     }
-    std::string identity = IPCSkeleton::ResetCallingIdentity();
-    bool result = bundleMgr->GetBundlesForUid(uid, bundleNameList);
-    IPCSkeleton::SetCallingIdentity(identity);
-    HILOGD("GetBundleNameListFromBms %{public}d", result);
-    return result ? ERR_OK : BUNDLE_MANAGER_SERVICE_ERR;
+    int32_t ret = hichainGmInstance_->checkAccessToGroup(ANY_OS_ACCOUNT, targetBundleName.c_str(),
+        groupId.c_str());
+    HILOGI("[PerformanceTest] checkAccessToGroup spend %{public}" PRId64 " ms", GetTickCount() - begin);
+    if (ret != ERR_OK) {
+        HILOGE("hichain checkAccessToGroup failed, ret:%{public}d", ret);
+        return false;
+    }
+    HILOGD("hichain checkAccessToGroup success");
+    return true;
+}
+
+bool DistributedSchedAdapter::GetRelatedGroups(const std::string& udid, const std::string& bundleName,
+    std::string& returnGroups)
+{
+    std::lock_guard<std::mutex> autoLock(hichainLock_);
+    int64_t begin = GetTickCount();
+    if (!InitHichainService()) {
+        return false;
+    }
+    uint32_t groupNum = 0;
+    char* groupsJsonStr = nullptr;
+    int32_t ret = hichainGmInstance_->getRelatedGroups(ANY_OS_ACCOUNT, bundleName.c_str(), udid.c_str(),
+        &groupsJsonStr, &groupNum);
+    HILOGI("[PerformanceTest] getRelatedGroups spend %{public}" PRId64 " ms", GetTickCount() - begin);
+    if (ret != ERR_OK) {
+        HILOGE("hichain getRelatedGroups failed, ret:%{public}d", ret);
+        return false;
+    }
+    if (groupsJsonStr == nullptr || groupNum == 0) {
+        HILOGE("groupsJsonStr is nullptr");
+        return false;
+    }
+    returnGroups = groupsJsonStr;
+    return true;
 }
 
 int32_t DistributedSchedAdapter::GetLocalMissionInfos(int32_t numMissions,

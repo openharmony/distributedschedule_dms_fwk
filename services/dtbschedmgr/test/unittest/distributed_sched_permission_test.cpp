@@ -25,6 +25,10 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace DistributedSchedule {
+namespace {
+const string GROUP_ID = "TEST_GROUP_ID";
+}
+
 void DistributedSchedPermissionTest::SetUpTestCase()
 {
     DTEST_LOG << "DistributedSchedPermissionTest::SetUpTestCase" << std::endl;
@@ -192,6 +196,53 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_007, TestSize.Level1)
         localDeviceId);
     EXPECT_TRUE(ret != ERR_OK);
     DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_007 end result:" << ret << std::endl;
+}
+
+/**
+ * @tc.name: CheckDPermission_008
+ * @tc.desc: call CheckDPermission with same account type
+ * @tc.type: FUNC
+ * @tc.require: SR000H1FJV
+ */
+HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_008, TestSize.Level0)
+{
+    DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_008 begin" << std::endl;
+    AAFwk::Want want;
+    CallerInfo callerInfo;
+    callerInfo.accessToken = 0;
+    IDistributedSched::AccountInfo accountInfo;
+    accountInfo.accountType = IDistributedSched::SAME_ACCOUNT_TYPE;
+    AppExecFwk::AbilityInfo abilityInfo;
+    string localDeviceId = "255.255.255.255";
+    int32_t ret = DistributedSchedPermission::GetInstance().CheckDPermission(want, callerInfo, accountInfo, abilityInfo,
+        localDeviceId);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_008 end result:" << ret << std::endl;
+}
+
+/**
+ * @tc.name: CheckDPermission_009
+ * @tc.desc: call CheckDPermission with illegal account info
+ * @tc.type: FUNC
+ * @tc.require: AR000H1RID
+ */
+HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_009, TestSize.Level1)
+{
+    DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_009 begin" << std::endl;
+    AAFwk::Want want;
+    CallerInfo callerInfo;
+    callerInfo.accessToken = 0;
+    IDistributedSched::AccountInfo accountInfo;
+    accountInfo.accountType = IDistributedSched::DIFF_ACCOUNT_TYPE;
+    std::string groupId = GROUP_ID;
+    accountInfo.groupIdList.push_back(groupId);
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.visible = true;
+    string localDeviceId = "255.255.255.255";
+    int32_t ret = DistributedSchedPermission::GetInstance().CheckDPermission(want, callerInfo, accountInfo, abilityInfo,
+        localDeviceId);
+    EXPECT_TRUE(ret != ERR_OK);
+    DTEST_LOG << "DistributedSchedPermissionTest CheckDPermission_009 end result:" << ret << std::endl;
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
