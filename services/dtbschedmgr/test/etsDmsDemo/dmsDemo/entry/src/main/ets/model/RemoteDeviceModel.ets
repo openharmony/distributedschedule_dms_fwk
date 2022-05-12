@@ -64,67 +64,10 @@ export default class RemoteDeviceModel {
         this.callback();
         console.info('[dmsDemo] callback finished');
 
-        let self = this;
-        this.#deviceManager.on('deviceStateChange', (data) => {
-            console.info('[dmsDemo] deviceStateChange data=' + JSON.stringify(data));
-            switch (data.action) {
-                case 0:
-                self.deviceList[self.deviceList.length] = data.device;
-                console.info('[dmsDemo] online, updated device list=' + JSON.stringify(self.deviceList));
-                self.callback();
-                if (self.authCallback != null) {
-                    self.authCallback();
-                    self.authCallback = null;
-                }
-                break;
-                case 2:
-                if (self.deviceList.length > 0) {
-                    for (var i = 0; i < self.deviceList.length; i++) {
-                        if (self.deviceList[i].deviceId === data.device.deviceId) {
-                            self.deviceList[i] = data.device;
-                            break;
-                        }
-                    }
-                }
-                console.info('[dmsDemo] change, updated device list=' + JSON.stringify(self.deviceList));
-                self.callback();
-                break;
-                case 1:
-                if (self.deviceList.length > 0) {
-                    var list = [];
-                    for (var i = 0; i < self.deviceList.length; i++) {
-                        if (self.deviceList[i].deviceId != data.device.deviceId) {
-                            list[i] = data.device;
-                        }
-                    }
-                    self.deviceList = list;
-                }
-                console.info('[dmsDemo] offline, updated device list=' + JSON.stringify(data.device));
-                self.callback();
-                break;
-                default:
-                    break;
-            }
-        });
-        this.#deviceManager.on('deviceFound', (data) => {
-            console.info('[dmsDemo] deviceFound data=' + JSON.stringify(data));
-            console.info('[dmsDemo] deviceFound self.deviceList=' + self.deviceList);
-            console.info('[dmsDemo] deviceFound self.deviceList.length=' + self.deviceList.length);
-            for (var i = 0; i < self.discoverList.length; i++) {
-                if (self.discoverList[i].deviceId === data.device.deviceId) {
-                    console.info('[dmsDemo] device founded, ignored');
-                    return;
-                }
-            }
-            self.discoverList[self.discoverList.length] = data.device;
-            self.callback();
-        });
-        this.#deviceManager.on('discoverFail', (data) => {
-            console.info('[dmsDemo] discoverFail data=' + JSON.stringify(data));
-        });
-        this.#deviceManager.on('serviceDie', () => {
-            console.error('[dmsDemo] serviceDie');
-        });
+        registerDeviceStateChangeCallback();
+        registerDeviceFoundCallback();
+        registerDiscoverFailCallback();
+        registerServiceDieCallback();
 
         SUBSCRIBE_ID = Math.floor(65536 * Math.random());
         var info = {
@@ -138,6 +81,79 @@ export default class RemoteDeviceModel {
         };
         console.info('[dmsDemo] startDeviceDiscovery ' + SUBSCRIBE_ID);
         this.#deviceManager.startDeviceDiscovery(info);
+    }
+
+    registerDeviceStateChangeCallback() {
+        let self = this;
+        this.#deviceManager.on('deviceStateChange', (data) => {
+            console.info('[dmsDemo] deviceStateChange data=' + JSON.stringify(data));
+            switch (data.action) {
+                case 0:
+                    self.deviceList[self.deviceList.length] = data.device;
+                    console.info('[dmsDemo] online, updated device list=' + JSON.stringify(self.deviceList));
+                    self.callback();
+                    if (self.authCallback != null) {
+                        self.authCallback();
+                        self.authCallback = null;
+                    }
+                    break;
+                case 2:
+                    if (self.deviceList.length > 0) {
+                        for (var i = 0; i < self.deviceList.length; i++) {
+                            if (self.deviceList[i].deviceId === data.device.deviceId) {
+                                self.deviceList[i] = data.device;
+                                break;
+                            }
+                        }
+                    }
+                    console.info('[dmsDemo] change, updated device list=' + JSON.stringify(self.deviceList));
+                    self.callback();
+                    break;
+                case 1:
+                    if (self.deviceList.length > 0) {
+                        var list = [];
+                        for (var i = 0; i < self.deviceList.length; i++) {
+                            if (self.deviceList[i].deviceId != data.device.deviceId) {
+                                list[i] = data.device;
+                            }
+                        }
+                        self.deviceList = list;
+                    }
+                    console.info('[dmsDemo] offline, updated device list=' + JSON.stringify(data.device));
+                    self.callback();
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
+
+    registerDeviceFoundCallback() {
+        this.#deviceManager.on('deviceFound', (data) => {
+            console.info('[dmsDemo] deviceFound data=' + JSON.stringify(data));
+            console.info('[dmsDemo] deviceFound self.deviceList=' + self.deviceList);
+            console.info('[dmsDemo] deviceFound self.deviceList.length=' + self.deviceList.length);
+            for (var i = 0; i < self.discoverList.length; i++) {
+                if (self.discoverList[i].deviceId === data.device.deviceId) {
+                    console.info('[dmsDemo] device founded, ignored');
+                    return;
+                }
+            }
+            self.discoverList[self.discoverList.length] = data.device;
+            self.callback();
+        });
+    }
+
+    registerDiscoverFailCallback() {
+        this.#deviceManager.on('discoverFail', (data) => {
+            console.info('[dmsDemo] discoverFail data=' + JSON.stringify(data));
+        });
+    }
+
+    registerServiceDieCallback() {
+        this.#deviceManager.on('serviceDie', () => {
+            console.error('[dmsDemo] serviceDie');
+        });
     }
 
     authDevice(deviceId, callback) {

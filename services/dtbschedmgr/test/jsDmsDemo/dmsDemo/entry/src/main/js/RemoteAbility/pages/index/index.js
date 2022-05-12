@@ -121,7 +121,8 @@ export default {
                     console.info('[dmsDemo] onRadioChangeForStart auth and online finished');
                     for (i = 0; i < self.remoteDeviceModel.deviceList.length; i++) {
                         if (self.remoteDeviceModel.deviceList[i].deviceName === name) {
-                            this.startRemoteAbility(self.remoteDeviceModel.deviceList[i].deviceId, self.remoteDeviceModel.deviceList[i].deviceName);
+                            this.startRemoteAbility(self.remoteDeviceModel.deviceList[i].deviceId,
+                                self.remoteDeviceModel.deviceList[i].deviceName);
                         }
                     }
                 });
@@ -129,7 +130,8 @@ export default {
                 console.info('[dmsDemo] onRadioChangeForStart start to authed device');
                 for (i = 0; i < this.remoteDeviceModel.deviceList.length; i++) {
                     if (this.remoteDeviceModel.deviceList[i].deviceId === e.value) {
-                        this.startRemoteAbility(this.remoteDeviceModel.deviceList[i].deviceId, this.remoteDeviceModel.deviceList[i].deviceName);
+                        this.startRemoteAbility(this.remoteDeviceModel.deviceList[i].deviceId,
+                            this.remoteDeviceModel.deviceList[i].deviceName);
                     }
                 }
             }
@@ -206,7 +208,8 @@ export default {
                     console.info('[dmsDemo] onRadioChangeForContinue auth and online finished');
                     for (i = 0; i < self.remoteDeviceModel.deviceList.length; i++) {
                         if (self.remoteDeviceModel.deviceList[i].deviceName === name) {
-                            this.StartContinueAbility(self.remoteDeviceModel.deviceList[i].deviceId, self.remoteDeviceModel.deviceList[i].deviceName);
+                            this.startContinueAbility(self.remoteDeviceModel.deviceList[i].deviceId,
+                                self.remoteDeviceModel.deviceList[i].deviceName);
                         }
                     }
                 });
@@ -214,16 +217,17 @@ export default {
                 console.info('[dmsDemo] onRadioChangeForContinue continue to authed device');
                 for (i = 0; i < this.remoteDeviceModel.deviceList.length; i++) {
                     if (this.remoteDeviceModel.deviceList[i].deviceId === e.value) {
-                        this.StartContinueAbility(this.remoteDeviceModel.deviceList[i].deviceId, this.remoteDeviceModel.deviceList[i].deviceName);
+                        this.startContinueAbility(this.remoteDeviceModel.deviceList[i].deviceId,
+                            this.remoteDeviceModel.deviceList[i].deviceName);
                     }
                 }
             }
         }
     },
 
-    async StartContinueAbility(deviceId, deviceName) {
+    async startContinueAbility(deviceId, deviceName) {
         this.$element('dialogForContinueAbility').close();
-        console.info('[dmsDemo] featureAbility.StartContinueAbility deviceId=' + deviceId
+        console.info('[dmsDemo] featureAbility.startContinueAbility deviceId=' + deviceId
         + ' deviceName=' + deviceName);
         let continueAbilityOptions = {
             reversible: false,
@@ -235,7 +239,7 @@ export default {
         }
         await featureAbility.continueAbility(continueAbilityOptions, ContinueAbilityCallback);
         done();
-        console.info('[dmsDemo] featureAbility.StartContinueAbility end');
+        console.info('[dmsDemo] featureAbility.startContinueAbility end');
     },
 
     async ConnectLocalService(){
@@ -322,7 +326,8 @@ export default {
                     console.info('[dmsDemo] onRadioChangeForConnect auth and online finished');
                     for (i = 0; i < self.remoteDeviceModel.deviceList.length; i++) {
                         if (self.remoteDeviceModel.deviceList[i].deviceName === name) {
-                            this.ConnectRemoteService(self.remoteDeviceModel.deviceList[i].deviceId, self.remoteDeviceModel.deviceList[i].deviceName);
+                            this.connectRemoteService(self.remoteDeviceModel.deviceList[i].deviceId,
+                                self.remoteDeviceModel.deviceList[i].deviceName);
                         }
                     }
                 });
@@ -330,20 +335,21 @@ export default {
                 console.info('[dmsDemo] onRadioChangeForConnect continue to authed device');
                 for (i = 0; i < this.remoteDeviceModel.deviceList.length; i++) {
                     if (this.remoteDeviceModel.deviceList[i].deviceId === e.value) {
-                        this.ConnectRemoteService(this.remoteDeviceModel.deviceList[i].deviceId, this.remoteDeviceModel.deviceList[i].deviceName);
+                        this.connectRemoteService(this.remoteDeviceModel.deviceList[i].deviceId,
+                            this.remoteDeviceModel.deviceList[i].deviceName);
                     }
                 }
             }
         }
     },
 
-    async ConnectRemoteService(deviceId, deviceName){
+    async connectRemoteService(deviceId, deviceName){
         this.$element('dialogForConnectService').close();
         console.info('[dmsDemo] featureAbility.connectAbility deviceId=' + deviceId
         + ' deviceName=' + deviceName);
         async function onConnectCallback(element, remote){
-            console.log('[dmsDemo] ConnectRemoteService onConnectDone element: ' + element);
-            console.log('[dmsDemo] ConnectRemoteService onConnectDone remote: ' + remote);
+            console.log('[dmsDemo] connectRemoteService onConnectDone element: ' + element);
+            console.log('[dmsDemo] connectRemoteService onConnectDone remote: ' + remote);
             mRemote = remote;
             if (mRemote == null) {
                 prompt.showToast({
@@ -364,12 +370,12 @@ export default {
             });
         }
         function onDisconnectCallback(element){
-            console.log('[dmsDemo] ConnectRemoteService onDisconnectDone element: ' + element);
+            console.log('[dmsDemo] connectRemoteService onDisconnectDone element: ' + element);
         }
         function onFailedCallback(code){
-            console.log('[dmsDemo] ConnectRemoteService onFailed errCode: ' + code)
+            console.log('[dmsDemo] connectRemoteService onFailed errCode: ' + code)
             prompt.showToast({
-                message: "ConnectRemoteService onFailed: " + code
+                message: "connectRemoteService onFailed: " + code
             });
         }
 
