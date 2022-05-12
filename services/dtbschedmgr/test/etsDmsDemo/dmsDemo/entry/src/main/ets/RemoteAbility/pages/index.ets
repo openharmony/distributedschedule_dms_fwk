@@ -34,64 +34,64 @@ enum Operation {
 }
 let mOperation = Operation.AuthDeviceOperation;
 
-function RegisterDeviceListCallback() {
-  console.info('[dmsDemo] RegisterDeviceListCallback begin');
+function registerDeviceListCallback() {
+  console.info('[dmsDemo] registerDeviceListCallback begin');
   remoteDeviceModel.registerDeviceListCallback(() => {
-    console.info('[dmsDemo] RegisterDeviceListCallback, callback entered');
+    console.info('[dmsDemo] registerDeviceListCallback, callback entered');
     let discoveredDevices = remoteDeviceModel.discoverList.length;
     let numDevices = remoteDeviceModel.deviceList.length;
     mDiscoveredSize = discoveredDevices;
     mDeviceSize = numDevices;
     console.info('[dmsDemo] mDiscoveredSize =' + mDiscoveredSize);
     console.info('[dmsDemo] mDeviceSize =' + mDeviceSize);
-    console.info('[dmsDemo] RegisterDeviceListCallback on remote device updated, count=' + numDevices);
+    console.info('[dmsDemo] registerDeviceListCallback on remote device updated, count=' + numDevices);
     if (numDevices === 0) {
       if (discoveredDevices > 0) {
         prompt.showToast({
-          message: "RegisterDeviceListCallback dicovered " + discoveredDevices + " devices, need to authenticate"
+          message: "registerDeviceListCallback dicovered " + discoveredDevices + " devices, need to authenticate"
         });
       } else {
         prompt.showToast({
-          message: "RegisterDeviceListCallback no device discovered"
+          message: "registerDeviceListCallback no device discovered"
         });
       }
     }
     if (numDevices >= 1) {
       prompt.showToast({
-        message: "RegisterDeviceListCallback at least one device is successfully networked"
+        message: "registerDeviceListCallback at least one device is successfully networked"
       });
     }
   });
-  console.info('[dmsDemo] RegisterDeviceListCallback end');
+  console.info('[dmsDemo] registerDeviceListCallback end');
 }
 
-function AuthDevice(index) {
-  console.info('[dmsDemo] AuthDevice begin');
+function authDevice(index) {
+  console.info('[dmsDemo] authDevice begin');
   if (remoteDeviceModel.deviceList.length >= 1 && remoteDeviceModel.discoverList.length == 0) {
     prompt.showToast({
-      message: "AuthDevice all devices networking success, no need authenticate"
+      message: "authDevice all devices networking success, no need authenticate"
     });
     return;
   }
   if (remoteDeviceModel.discoverList.length > 0) {
     remoteDeviceModel.authDevice(remoteDeviceModel.discoverList[index - 1].deviceId, () => {
-      console.info('[dmsDemo] AuthDevice, callback entered');
+      console.info('[dmsDemo] authDevice, callback entered');
       prompt.showToast({
-        message: "AuthDevice authenticate success"
+        message: "authDevice authenticate success"
       });
     });
   } else {
     prompt.showToast({
-      message: "AuthDevice no device discovered"
+      message: "authDevice no device discovered"
     });
   }
-  console.info('[dmsDemo] AuthDevice end');
+  console.info('[dmsDemo] authDevice end');
 }
 
-function UnregisterDeviceListCallback() {
-  console.info('[dmsDemo] UnregisterDeviceListCallback begin');
+function unregisterDeviceListCallback() {
+  console.info('[dmsDemo] unregisterDeviceListCallback begin');
   remoteDeviceModel.unregisterDeviceListCallback();
-  console.info('[dmsDemo] UnregisterDeviceListCallback end');
+  console.info('[dmsDemo] unregisterDeviceListCallback end');
 }
 
 function onStartLocalAbility() {
@@ -358,14 +358,14 @@ struct Index {
       return;
     }
     if (mOperation === Operation.AuthDeviceOperation) {
-      console.info('[dmsDemo] call AuthDevice, device index: ' + mIndex);
+      console.info('[dmsDemo] call authDevice, device index: ' + mIndex);
       if (mIndex > mDiscoveredSize) {
         prompt.showToast({
           message: "Please input correct device index."
         });
         return;
       }
-      AuthDevice(mIndex);
+      authDevice(mIndex);
     } else if (mOperation === Operation.StartRemoteAbilityOperation) {
       console.info('[dmsDemo] call onStartRemoteAbility, device index: ' + mIndex);
       if (mIndex > mDeviceSize) {
@@ -411,7 +411,7 @@ struct Index {
       })
       .backgroundColor('#0D9FFB')
       .onClick(() => {
-        RegisterDeviceListCallback();
+        registerDeviceListCallback();
       })
 
       Button() {
@@ -438,7 +438,7 @@ struct Index {
       })
       .backgroundColor('#0D9FFB')
       .onClick(() => {
-        UnregisterDeviceListCallback();
+        unregisterDeviceListCallback();
       })
 
       Button() {
