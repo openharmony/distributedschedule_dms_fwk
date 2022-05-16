@@ -49,11 +49,12 @@ dsched_external_deps = [
 ]
 
 if (dmsfwk_standard_mission_manager) {
-  dsched_external_deps += [ "multimedia_image_standard:image_native" ]
+  dsched_external_deps += [ "multimedia_image_standard:image_native" ]  
 }
 
 dsched_public_deps = [
   "//third_party/googletest:gtest_main",
+  "//third_party/googletest:gmock_main",
   "//third_party/libxml2:libxml2",
 ]
 
@@ -187,6 +188,20 @@ ohos_unittest("dscheddatastoragetest") {
   part_name = "dmsfwk_standard"
 }
 
+ohos_unittest("bundlemanagerinternaltest") {
+  module_out_path = module_output_path
+  sources = [ "unittest/bundle_manager_internal_test.cpp" ]
+  sources += dtbschedmgr_sources
+  configs = [ ":test_config" ]
+  configs += dsched_configs
+  deps = [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
+  if (is_standard_system) {
+    external_deps = dsched_external_deps
+    public_deps = dsched_public_deps
+  }
+  part_name = "dmsfwk_standard"
+}
+
 group("unittest") {
   testonly = true
   deps = [
@@ -199,6 +214,7 @@ group("unittest") {
       ":dscheddatastoragetest",
       ":dschedmissionmanagertest",
       ":dschedpermissiontest",
+      ":bundlemanagerinternaltest",
     ]
   }
 }

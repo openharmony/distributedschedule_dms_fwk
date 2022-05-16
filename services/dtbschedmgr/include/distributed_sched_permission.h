@@ -43,8 +43,8 @@ public:
     using AccountInfo = IDistributedSched::AccountInfo;
 
     int32_t CheckDPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
-        const AccountInfo& accountInfo, const AppExecFwk::AbilityInfo& abilityInfo,
-        const std::string& localDeviceId);
+        const AccountInfo& accountInfo, const std::string& localDeviceId,
+        bool needQueryExtension = false);
     int32_t CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo, const std::string& localDeviceId);
     int32_t CheckPermission(uint32_t accessToken, const std::string& permissionName) const;
@@ -64,8 +64,8 @@ private:
         const CallerInfo& callerInfo, const AccountInfo& accountInfo, const AAFwk::Want& want) const;
     bool CheckCustomPermission(const AppExecFwk::AbilityInfo& targetAbility,
         const CallerInfo& callerInfo) const;
-    bool getTargetAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
-        const std::string& localDeviceId, AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const;
+    bool GetTargetAbility(const AAFwk::Want& want, bool needQueryExtension, const std::string& localDeviceId,
+        AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
