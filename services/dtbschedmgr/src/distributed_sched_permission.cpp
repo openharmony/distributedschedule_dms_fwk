@@ -173,7 +173,7 @@ bool DistributedSchedPermission::GetTargetAbility(const AAFwk::Want& want,
         }
     }
     HILOGE("QueryAbilityInfo failed, want bundle name=%{public}s, ability name=%{public}s.",
-        want.GetElement().GetBundleName.c_str(), want.GetElement().GetAbilityName().c_str());
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
     return false;
 }
 
