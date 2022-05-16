@@ -140,7 +140,7 @@ bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want,
     return true;
 }
 
-void BundleManagerInternal::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
+void BundleManagerInternal::InitAbilityInfoFromExtension(const AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
     AppExecFwk::AbilityInfo &abilityInfo)
 {
     abilityInfo.bundleName = extensionAbilityInfo.bundleName;
