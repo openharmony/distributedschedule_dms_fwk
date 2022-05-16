@@ -49,12 +49,12 @@ dsched_external_deps = [
 ]
 
 if (dmsfwk_standard_mission_manager) {
-  dsched_external_deps += [ "multimedia_image_standard:image_native" ]  
+  dsched_external_deps += [ "multimedia_image_standard:image_native" ]
 }
 
 dsched_public_deps = [
-  "//third_party/googletest:gtest_main",
   "//third_party/googletest:gmock_main",
+  "//third_party/googletest:gtest_main",
   "//third_party/libxml2:libxml2",
 ]
 
@@ -211,10 +211,10 @@ group("unittest") {
   ]
   if (dmsfwk_standard_mission_manager) {
     deps += [
+      ":bundlemanagerinternaltest",
       ":dscheddatastoragetest",
       ":dschedmissionmanagertest",
       ":dschedpermissiontest",
-      ":bundlemanagerinternaltest",
     ]
   }
 }
