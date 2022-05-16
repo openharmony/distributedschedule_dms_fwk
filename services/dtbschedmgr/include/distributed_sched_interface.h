@@ -25,7 +25,7 @@
 #include "mission/distributed_mission_info.h"
 #include "mission_snapshot.h"
 #endif
-#include "ohos/aafwk/content/want.h"
+#include "want.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
