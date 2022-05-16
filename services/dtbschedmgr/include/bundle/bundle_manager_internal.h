@@ -34,7 +34,7 @@ public:
     static bool GetBundleNameListFromBms(int32_t callingUid, std::vector<std::u16string>& u16BundleNameList);
     static bool QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo);
     static bool QueryExtensionAbilityInfo(const AAFwk::Want& want, AppExecFwk::ExtensionAbilityInfo& extensionInfo);
-    static void InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
+    static void InitAbilityInfoFromExtension(const AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
         AppExecFwk::AbilityInfo &abilityInfo);
     static bool IsSameAppId(const std::string& callerAppId, const std::string& targetBundleName);
     static int32_t GetLocalBundleInfo(const std::string& bundleName, AppExecFwk::BundleInfo &localBundleInfo);
