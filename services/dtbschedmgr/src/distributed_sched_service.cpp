@@ -260,6 +260,7 @@ int32_t DistributedSchedService::ContinueLocalMission(const std::string& dstDevi
     int32_t result = BundleManagerInternal::CheckRemoteBundleInfoForContinuation(dstDeviceId,
         bundleName, remoteBundleInfo);
     if (result != ERR_OK) {
+        dschedContinuation_->PopCallback(missionId);
         return result;
     }
     uint32_t remoteBundleVersion = remoteBundleInfo.versionCode;
