@@ -73,7 +73,7 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_001, TestSize.Leve
  */
 HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_002, TestSize.Level0)
 {
-    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_001 begin" << std::endl;
+    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_002 begin" << std::endl;
     AppExecFwk::AbilityInfo abilityInfo;
     AppExecFwk::ExtensionAbilityInfo extensionInfo;
     extensionInfo.bundleName.append("bundleName");
@@ -87,7 +87,7 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_002, TestSize.Leve
     EXPECT_TRUE(abilityInfo.name.compare("name") == 0);
     EXPECT_TRUE(abilityInfo.permissions == permissions);
     EXPECT_TRUE(abilityInfo.visible);
-    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_001 end "<< std::endl;
+    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_002 end "<< std::endl;
 }
 }
 }
