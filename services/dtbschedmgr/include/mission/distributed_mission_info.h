@@ -22,7 +22,7 @@
 
 #include "application_info.h"
 #include "element_name.h"
-#include "ohos/aafwk/content/want.h"
+#include "want.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

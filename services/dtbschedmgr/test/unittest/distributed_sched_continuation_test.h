@@ -23,9 +23,9 @@
 #include "gtest/gtest.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "ohos/aafwk/content/want.h"
 #include "system_ability_definition.h"
 #include "test_log.h"
+#include "want.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
