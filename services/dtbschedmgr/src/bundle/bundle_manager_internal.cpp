@@ -92,7 +92,7 @@ bool BundleManagerInternal::GetBundleNameListFromBms(int32_t callingUid,
 
 bool BundleManagerInternal::QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk::AbilityInfo& abilityInfo)
 {
-    std::vector<int> ids;
+    std::vector<int32_t> ids;
     int32_t ret = OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {
         return false;
@@ -109,6 +109,44 @@ bool BundleManagerInternal::QueryAbilityInfo(const AAFwk::Want& want, AppExecFwk
         return false;
     }
     return true;
+}
+
+bool BundleManagerInternal::QueryExtensionAbilityInfo(const AAFwk::Want& want,
+    AppExecFwk::ExtensionAbilityInfo& extensionInfo)
+{
+    std::vector<int32_t> ids;
+    int32_t ret = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        return false;
+    }
+    auto bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOGE("failed to get bms");
+        return false;
+    }
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    bundleMgr->QueryExtensionAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, ids[0], extensionInfos);
+    if (extensionInfos.size() <= 0) {
+        HILOGE("QueryExtensionAbilityInfo failed.");
+        return false;
+    }
+    extensionInfo = extensionInfos.front();
+    if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
+        HILOGE("ExtensionAbilityInfo is empty.");
+        return false;
+    }
+    HILOGD("ExtensionAbilityInfo found, name=%{public}s.", extensionInfo.name.c_str());
+    return true;
+}
+
+void BundleManagerInternal::InitAbilityInfoFromExtension(const AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo,
+    AppExecFwk::AbilityInfo &abilityInfo)
+{
+    abilityInfo.bundleName = extensionAbilityInfo.bundleName;
+    abilityInfo.name = extensionAbilityInfo.name;
+    abilityInfo.permissions = extensionAbilityInfo.permissions;
+    abilityInfo.visible = extensionAbilityInfo.visible;
 }
 
 bool BundleManagerInternal::IsSameAppId(const std::string& callerAppId, const std::string& targetBundleName)
