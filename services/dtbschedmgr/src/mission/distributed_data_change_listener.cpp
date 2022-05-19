@@ -56,11 +56,6 @@ struct KeyInfo {
 };
 }
 
-void DistributedDataChangeListener::OnChange(const ChangeNotification &changeNotification,
-    shared_ptr<KvStoreSnapshot> snapshot)
-{
-}
-
 void DistributedDataChangeListener::OnChange(const ChangeNotification &changeNotification)
 {
     HILOGD("called.");
