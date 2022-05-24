@@ -153,10 +153,6 @@ private:
     static int32_t GetUidLocked(const std::list<ConnectAbilitySession>& sessionList);
     int32_t TryConnectRemoteAbility(const OHOS::AAFwk::Want& want,
         const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo);
-    sptr<IRemoteObject> GetAbilityManagerProxy();
-    int32_t StartToContinueAbility(const std::string& deviceId, int32_t missionId, uint32_t versionCode);
-    int32_t StartToNotifyResult(int32_t missionId, int32_t isSuccess);
-    int32_t CleanMission(int32_t missionId);
     int32_t SetWantForContinuation(AAFwk::Want& newWant, int32_t missionId);
     int32_t ContinueLocalMission(const std::string& dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
@@ -184,7 +180,6 @@ private:
     std::mutex distributedLock_;
     std::mutex connectLock_;
     sptr<IRemoteObject::DeathRecipient> connectDeathRecipient_;
-    sptr<IRemoteObject> abilityManagerProxy_;
     std::mutex calleeLock_;
     std::map<sptr<IRemoteObject>, ConnectInfo> calleeMap_;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_;
