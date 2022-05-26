@@ -208,5 +208,27 @@ int32_t MockDistributedSched::GetDistributedComponentList(std::vector<std::strin
 {
     return ERR_NONE;
 }
+
+int32_t MockDistributedSched::StartRemoteFreeInstall(const OHOS::AAFwk::Want &want, int32_t callerUid,
+    int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject> &callback)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::StartFreeInstallFromRemote(const IDistributedSched::FreeInstallInfo &info, int64_t taskId)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::NotifyCompleteFreeInstallFromRemote(int64_t taskId, int32_t resultCode)
+{
+    return ERR_NONE;
+}
+
+int32_t MockDistributedSched::NotifyCompleteFreeInstall(
+    const IDistributedSched::FreeInstallInfo &info, int64_t taskId, int32_t resultCode)
+{
+    return ERR_NONE;
+}
 } // namespace DistributedSchedule
 } // namespace OHOS

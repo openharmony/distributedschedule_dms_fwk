@@ -18,6 +18,7 @@
 
 #include <vector>
 #include "ability_info.h"
+#include "ability_manager_interface.h"
 #include "caller_info.h"
 #include "iremote_broker.h"
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
@@ -47,6 +48,13 @@ public:
     enum {
         CONNECT = 0,
         CALL,
+    };
+
+    struct FreeInstallInfo {
+        OHOS::AAFwk::Want want;
+        int32_t requestCode = OHOS::AAFwk::DEFAULT_INVAL_VALUE;
+        CallerInfo callerInfo = {};
+        AccountInfo accountInfo = {};
     };
 
     virtual int32_t StartRemoteAbility(const OHOS::AAFwk::Want& want, int32_t callerUid, int32_t requestCode,
@@ -99,6 +107,19 @@ public:
         const CallerInfo& callerInfo, const AccountInfo& accountInfo) = 0;
     virtual int32_t ReleaseAbilityFromRemote(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element,
         const CallerInfo& callerInfo) = 0;
+    virtual int32_t StartRemoteFreeInstall(const OHOS::AAFwk::Want& want, int32_t callerUid, int32_t requestCode,
+        uint32_t accessToken, const sptr<IRemoteObject>& callback)
+    {
+        return 0;
+    }
+    virtual int32_t StartFreeInstallFromRemote(const FreeInstallInfo& info, int64_t taskId)
+    {
+        return 0;
+    }
+    virtual int32_t NotifyCompleteFreeInstallFromRemote(int64_t taskId, int32_t resultCode)
+    {
+        return 0;
+    }
     virtual int32_t RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback) = 0;
     virtual int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) = 0;
     enum {
@@ -119,6 +140,10 @@ public:
         NOTIFY_PROCESS_DIED_FROM_REMOTE = 17,
         GET_REMOTE_APPTHREAD = 35,
         CONTINUE_MISSION = 36,
+
+        // requeset code for free install
+        START_FREE_INSTALL_FROM_REMOTE = 51,
+        NOTIFY_COMPLETE_FREE_INSTALL_FROM_REMOTE = 52,
 
         // request code for mission
         GET_MISSION_INFOS = 80,
@@ -148,6 +173,7 @@ public:
         START_ABILITY_BY_CALL_FROM_REMOTE = 152,
         RELEASE_ABILITY_FROM_REMOTE = 153,
 
+        START_REMOTE_FREE_INSTALL = 200,
         // request code for upload distributed component info
         REGISTER_DISTRIBUTED_COMPONENT_LISTENER = 160,
         GET_DISTRIBUTED_COMPONENT_LIST = 161,
