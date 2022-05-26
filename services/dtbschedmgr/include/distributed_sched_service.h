@@ -23,6 +23,7 @@
 
 #include "distributed_sched_stub.h"
 #include "distributed_sched_continuation.h"
+#include "dms_callback_task.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
@@ -77,6 +78,7 @@ public:
         int32_t status, uint32_t accessToken) override;
     void NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess) override;
     int32_t NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess) override;
+    int32_t NotifyFreeInstallResult(const CallbackTaskItem item, int32_t resultCode);
     int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         int32_t callerUid, int32_t callerPid, uint32_t accessToken) override;
     int32_t DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
@@ -127,6 +129,11 @@ public:
         const CallerInfo& callerInfo) override;
     void ProcessCallerDied(const sptr<IRemoteObject>& connect, int32_t deviceType);
     void ProcessCalleeDied(const sptr<IRemoteObject>& connect);
+    int32_t StartRemoteFreeInstall(const OHOS::AAFwk::Want& want, int32_t callerUid, int32_t requestCode,
+        uint32_t accessToken, const sptr<IRemoteObject>& callback) override;
+    int32_t StartFreeInstallFromRemote(const FreeInstallInfo& info, int64_t taskId) override;
+    int32_t NotifyCompleteFreeInstallFromRemote(int64_t taskId, int32_t resultCode) override;
+    int32_t NotifyCompleteFreeInstall(const FreeInstallInfo& info, int64_t taskId, int32_t resultCode);
     int32_t RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback) override;
     int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) override;
 private:
@@ -153,6 +160,8 @@ private:
     static int32_t GetUidLocked(const std::list<ConnectAbilitySession>& sessionList);
     int32_t TryConnectRemoteAbility(const OHOS::AAFwk::Want& want,
         const sptr<IRemoteObject>& connect, const CallerInfo& callerInfo);
+    int32_t CleanMission(int32_t missionId);
+    int32_t SetCallerInfo(int32_t callerUid, std::string localDeviceId, uint32_t accessToken, CallerInfo& callerInfo);
     int32_t SetWantForContinuation(AAFwk::Want& newWant, int32_t missionId);
     int32_t ContinueLocalMission(const std::string& dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
@@ -160,6 +169,8 @@ private:
         const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
     int32_t TryStartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         const CallerInfo& callerInfo);
+    int32_t StartLocalAbility(const FreeInstallInfo& info, int64_t taskId, int32_t resultCode);
+    int32_t HandleRemoteNotify(const FreeInstallInfo& info, int64_t taskId, int32_t resultCode);
     bool HandleDistributedComponentChange(const std::string& componentInfo);
     void ReportDistributedComponentChange(const CallerInfo& callerInfo, int32_t changeType,
         int32_t componentType, int32_t deviceType);
@@ -172,6 +183,7 @@ private:
     void ProcessCalleeOffline(const std::string& deviceId);
     void GetConnectComponentList(std::vector<std::string>& distributedComponents);
     void GetCallComponentList(std::vector<std::string>& distributedComponents);
+    void ProcessFreeInstallOffline(const std::string& deviceId);
 
     std::shared_ptr<DSchedContinuation> dschedContinuation_;
     std::map<sptr<IRemoteObject>, std::list<ConnectAbilitySession>> distributedConnectAbilityMap_;
@@ -183,6 +195,7 @@ private:
     std::mutex calleeLock_;
     std::map<sptr<IRemoteObject>, ConnectInfo> calleeMap_;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_;
+    std::shared_ptr<DmsCallbackTask> dmsCallbackTask_;
     sptr<IRemoteObject> distributedComponentListener_;
     std::shared_ptr<AppExecFwk::EventHandler> componentChangeHandler_;
     std::mutex callerLock_;
