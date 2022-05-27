@@ -754,6 +754,89 @@ int32_t DistributedSchedProxy::ReleaseAbilityFromRemote(const sptr<IRemoteObject
     PARCEL_TRANSACT_SYNC_RET_INT(remote, RELEASE_ABILITY_FROM_REMOTE, data, reply);
 }
 
+int32_t DistributedSchedProxy::StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
+    int32_t callerUid, int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject>& callback)
+{
+    HILOGD("called.");
+    if (callback == nullptr) {
+        HILOGE("ContinueMission callback null");
+        return ERR_NULL_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote callback null");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOGE("write interface token null");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, Int32, callerUid);
+    PARCEL_WRITE_HELPER(data, Int32, requestCode);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
+    PARCEL_WRITE_HELPER(data, RemoteObject, callback);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_FREE_INSTALL, data, reply);
+}
+
+int32_t DistributedSchedProxy::StartFreeInstallFromRemote(const FreeInstallInfo& info, int64_t taskId)
+{
+    HILOGD("called.");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOGE("write interface token null");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    PARCEL_WRITE_HELPER(data, Parcelable, &info.want);
+    PARCEL_WRITE_HELPER(data, Int32, info.callerInfo.uid);
+    PARCEL_WRITE_HELPER(data, String, info.callerInfo.sourceDeviceId);
+    PARCEL_WRITE_HELPER(data, Int32, info.accountInfo.accountType);
+    PARCEL_WRITE_HELPER(data, StringVector, info.accountInfo.groupIdList);
+    PARCEL_WRITE_HELPER(data, String, info.callerInfo.callerAppId);
+    PARCEL_WRITE_HELPER(data, Int64, taskId);
+    OHOS::AAFwk::Want cmpWant;
+    PARCEL_WRITE_HELPER(data, Parcelable, &cmpWant);
+    nlohmann::json extraInfoJson;
+    extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN] = info.callerInfo.accessToken;
+    std::string extraInfo = extraInfoJson.dump();
+    PARCEL_WRITE_HELPER(data, String, extraInfo);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_FREE_INSTALL_FROM_REMOTE, data, reply);
+}
+
+int32_t DistributedSchedProxy::NotifyCompleteFreeInstallFromRemote(int64_t taskId, int32_t resultCode)
+{
+    HILOGD("called.");
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("remote is null");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOGE("write interface token null");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    PARCEL_WRITE_HELPER(data, Int64, taskId);
+    PARCEL_WRITE_HELPER(data, Int32, resultCode);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, NOTIFY_COMPLETE_FREE_INSTALL_FROM_REMOTE, data, reply);
+}
+
 int32_t DistributedSchedProxy::RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
