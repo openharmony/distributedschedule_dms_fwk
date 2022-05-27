@@ -357,6 +357,10 @@ enum {
      * Result(29360204) for continue remote version not match.
      */
     CONTINUE_REMOTE_VERSION_MISMATCH = 29360204,
+    /*
+     * Result(29360205) for continue freeinstall failed.
+     */
+    CONTINUE_FREE_INSTALL_FAILED = 29360205,
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

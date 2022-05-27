@@ -23,6 +23,7 @@ namespace OHOS {
 namespace DistributedSchedule {
 namespace {
 constexpr int64_t CONTINUATION_DELAY_TIME = 20000;
+constexpr int64_t FREE_INSTALL_TIMEOUT = 30000;
 const std::string TAG = "DSchedContinuation";
 const std::u16string NAPI_MISSION_CENTER_INTERFACE_TOKEN = u"ohos.DistributedSchedule.IMissionCallback";
 constexpr int32_t NOTIFY_MISSION_CENTER_RESULT = 4;
@@ -117,6 +118,17 @@ void DSchedContinuation::RemoveTimeOut(int32_t missionId)
     continuationHandler_->RemoveEvent(missionId);
 }
 
+bool DSchedContinuation::IsFreeInstall(int32_t missionId)
+{
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
+    auto iter = freeInstall_.find(missionId);
+    if (iter != freeInstall_.end()) {
+        HILOGD("continue free install, missionId:%{public}d exist!", missionId);
+        return iter->second;
+    }
+    return false;
+}
+
 bool DSchedContinuation::IsInContinuationProgress(int32_t missionId)
 {
     std::lock_guard<std::mutex> autoLock(continuationLock_);
@@ -128,8 +140,9 @@ bool DSchedContinuation::IsInContinuationProgress(int32_t missionId)
     return false;
 }
 
-bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObject>& callback)
+bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObject>& callback, bool isFreeInstall)
 {
+    HILOGI("DSchedContinuation PushCallback start!");
     if (callback == nullptr) {
         HILOGE("PushCallback callback null!");
         return false;
@@ -141,7 +154,13 @@ bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObjec
     }
 
     bool ret = true;
-    ret = continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME);
+    if (isFreeInstall) {
+        HILOGI("get freeInstall true!");
+        ret = continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME + FREE_INSTALL_TIMEOUT);
+    } else {
+        HILOGI("get freeInstall false!");
+        ret = continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME);
+    }
     if (!ret) {
         HILOGE("PushCallback SendEvent failed!");
         return false;
@@ -154,6 +173,9 @@ bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObjec
         return false;
     }
     (void)callbackMap_.emplace(missionId, callback);
+    if (isFreeInstall) {
+        freeInstall_[missionId] = isFreeInstall;
+    }
     return true;
 }
 
@@ -166,6 +188,11 @@ sptr<IRemoteObject> DSchedContinuation::PopCallback(int32_t missionId)
         return nullptr;
     }
     sptr<IRemoteObject> callback = iter->second;
+    auto it = freeInstall_.find(missionId);
+    if (it != freeInstall_.end()) {
+        HILOGD("%{public}d need pop from freeInstall_", missionId);
+        (void)freeInstall_.erase(it);
+    }
     (void)callbackMap_.erase(iter);
     if (continuationHandler_ != nullptr) {
         continuationHandler_->RemoveEvent(missionId);

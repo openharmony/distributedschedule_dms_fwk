@@ -73,6 +73,10 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/distributed_sched_proxy.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_service.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_stub.cpp",
+  "${distributed_service}/dtbschedmgr/src/dms_callback_task.cpp",
+  "${distributed_service}/dtbschedmgr/src/dms_free_install_callback.cpp",
+  "${distributed_service}/dtbschedmgr/src/dms_free_install_callback_proxy.cpp",
+  "${distributed_service}/dtbschedmgr/src/dms_free_install_callback_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
 ]
 
