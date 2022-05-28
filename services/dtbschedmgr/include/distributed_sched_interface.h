@@ -62,6 +62,8 @@ public:
     virtual int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
         const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo) = 0;
+    virtual int32_t SendResultFromRemote(OHOS::AAFwk::Want& want, int32_t requestCode,
+        const CallerInfo& callerInfo, const AccountInfo& accountInfo, int32_t resultCode) = 0;
     virtual int32_t ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams) = 0;
     virtual int32_t StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
@@ -138,6 +140,7 @@ public:
         UNREGISTER_ABILITY_TOKEN = 15,
         CONTINUE_ABILITY = 16,
         NOTIFY_PROCESS_DIED_FROM_REMOTE = 17,
+        SEND_RESULT_FROM_REMOTE = 20,
         GET_REMOTE_APPTHREAD = 35,
         CONTINUE_MISSION = 36,
 

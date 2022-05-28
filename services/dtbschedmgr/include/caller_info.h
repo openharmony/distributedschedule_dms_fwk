@@ -16,6 +16,8 @@
 #ifndef OHOS_DISTRIBUTED_CALLER_INFO_H
 #define OHOS_DISTRIBUTED_CALLER_INFO_H
 
+#include "nlohmann/json.hpp"
+
 namespace OHOS {
 namespace DistributedSchedule {
 enum {
@@ -37,6 +39,7 @@ struct CallerInfo {
     std::vector<std::string> bundleNames;
     int32_t dmsVersion = -1;
     uint32_t accessToken = 0;
+    nlohmann::json extraInfoJson;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
