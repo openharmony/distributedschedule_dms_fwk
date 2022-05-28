@@ -49,6 +49,7 @@ ohos_shared_library("distributedschedsvr") {
     "src/dms_free_install_callback.cpp",
     "src/dms_free_install_callback_proxy.cpp",
     "src/dms_free_install_callback_stub.cpp",
+    "src/dms_token_callback.cpp",
     "src/dtbschedmgr_device_info_storage.cpp",
   ]
 

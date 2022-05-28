@@ -30,6 +30,7 @@
 #include "distributed_sched_permission.h"
 #include "dms_callback_task.h"
 #include "dms_free_install_callback.h"
+#include "dms_token_callback.h"
 #include "dtbschedmgr_device_info_storage.h"
 #include "dtbschedmgr_log.h"
 #include "element_name.h"
@@ -53,6 +54,9 @@ using namespace AppExecFwk;
 
 namespace {
 const std::string TAG = "DistributedSchedService";
+const std::string DMS_MISSION_ID = "dmsMissionId";
+const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
+const int DEFAULT_DMS_MISSION_ID = -1;
 const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
 const std::u16string COMPONENT_CHANGE_INTERFACE_TOKEN = u"ohos.rms.DistributedComponent";
 const std::u16string ABILITY_MANAGER_SERVICE_TOKEN = u"ohos.aafwk.AbilityManager";
@@ -175,8 +179,10 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& wan
         HILOGE("GetAccountInfo failed");
         return ret;
     }
+    AAFwk::Want newWant = want;
+    newWant.SetParam(DMS_SRC_NETWORK_ID, localDeviceId);
     HILOGI("[PerformanceTest] StartRemoteAbility transact begin");
-    int32_t result = remoteDms->StartAbilityFromRemote(want, abilityInfo, requestCode, callerInfo, accountInfo);
+    int32_t result = remoteDms->StartAbilityFromRemote(newWant, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("[PerformanceTest] StartRemoteAbility transact end");
     return result;
 }
@@ -208,9 +214,46 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
     if (ret != ERR_OK || ids.empty()) {
         return INVALID_PARAMETERS_ERR;
     }
-    err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, ids[0]);
+    int missionId = want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
+    if (missionId != DEFAULT_DMS_MISSION_ID) {
+        HILOGI("StartAbilityForResult start");
+        sptr<IRemoteObject> dmsTokenCallback = new DmsTokenCallback();
+        err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, dmsTokenCallback, requestCode, ids[0]);
+    } else {
+        HILOGI("StartAbility start");
+        err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, ids[0]);
+    }
     if (err != ERR_OK) {
         HILOGE("StartAbility failed %{public}d", err);
+    }
+    return err;
+}
+
+int32_t DistributedSchedService::SendResultFromRemote(OHOS::AAFwk::Want& want, int32_t requestCode,
+    const CallerInfo& callerInfo, const AccountInfo& accountInfo, int32_t resultCode)
+{
+    std::string localDeviceId;
+    std::string deviceId = want.GetStringParam(DMS_SRC_NETWORK_ID);
+    want.RemoveParam(DMS_SRC_NETWORK_ID);
+    if (!GetLocalDeviceId(localDeviceId) ||
+        !CheckDeviceIdFromRemote(localDeviceId, deviceId, callerInfo.sourceDeviceId)) {
+        HILOGE("check deviceId failed");
+        return INVALID_REMOTE_PARAMETERS_ERR;
+    }
+    DistributedSchedPermission& permissionInstance = DistributedSchedPermission::GetInstance();
+    ErrCode err = permissionInstance.CheckDPermission(want, callerInfo, accountInfo, deviceId);
+    if (err != ERR_OK) {
+        HILOGE("CheckDPermission denied!!");
+        return err;
+    }
+    err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    if (err != ERR_OK) {
+        HILOGE("connect ability server failed %{public}d", err);
+        return err;
+    }
+    err = AAFwk::AbilityManagerClient::GetInstance()->SendResultToAbility(requestCode, resultCode, want);
+    if (err != ERR_OK) {
+        HILOGE("SendResult failed %{public}d", err);
     }
     return err;
 }

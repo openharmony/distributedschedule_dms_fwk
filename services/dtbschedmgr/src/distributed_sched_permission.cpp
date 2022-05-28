@@ -31,6 +31,8 @@ using namespace OHOS::Security;
 namespace {
 const std::string TAG = "DistributedSchedPermission";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
+const std::string DMS_MISSION_ID = "dmsMissionId";
+const int DEFAULT_DMS_MISSION_ID = -1;
 }
 IMPLEMENT_SINGLE_INSTANCE(DistributedSchedPermission);
 void from_json(const nlohmann::json& jsonObject, GroupInfo& groupInfo)
@@ -160,6 +162,12 @@ bool DistributedSchedPermission::GetTargetAbility(const AAFwk::Want& want,
     AppExecFwk::AbilityInfo& targetAbility, const CallerInfo& callerInfo) const
 {
     if (BundleManagerInternal::QueryAbilityInfo(want, targetAbility)) {
+        if (want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID) != DEFAULT_DMS_MISSION_ID &&
+            (targetAbility.type == AppExecFwk::AbilityType::SERVICE ||
+            targetAbility.type == AppExecFwk::AbilityType::EXTENSION)) {
+            HILOGE("StartAbilityForResult can not start service and extension ability");
+            return false;
+        }
         return true;
     }
     if (needQueryExtension) {
