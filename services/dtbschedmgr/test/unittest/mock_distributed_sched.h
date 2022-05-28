@@ -33,6 +33,8 @@ public:
     int32_t StartAbilityFromRemote(const OHOS::AAFwk::Want& want,
         const OHOS::AppExecFwk::AbilityInfo& abilityInfo, int32_t requestCode, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo) override;
+    int32_t SendResultFromRemote(OHOS::AAFwk::Want& want, int32_t requestCode, const CallerInfo& callerInfo,
+        const AccountInfo& accountInfo, int32_t resultCode) override;
     int32_t ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams) override;
     int32_t StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,

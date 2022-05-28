@@ -71,6 +71,7 @@ DistributedSchedStub::DistributedSchedStub()
     localFuncsMap_[GET_CACHED_SUPPORTED_OSD] = &DistributedSchedStub::GetCachedOsdSwitchInner;
 #endif
     remoteFuncsMap_[START_ABILITY_FROM_REMOTE] = &DistributedSchedStub::StartAbilityFromRemoteInner;
+    remoteFuncsMap_[SEND_RESULT_FROM_REMOTE] = &DistributedSchedStub::SendResultFromRemoteInner;
     remoteFuncsMap_[NOTIFY_CONTINUATION_RESULT_FROM_REMOTE] =
         &DistributedSchedStub::NotifyContinuationResultFromRemoteInner;
     remoteFuncsMap_[CONNECT_ABILITY_FROM_REMOTE] = &DistributedSchedStub::ConnectAbilityFromRemoteInner;
@@ -205,6 +206,43 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     PARCEL_WRITE_HELPER(reply, Int64, end - begin);
     PARCEL_WRITE_HELPER(reply, String, package);
     PARCEL_WRITE_HELPER(reply, String, deviceId);
+    return ERR_NONE;
+}
+
+int32_t DistributedSchedStub::SendResultFromRemoteInner(MessageParcel& data, MessageParcel& reply)
+{
+    if (!CheckCallingUid()) {
+        HILOGW("request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
+    shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOGW("want readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int64_t begin = GetTickCount();
+    int32_t requestCode = 0;
+    PARCEL_READ_HELPER(data, Int32, requestCode);
+    CallerInfo callerInfo;
+    PARCEL_READ_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_READ_HELPER(data, String, callerInfo.sourceDeviceId);
+    callerInfo.callerType = CALLER_TYPE_HARMONY;
+    AccountInfo accountInfo;
+    accountInfo.accountType = data.ReadInt32();
+    PARCEL_READ_HELPER(data, StringVector, &accountInfo.groupIdList);
+    callerInfo.callerAppId = data.ReadString();
+    int32_t resultCode = 0;
+    PARCEL_READ_HELPER(data, Int32, resultCode);
+    std::string extraInfo = data.ReadString();
+    if (extraInfo.empty()) {
+        HILOGD("extra info is empty!");
+    }
+    callerInfo.extraInfoJson = nlohmann::json::parse(extraInfo, nullptr, false);
+    int32_t result = SendResultFromRemote(*want, requestCode, callerInfo, accountInfo, resultCode);
+    HILOGI("result = %{public}d", result);
+    PARCEL_WRITE_HELPER(reply, Int32, result);
+    int64_t end = GetTickCount();
+    PARCEL_WRITE_HELPER(reply, Int64, end - begin);
     return ERR_NONE;
 }
 

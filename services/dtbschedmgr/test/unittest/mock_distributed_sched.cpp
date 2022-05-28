@@ -36,6 +36,12 @@ int32_t MockDistributedSched::StartAbilityFromRemote(const OHOS::AAFwk::Want& wa
     return 0;
 }
 
+int32_t MockDistributedSched::SendResultFromRemote(OHOS::AAFwk::Want& want, int32_t requestCode,
+    const CallerInfo& callerInfo, const AccountInfo& accountInfo, int32_t resultCode)
+{
+    return 0;
+}
+
 int32_t MockDistributedSched::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
 {

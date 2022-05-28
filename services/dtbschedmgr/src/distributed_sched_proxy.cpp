@@ -64,6 +64,7 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& w
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
+        HILOGE("StartAbilityFromRemote remote service null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -86,6 +87,32 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& w
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
+}
+
+int32_t DistributedSchedProxy::SendResultFromRemote(OHOS::AAFwk::Want& want, int32_t requestCode,
+    const CallerInfo& callerInfo, const AccountInfo& accountInfo, int32_t resultCode)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOGE("SendResultFromRemote remote service null");
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, Int32, requestCode);
+    PARCEL_WRITE_HELPER(data, Int32, callerInfo.uid);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.sourceDeviceId);
+    PARCEL_WRITE_HELPER(data, Int32, accountInfo.accountType);
+    PARCEL_WRITE_HELPER(data, StringVector, accountInfo.groupIdList);
+    PARCEL_WRITE_HELPER(data, String, callerInfo.callerAppId);
+    PARCEL_WRITE_HELPER(data, Int32, resultCode);
+    std::string extraInfo = callerInfo.extraInfoJson.dump();
+    PARCEL_WRITE_HELPER(data, String, extraInfo);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, SEND_RESULT_FROM_REMOTE, data, reply);
 }
 
 int32_t DistributedSchedProxy::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
