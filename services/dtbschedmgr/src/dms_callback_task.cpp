@@ -109,7 +109,7 @@ CallbackTaskItem DmsCallbackTask::PopCallback(int64_t taskId)
 void DmsCallbackTask::PopContinuationMissionMap(int64_t taskId)
 {
     std::lock_guard<std::mutex> autoLock(callbackMapMutex_);
-    int32_t ret = continuationMissionMap_.erase(taskId);
+    uint32_t ret = continuationMissionMap_.erase(taskId);
     if (ret != 1) {
         HILOGW("GetContinuaionMissionId not found taskId:%{public}" PRId64 "!", taskId);
     }
