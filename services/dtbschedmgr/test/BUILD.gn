@@ -37,7 +37,7 @@ dsched_external_deps = [
   "bundle_framework:appexecfwk_core",
   "deviceauth_standard:deviceauth_sdk",
   "distributeddatamgr:distributeddata_inner",
-  "dsoftbus_standard:softbus_client",
+  "dsoftbus:softbus_client",
   "eventhandler:libeventhandler",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",

@@ -26,7 +26,7 @@
           "ability_runtime",
           "appexecfwk_standard",
           "distributeddatamgr",
-          "dsoftbus_standard",
+          "dsoftbus",
           "eventhandler",
           "hiviewdfx_hilog_native",
           "ipc",
