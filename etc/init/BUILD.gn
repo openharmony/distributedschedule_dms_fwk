@@ -16,15 +16,11 @@ import("//build/ohos.gni")
 #################################################################################
 
 group("etc") {
-  deps = [ ":distributedsched.rc" ]
+  deps = [ ":dms_etc" ]
 }
 
-ohos_prebuilt_etc("distributedsched.rc") {
-  if (use_musl) {
-    source = "distributedsched_musl.cfg"
-  } else {
-    source = "distributedsched.cfg"
-  }
+ohos_prebuilt_etc("dms_etc") {
+  source = "distributedsched.cfg"
   relative_install_dir = "init"
   subsystem_name = "distributedschedule"
   part_name = "dmsfwk_standard"
