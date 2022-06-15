@@ -44,7 +44,9 @@ constexpr int32_t HID_HAP = 10000; /* first hap user */
 const std::string TAG = "DistributedSchedStub";
 const std::u16string DMS_STUB_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 const std::string EXTRO_INFO_JSON_KEY_ACCESS_TOKEN = "accessTokenID";
+const std::string EXTRO_INFO_JSON_KEY_REQUEST_CODE = "requestCode";
 const std::string PERMISSION_DISTRIBUTED_DATASYNC = "ohos.permission.DISTRIBUTED_DATASYNC";
+const int DEFAULT_REQUEST_CODE = -1;
 }
 
 DistributedSchedStub::DistributedSchedStub()
@@ -141,12 +143,11 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
     }
     int32_t callerUid = 0;
     PARCEL_READ_HELPER(data, Int32, callerUid);
-    HILOGI("get callerUid = %{public}d", callerUid);
     int32_t requestCode = 0;
     PARCEL_READ_HELPER(data, Int32, requestCode);
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
-    HILOGI("get AccessTokenID = %{public}u", accessToken);
+    HILOGD("get callerUid = %d, AccessTokenID = %u", callerUid, accessToken);
     if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
         PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
         HILOGE("check data_sync permission failed!");
@@ -197,7 +198,7 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
     if (!extraInfoJson.is_discarded()) {
         uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
-        HILOGD("parse extra info, accessTokenID = %{public}u", accessToken);
+        HILOGD("parse extra info, accessTokenID = %u", accessToken);
     }
     int32_t result = StartAbilityFromRemote(*want, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("result = %{public}d", result);
@@ -333,13 +334,12 @@ int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, Mes
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
     int32_t callerUid = 0;
     PARCEL_READ_HELPER(data, Int32, callerUid);
-    HILOGI("get callerUid = %{public}d", callerUid);
     int32_t callerPid = 0;
     PARCEL_READ_HELPER(data, Int32, callerPid);
-    HILOGI("get callerPid = %{public}d", callerPid);
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
-    HILOGI("get AccessTokenID = %{public}u", accessToken);
+    HILOGD("get callerUid = %d, callerPid = %d, AccessTokenID = %u", callerUid, callerPid,
+        accessToken);
     if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
         PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
         HILOGE("check data_sync permission failed!");
@@ -355,10 +355,9 @@ int32_t DistributedSchedStub::DisconnectRemoteAbilityInner(MessageParcel& data, 
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
     int32_t callerUid = 0;
     PARCEL_READ_HELPER(data, Int32, callerUid);
-    HILOGI("get callerUid = %{public}d", callerUid);
     uint32_t accessToken = 0;
     PARCEL_READ_HELPER(data, Uint32, accessToken);
-    HILOGI("get AccessTokenID = %{public}u", accessToken);
+    HILOGD("get callerUid = %d, AccessTokenID = %u", callerUid, accessToken);
     if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
         PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
         HILOGE("check data_sync permission failed!");
@@ -406,7 +405,7 @@ int32_t DistributedSchedStub::ConnectAbilityFromRemoteInner(MessageParcel& data,
     if (!extraInfoJson.is_discarded()) {
         uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
-        HILOGD("parse extra info, accessTokenID = %{public}u", accessToken);
+        HILOGD("parse extra info, accessTokenID = %u", accessToken);
     }
     std::string package = abilityInfo.bundleName;
     std::string deviceId = abilityInfo.deviceId;
@@ -843,7 +842,7 @@ int32_t DistributedSchedStub::StartAbilityByCallFromRemoteInner(MessageParcel& d
     if (!extraInfoJson.is_discarded()) {
         uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
-        HILOGD("parse extra info, accessToken = %{public}u", accessToken);
+        HILOGD("parse extra info, accessToken = %u", accessToken);
     }
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
@@ -966,16 +965,22 @@ int32_t DistributedSchedStub::StartFreeInstallFromRemoteInner(MessageParcel& dat
         HILOGD("extra info is empty!");
     }
     nlohmann::json extraInfoJson = nlohmann::json::parse(extraInfo, nullptr, false);
+    int32_t requestCode = DEFAULT_REQUEST_CODE;
     if (!extraInfoJson.is_discarded()) {
         uint32_t accessToken = extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN];
         callerInfo.accessToken = accessToken;
-        HILOGD("parse extra info, accessTokenID = %{public}u", accessToken);
+        HILOGD("parse extra info, accessTokenID = %u", accessToken);
+        if (extraInfoJson.contains(EXTRO_INFO_JSON_KEY_REQUEST_CODE)) {
+            requestCode = extraInfoJson[EXTRO_INFO_JSON_KEY_REQUEST_CODE];
+            HILOGD("parse extra info, requestCode = %d", requestCode);
+        }
     }
 
     FreeInstallInfo info = {
         .want = *want,
         .callerInfo = callerInfo,
-        .accountInfo = accountInfo
+        .accountInfo = accountInfo,
+        .requestCode = requestCode
     };
     int32_t result = StartFreeInstallFromRemote(info, taskId);
     HILOGI("result = %{public}d", result);
