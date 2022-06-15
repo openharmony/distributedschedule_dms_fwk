@@ -34,6 +34,7 @@ namespace {
 const std::string TAG = "DistributedSchedProxy";
 const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 const std::string EXTRO_INFO_JSON_KEY_ACCESS_TOKEN = "accessTokenID";
+const std::string EXTRO_INFO_JSON_KEY_REQUEST_CODE = "requestCode";
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 constexpr int32_t WAIT_TIME = 15;
 #endif
@@ -837,6 +838,7 @@ int32_t DistributedSchedProxy::StartFreeInstallFromRemote(const FreeInstallInfo&
     PARCEL_WRITE_HELPER(data, Parcelable, &cmpWant);
     nlohmann::json extraInfoJson;
     extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN] = info.callerInfo.accessToken;
+    extraInfoJson[EXTRO_INFO_JSON_KEY_REQUEST_CODE] = info.requestCode;
     std::string extraInfo = extraInfoJson.dump();
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
