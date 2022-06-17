@@ -54,9 +54,8 @@ using namespace AppExecFwk;
 
 namespace {
 const std::string TAG = "DistributedSchedService";
-const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
-const int DEFAULT_DMS_MISSION_ID = -1;
+const int DEFAULT_REQUEST_CODE = -1;
 const std::u16string CONNECTION_CALLBACK_INTERFACE_TOKEN = u"ohos.abilityshell.DistributedConnection";
 const std::u16string COMPONENT_CHANGE_INTERFACE_TOKEN = u"ohos.rms.DistributedComponent";
 const std::u16string ABILITY_MANAGER_SERVICE_TOKEN = u"ohos.aafwk.AbilityManager";
@@ -179,10 +178,10 @@ int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& wan
         HILOGE("GetAccountInfo failed");
         return ret;
     }
-    AAFwk::Want newWant = want;
-    newWant.SetParam(DMS_SRC_NETWORK_ID, localDeviceId);
+    AAFwk::Want* newWant = const_cast<Want*>(&want);
+    newWant->SetParam(DMS_SRC_NETWORK_ID, localDeviceId);
     HILOGI("[PerformanceTest] StartRemoteAbility transact begin");
-    int32_t result = remoteDms->StartAbilityFromRemote(newWant, abilityInfo, requestCode, callerInfo, accountInfo);
+    int32_t result = remoteDms->StartAbilityFromRemote(*newWant, abilityInfo, requestCode, callerInfo, accountInfo);
     HILOGI("[PerformanceTest] StartRemoteAbility transact end");
     return result;
 }
@@ -204,29 +203,7 @@ int32_t DistributedSchedService::StartAbilityFromRemote(const OHOS::AAFwk::Want&
         HILOGE("CheckDPermission denied!!");
         return err;
     }
-    err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
-    if (err != ERR_OK) {
-        HILOGE("connect ability server failed %{public}d", err);
-        return err;
-    }
-    std::vector<int> ids;
-    ErrCode ret = OsAccountManager::QueryActiveOsAccountIds(ids);
-    if (ret != ERR_OK || ids.empty()) {
-        return INVALID_PARAMETERS_ERR;
-    }
-    int missionId = want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
-    if (missionId != DEFAULT_DMS_MISSION_ID) {
-        HILOGI("StartAbilityForResult start");
-        sptr<IRemoteObject> dmsTokenCallback = new DmsTokenCallback();
-        err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, dmsTokenCallback, requestCode, ids[0]);
-    } else {
-        HILOGI("StartAbility start");
-        err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, ids[0]);
-    }
-    if (err != ERR_OK) {
-        HILOGE("StartAbility failed %{public}d", err);
-    }
-    return err;
+    return StartAbility(want, requestCode);
 }
 
 int32_t DistributedSchedService::SendResultFromRemote(OHOS::AAFwk::Want& want, int32_t requestCode,
@@ -1743,9 +1720,9 @@ int32_t DistributedSchedService::StartRemoteFreeInstall(const OHOS::AAFwk::Want&
         HILOGE("GetAccountInfo failed");
         return INVALID_PARAMETERS_ERR;
     }
-    FreeInstallInfo info = {.want = want,
-        .requestCode = requestCode,
-        .callerInfo = callerInfo,
+    AAFwk::Want* newWant = const_cast<Want*>(&want);
+    newWant->SetParam(DMS_SRC_NETWORK_ID, localDeviceId);
+    FreeInstallInfo info = {.want = *newWant, .requestCode = requestCode, .callerInfo = callerInfo,
         .accountInfo = accountInfo};
     int32_t result = remoteDms->StartFreeInstallFromRemote(info, taskId);
     if (result != ERR_OK) {
@@ -1817,20 +1794,31 @@ int32_t DistributedSchedService::StartLocalAbility(const FreeInstallInfo& info, 
         HILOGE("CheckDPermission denied!!");
         return err;
     }
-    err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
+    AAFwk::Want* want = const_cast<Want*>(&info.want);
+    want->RemoveFlags(OHOS::AAFwk::Want::FLAG_INSTALL_ON_DEMAND);
+    return StartAbility(*want, info.requestCode);
+}
+
+int32_t DistributedSchedService::StartAbility(const OHOS::AAFwk::Want& want, int32_t requestCode)
+{
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (err != ERR_OK) {
         HILOGE("connect ability server failed %{public}d", err);
         return err;
     }
-    std::vector<int32_t> ids;
+    std::vector<int> ids;
     ErrCode ret = OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {
-        HILOGE("QueryActiveOsAccountIds passing param invalid or return error!, err : %{public}d", err);
         return INVALID_PARAMETERS_ERR;
     }
-    OHOS::AAFwk::Want want = info.want;
-    want.RemoveFlags(OHOS::AAFwk::Want::FLAG_INSTALL_ON_DEMAND);
-    err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, info.requestCode, ids[0]);
+    if (requestCode != DEFAULT_REQUEST_CODE) {
+        HILOGI("StartAbilityForResult start");
+        sptr<IRemoteObject> dmsTokenCallback = new DmsTokenCallback();
+        err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, dmsTokenCallback, requestCode, ids[0]);
+    } else {
+        HILOGI("StartAbility start");
+        err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, ids[0]);
+    }
     if (err != ERR_OK) {
         HILOGE("StartAbility failed %{public}d", err);
     }
