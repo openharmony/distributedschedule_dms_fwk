@@ -42,7 +42,6 @@ dsched_external_deps = [
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
   "os_account:os_account_innerkits",
-  "permission_standard:libpermissionsdk_standard",
   "safwk:system_ability_fwk",
   "samgr_standard:samgr_proxy",
   "utils_base:utils",
