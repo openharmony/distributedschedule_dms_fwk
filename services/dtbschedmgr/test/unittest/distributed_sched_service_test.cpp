@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#define private public
+#define protected public
 #include "distributed_sched_proxy.h"
 #include "distributed_sched_service.h"
 #include "dtbschedmgr_device_info_storage.h"
@@ -24,6 +26,8 @@
 #include "system_ability_definition.h"
 #include "test_log.h"
 #include "thread_pool.h"
+#undef private
+#undef protected
 
 using namespace std;
 using namespace testing;
@@ -38,6 +42,7 @@ namespace {
     const string LOCAL_DEVICEID = "192.168.43.100";
     const std::string DMS_MISSION_ID = "dmsMissionId";
     const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
+    const int DEFAULT_REQUEST_CODE = -1;
 }
 
 class DistributedSchedServiceTest : public testing::Test {
@@ -584,6 +589,152 @@ HWTEST_F(DistributedSchedServiceTest, SendResultFromRemote_005, TestSize.Level1)
     int result2 = DistributedSchedService::GetInstance().SendResultFromRemote(want, 0, callerInfo, accountInfo, 0);
     DTEST_LOG << "result2:" << result2 << std::endl;
     DTEST_LOG << "DistributedSchedServiceTest SendResultFromRemote_005 end" << std::endl;
+}
+
+/**
+ * @tc.name: StartLocalAbility_001
+ * @tc.desc: call StartLocalAbility with dms
+ * @tc.type: FUNC
+ */
+HWTEST_F(DistributedSchedServiceTest, StartLocalAbility_001, TestSize.Level1)
+{
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_001 start" << std::endl;
+    sptr<IDistributedSched> proxy = GetDms();
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbility");
+    want.SetElement(element);
+    CallerInfo callerInfo;
+    callerInfo.uid = 0;
+    callerInfo.sourceDeviceId = "255.255.255.255";
+    IDistributedSched::AccountInfo accountInfo;
+    int missionId = 0;
+    want.SetParam(DMS_SRC_NETWORK_ID, callerInfo.sourceDeviceId);
+    want.SetParam(DMS_MISSION_ID, missionId);
+    DistributedSchedProxy::FreeInstallInfo info = {.want = want, .requestCode = 0, .callerInfo = callerInfo,
+        .accountInfo = accountInfo};
+    int result1 = DistributedSchedService::GetInstance().StartLocalAbility(info, 0, 0);
+    DTEST_LOG << "result1:" << result1 << std::endl;
+
+    AppExecFwk::ElementName element2("", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbilityService");
+    want.SetElement(element2);
+    DistributedSchedProxy::FreeInstallInfo info2 = {.want = want, .requestCode = 0, .callerInfo = callerInfo,
+        .accountInfo = accountInfo};
+    int result2 = DistributedSchedService::GetInstance().StartLocalAbility(info2, 0, 0);
+    DTEST_LOG << "result2:" << result2 << std::endl;
+    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result1);
+    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result2);
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_001 end" << std::endl;
+}
+
+/**
+ * @tc.name: StartLocalAbility_002
+ * @tc.desc: call StartLocalAbility with dms
+ * @tc.type: FUNC
+ */
+HWTEST_F(DistributedSchedServiceTest, StartLocalAbility_002, TestSize.Level1)
+{
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_002 start" << std::endl;
+    sptr<IDistributedSched> proxy = GetDms();
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbility");
+    want.SetElement(element);
+    CallerInfo callerInfo;
+    callerInfo.uid = 0;
+    callerInfo.sourceDeviceId = "255.255.255.255";
+    IDistributedSched::AccountInfo accountInfo;
+    DistributedSchedProxy::FreeInstallInfo info = {.want = want, .requestCode = DEFAULT_REQUEST_CODE,
+        .callerInfo = callerInfo, .accountInfo = accountInfo};
+    int result1 = DistributedSchedService::GetInstance().StartLocalAbility(info, 0, 0);
+    DTEST_LOG << "result1:" << result1 << std::endl;
+
+    AppExecFwk::ElementName element2("", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbilityService");
+    want.SetElement(element2);
+    DistributedSchedProxy::FreeInstallInfo info2 = {.want = want, .requestCode = DEFAULT_REQUEST_CODE,
+        .callerInfo = callerInfo, .accountInfo = accountInfo};
+    int result2 = DistributedSchedService::GetInstance().StartLocalAbility(info2, 0, 0);
+    DTEST_LOG << "result2:" << result2 << std::endl;
+    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result1);
+    EXPECT_EQ(static_cast<int>(INVALID_PARAMETERS_ERR), result2);
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_002 end" << std::endl;
+}
+
+/**
+ * @tc.name: StartLocalAbility_003
+ * @tc.desc: call StartLocalAbility with dms
+ * @tc.type: FUNC
+ */
+HWTEST_F(DistributedSchedServiceTest, StartLocalAbility_003, TestSize.Level1)
+{
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_003 start" << std::endl;
+    sptr<IDistributedSched> proxy = GetDms();
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("1.1.1.1", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbility");
+    want.SetElement(element);
+    CallerInfo callerInfo;
+    callerInfo.uid = 0;
+    callerInfo.sourceDeviceId = "255.255.255.255";
+    IDistributedSched::AccountInfo accountInfo;
+    accountInfo.accountType = 1;
+    accountInfo.groupIdList.push_back("123456");
+    int missionId = 0;
+    want.SetParam(DMS_SRC_NETWORK_ID, callerInfo.sourceDeviceId);
+    want.SetParam(DMS_MISSION_ID, missionId);
+    DistributedSchedProxy::FreeInstallInfo info = {.want = want, .requestCode = 0, .callerInfo = callerInfo,
+        .accountInfo = accountInfo};
+    int result1 = DistributedSchedService::GetInstance().StartLocalAbility(info, 0, 0);
+    DTEST_LOG << "result1:" << result1 << std::endl;
+
+    AppExecFwk::ElementName element2("1.1.1.1", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbilityService");
+    want.SetElement(element2);
+    DistributedSchedProxy::FreeInstallInfo info2 = {.want = want, .requestCode = 0, .callerInfo = callerInfo,
+        .accountInfo = accountInfo};
+    int result2 = DistributedSchedService::GetInstance().StartLocalAbility(info2, 0, 0);
+    DTEST_LOG << "result2:" << result2 << std::endl;
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_003 end" << std::endl;
+}
+
+/**
+ * @tc.name: StartLocalAbility_004
+ * @tc.desc: call StartLocalAbility with dms
+ * @tc.type: FUNC
+ */
+HWTEST_F(DistributedSchedServiceTest, StartLocalAbility_004, TestSize.Level1)
+{
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_004 start" << std::endl;
+    sptr<IDistributedSched> proxy = GetDms();
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("1.1.1.1", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbility");
+    want.SetElement(element);
+    CallerInfo callerInfo;
+    callerInfo.uid = 0;
+    callerInfo.sourceDeviceId = "255.255.255.255";
+    IDistributedSched::AccountInfo accountInfo;
+    accountInfo.accountType = 1;
+    accountInfo.groupIdList.push_back("123456");
+    DistributedSchedProxy::FreeInstallInfo info = {.want = want, .requestCode = DEFAULT_REQUEST_CODE,
+        .callerInfo = callerInfo, .accountInfo = accountInfo};
+    int result1 = DistributedSchedService::GetInstance().StartLocalAbility(info, 0, 0);
+    DTEST_LOG << "result1:" << result1 << std::endl;
+
+    AppExecFwk::ElementName element2("1.1.1.1", "com.ohos.distributedmusicplayer",
+        "com.ohos.distributedmusicplayer.MainAbilityService");
+    want.SetElement(element2);
+    DistributedSchedProxy::FreeInstallInfo info2 = {.want = want, .requestCode = DEFAULT_REQUEST_CODE,
+        .callerInfo = callerInfo, .accountInfo = accountInfo};
+    int result2 = DistributedSchedService::GetInstance().StartLocalAbility(info2, 0, 0);
+    DTEST_LOG << "result2:" << result2 << std::endl;
+    DTEST_LOG << "DistributedSchedServiceTest StartLocalAbility_004 end" << std::endl;
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
