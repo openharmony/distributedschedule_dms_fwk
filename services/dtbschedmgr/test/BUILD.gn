@@ -37,6 +37,7 @@ dsched_external_deps = [
   "bundle_framework:appexecfwk_core",
   "device_auth:deviceauth_sdk",
   "distributeddatamgr:distributeddata_inner",
+  "dmsfwk_standard:dmsbaseinner",
   "dsoftbus:softbus_client",
   "eventhandler:libeventhandler",
   "hiviewdfx_hilog_native:libhilog",
@@ -60,11 +61,8 @@ dsched_public_deps = [
 dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_proxy.cpp",
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_stub.cpp",
-  "${distributed_service}/dtbschedmgr/src/adapter/dnetwork_adapter.cpp",
   "${distributed_service}/dtbschedmgr/src/bundle/bundle_manager_internal.cpp",
   "${distributed_service}/dtbschedmgr/src/connect_death_recipient.cpp",
-  "${distributed_service}/dtbschedmgr/src/deviceManager/dms_device_info.cpp",
-  "${distributed_service}/dtbschedmgr/src/distributed_device_node_listener.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_adapter.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_continuation.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_dumper.cpp",
@@ -77,7 +75,6 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/dms_free_install_callback_proxy.cpp",
   "${distributed_service}/dtbschedmgr/src/dms_free_install_callback_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/dms_token_callback.cpp",
-  "${distributed_service}/dtbschedmgr/src/dtbschedmgr_device_info_storage.cpp",
 ]
 
 if (dmsfwk_standard_mission_manager) {

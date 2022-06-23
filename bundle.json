@@ -42,7 +42,25 @@
           "//foundation/distributedschedule/dmsfwk/etc/init:etc",
           "//foundation/distributedschedule/dmsfwk/etc/profile:distributedsched_trust",
           "//foundation/distributedschedule/dmsfwk/sa_profile:dms_sa_profile",
+          "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
           "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
+        ],
+        "inner_kits": [
+            {
+                "header": {
+                    "header_base": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase/include",
+                    "header_files": [
+                        "adapter/dnetwork_adapter.h",
+                        "deviceManager/dms_device_info.h",
+                        "deviceManager/dms_device_listener.h",
+                        "distributed_device_node_listener.h",
+                        "dtbschedmgr_device_info_storage.h",
+		        "dtbschedmgr_log.h",
+                        "parcel_helper.h"
+                    ]
+                },
+                "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase:dmsbaseinner"
+            }
         ],
         "test": [
           "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:unittest"
