@@ -16,7 +16,7 @@
     <process>distributedsched</process>
     <systemability> <!--Declare a system ability and its profile-->
         <name>1401</name> <!--Declare the name of system ability-->
-        <libpath>libdistributedschedsvr.z.so</libpath> <!--Declare the path of .so file which includes the system ability; Note: 1 .so file have 1 to N sysytem abilities. -->
+        <libpath>libdistributed_ability_manager_svr.z.so</libpath> <!--Declare the path of .so file which includes the system ability; Note: 1 .so file have 1 to N sysytem abilities. -->
         <!--<depend></depend>--> <!--Declare the name of system abilities which the system ability depends on,using the system ability would start on demand. -->
         <!--<depend-time-out></depend-time-out> --> <!-- Check all dependencies are available before the timeout period ended. The MAX_DEPENDENCY_TIMEOUT is 60s. -->
         <run-on-create>true</run-on-create> <!-- "true" means the system ability would start imediately, "false" means the system ability would start on demand. -->

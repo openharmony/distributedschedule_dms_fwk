@@ -30,6 +30,7 @@ public:
     ~DistributedSchedStub();
     int32_t OnRemoteRequest(uint32_t code, MessageParcel& data,
         MessageParcel& reply, MessageOption& option) override;
+
 protected:
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     virtual std::unique_ptr<Snapshot> GetRemoteSnapshotInfo(const std::u16string& deviceId, int32_t missionId)
