@@ -33,11 +33,8 @@ ohos_shared_library("distributedschedsvr") {
   sources = [
     "src/ability_connection_wrapper_proxy.cpp",
     "src/ability_connection_wrapper_stub.cpp",
-    "src/adapter/dnetwork_adapter.cpp",
     "src/bundle/bundle_manager_internal.cpp",
     "src/connect_death_recipient.cpp",
-    "src/deviceManager/dms_device_info.cpp",
-    "src/distributed_device_node_listener.cpp",
     "src/distributed_sched_adapter.cpp",
     "src/distributed_sched_continuation.cpp",
     "src/distributed_sched_dumper.cpp",
@@ -50,7 +47,6 @@ ohos_shared_library("distributedschedsvr") {
     "src/dms_free_install_callback_proxy.cpp",
     "src/dms_free_install_callback_stub.cpp",
     "src/dms_token_callback.cpp",
-    "src/dtbschedmgr_device_info_storage.cpp",
   ]
 
   configs = [ ":distributed_sched_config" ]
@@ -64,6 +60,7 @@ ohos_shared_library("distributedschedsvr") {
     "bundle_framework:appexecfwk_core",
     "device_auth:deviceauth_sdk",
     "distributeddatamgr:distributeddata_inner",
+    "dmsfwk_standard:dmsbaseinner",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",

@@ -77,11 +77,39 @@ constexpr int32_t DISTRIBUTED_COMPONENT_REMOVE = 2;
 constexpr int32_t REPORT_DISTRIBUTED_COMPONENT_CHANGE_CODE = 1;
 }
 
+extern "C" {
+void OnStart()
+{
+    DistributedSchedService::GetInstance().OnStart();
+}
+
+int32_t OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
+    MessageOption& option)
+{
+    return DistributedSchedService::GetInstance().OnRemoteRequest(code, data, reply, option);
+}
+
+void DeviceOnlineNotify(const std::string& deviceId)
+{
+    DistributedSchedAdapter::GetInstance().DeviceOnline(deviceId);
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
+    DistributedSchedMissionManager::GetInstance().DeviceOnlineNotify(deviceId);
+#endif
+}
+
+void DeviceOfflineNotify(const std::string& deviceId)
+{
+    DistributedSchedAdapter::GetInstance().DeviceOffline(deviceId);
+#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
+    DistributedSchedMissionManager::GetInstance().DeviceOfflineNotify(deviceId);
+#endif
+}
+}
+
 IMPLEMENT_SINGLE_INSTANCE(DistributedSchedService);
+static const sptr<DistributedSchedService> INSTANCE = &DistributedSchedService::GetInstance();
 
-const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(&DistributedSchedService::GetInstance());
-
-DistributedSchedService::DistributedSchedService() : SystemAbility(DISTRIBUTED_SCHED_SA_ID, true)
+DistributedSchedService::DistributedSchedService()
 {
 }
 
@@ -114,18 +142,8 @@ bool DistributedSchedService::Init()
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     DistributedSchedMissionManager::GetInstance().Init();
 #endif
-    bool ret = Publish(this);
-    if (!ret) {
-        HILOGE("Init Publish failed!");
-        return false;
-    }
-
-    if (!DtbschedmgrDeviceInfoStorage::GetInstance().Init()) {
-        HILOGE("Init DtbschedmgrDeviceInfoStorage init failed.");
-    }
     HILOGD("Init init success.");
     DistributedSchedAdapter::GetInstance().Init();
-    DnetworkAdapter::GetInstance()->Init();
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     DistributedSchedMissionManager::GetInstance().InitDataStorage();
 #endif
@@ -138,11 +156,6 @@ bool DistributedSchedService::Init()
         componentChangeHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
     }
     return true;
-}
-
-void DistributedSchedService::OnStop()
-{
-    HILOGD("OnStop ready to stop service.");
 }
 
 int32_t DistributedSchedService::StartRemoteAbility(const OHOS::AAFwk::Want& want,
@@ -758,8 +771,7 @@ int32_t DistributedSchedService::StartRemoteAbilityByCall(const OHOS::AAFwk::Wan
         HILOGE("StartRemoteAbilityByCall check deviceId failed");
         return INVALID_PARAMETERS_ERR;
     }
-    CallerInfo callerInfo;
-    callerInfo = { callerUid, callerPid };
+    CallerInfo callerInfo = { callerUid, callerPid };
     callerInfo.sourceDeviceId = localDeviceId;
     callerInfo.accessToken = accessToken;
     if (!BundleManagerInternal::GetCallerAppIdFromBms(callerInfo.uid, callerInfo.callerAppId)) {
