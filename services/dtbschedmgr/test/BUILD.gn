@@ -40,7 +40,6 @@ dsched_external_deps = [
   "dmsfwk_standard:dmsbaseinner",
   "dsoftbus:softbus_client",
   "eventhandler:libeventhandler",
-  "hisysevent_native:libhisysevent",
   "hitrace_native:hitrace_meter",
   "hitrace_native:libhitrace",
   "hiviewdfx_hilog_native:libhilog",

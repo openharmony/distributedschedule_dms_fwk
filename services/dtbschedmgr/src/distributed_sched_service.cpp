@@ -25,8 +25,6 @@
 #include "bundle/bundle_manager_internal.h"
 #include "connect_death_recipient.h"
 #include "datetime_ex.h"
-#include "dfx/dms_hisysevent_report.h"
-#include "dfx/dms_hitrace_constants.h"
 #include "distributed_sched_adapter.h"
 #include "distributed_sched_dumper.h"
 #include "distributed_sched_permission.h"
