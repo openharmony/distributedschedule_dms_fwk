@@ -76,26 +76,26 @@ START_CONTINUATION:
 
 START_ABILITY_FAILED:
   __BASE: {type: FAULT, level: CRITICAL, tag: start, desc: start remote ability}
-  ERROR_TYPE: {type: INT32, desc: error type}
+  ERROR_TYPE: {type: STRING, desc: error type}
 
 CONNECT_ABILITY_FAILED:
   __BASE: {type: FAULT, level: CRITICAL, tag: connect, desc: connect remote ability}
-  ERROR_TYPE: {type: INT32, desc: error type}
+  ERROR_TYPE: {type: STRING, desc: error type}
 
 DISCONNECT_ABILITY_FAILED:
   __BASE: {type: FAULT, level: CRITICAL, tag: connect, desc: disconnect remote ability}
-  ERROR_TYPE: {type: INT32, desc: error type}
+  ERROR_TYPE: {type: STRING, desc: error type}
 
 START_ABILITY_BYCALL_FAILED:
   __BASE: {type: FAULT, level: CRITICAL, tag: start, desc: start remote ability by call}
-  ERROR_TYPE: {type: INT32, desc: error type}
+  ERROR_TYPE: {type: STRING, desc: error type}
 
 RELEASE_ABILITY_FAILED:
   __BASE: {type: FAULT, level: CRITICAL, tag: start, desc: release remote ability}
-  ERROR_TYPE: {type: INT32, desc: error type}
+  ERROR_TYPE: {type: STRING, desc: error type}
 
 START_CONTINUATION_FAILED:
   __BASE: {type: FAULT, level: CRITICAL, tag: continue, desc: start continuation}
-  ERROR_TYPE: {type: INT32, desc: error type}
+  ERROR_TYPE: {type: STRING, desc: error type}
 
 

@@ -43,12 +43,23 @@ namespace EventErrorType {
     const std::string GET_ABILITY_MGR_FAILED = "GET_ABILITY_MGR_FAILED";
 }
 
+namespace EventCallingType {
+    const std::string LOCAL = "LOCAL";
+    const std::string REMOTE = "REMOTE";
+}
+
+struct BehaviorEventParam {
+    std::string callingType;
+    std::string eventName;
+    int32_t eventResult;
+    std::string bundleName = "";
+    std::string abilityName = "";
+    int32_t callingAppUid = -1;
+};
+
 class DmsHiSysEventReport {
 public:
-    static int ReportBehaviorEvent(const std::string& eventName, const int32_t& eventResult,
-        const std::string& bundleName = "", const std::string& abilityName = "", const int32_t& callingAppUid = -1);
-    static int ReportBehaviorEventFromRemote(const std::string& eventName, const int32_t& eventResult,
-        const std::string& bundleName = "", const std::string& abilityName = "", const int32_t& callingAppUid = -1);
+    static int ReportBehaviorEvent(const BehaviorEventParam& param);
     static int ReportFaultEvent(const std::string& eventName, const std::string& errorType);
 };
 } // namespace DistributedSchedule
