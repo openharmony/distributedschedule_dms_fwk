@@ -61,11 +61,9 @@ HWTEST_F(DmsHiSysEventReportTest, DmsHiSysEventReportTest_001, TestSize.Level1)
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_001 begin" << std::endl;
 
     int32_t result = -1;
-    result = DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::START_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
-    EXPECT_TRUE(result == 0);
-    result = DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::START_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
+    BehaviorEventParam param = { EventCallingType::LOCAL, BehaviorEvent::START_REMOTE_ABILITY, eventResult,
+        bundleName, abilityName, callingAppUid };
+    result = DmsHiSysEventReport::ReportBehaviorEvent(param);
     EXPECT_TRUE(result == 0);
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_001 end ret:" << result << std::endl;
 }
@@ -80,11 +78,9 @@ HWTEST_F(DmsHiSysEventReportTest, DmsHiSysEventReportTest_002, TestSize.Level1)
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_002 begin" << std::endl;
 
     int32_t result = -1;
-    result = DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::CONNECT_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
-    EXPECT_TRUE(result == 0);
-    result = DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::CONNECT_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
+    BehaviorEventParam param = { EventCallingType::LOCAL, BehaviorEvent::CONNECT_REMOTE_ABILITY, eventResult,
+        bundleName, abilityName, callingAppUid };
+    result = DmsHiSysEventReport::ReportBehaviorEvent(param);
     EXPECT_TRUE(result == 0);
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_002 end ret:" << result << std::endl;
 }
@@ -99,11 +95,9 @@ HWTEST_F(DmsHiSysEventReportTest, DmsHiSysEventReportTest_003, TestSize.Level1)
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_003 begin" << std::endl;
 
     int32_t result = -1;
-    result = DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::START_CONTINUATION, eventResult,
-        bundleName, abilityName, callingAppUid);
-    EXPECT_TRUE(result == 0);
-    result = DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::START_CONTINUATION, eventResult,
-        bundleName, abilityName, callingAppUid);
+    BehaviorEventParam param = { EventCallingType::LOCAL, BehaviorEvent::START_CONTINUATION, eventResult,
+        bundleName, abilityName, callingAppUid };
+    result = DmsHiSysEventReport::ReportBehaviorEvent(param);
     EXPECT_TRUE(result == 0);
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_003 end ret:" << result << std::endl;
 }
@@ -118,11 +112,9 @@ HWTEST_F(DmsHiSysEventReportTest, DmsHiSysEventReportTest_004, TestSize.Level1)
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_004 begin" << std::endl;
 
     int32_t result = -1;
-    result = DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::START_REMOTE_ABILITY_BYCALL, eventResult,
-        bundleName, abilityName, callingAppUid);
-    EXPECT_TRUE(result == 0);
-    result = DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::START_REMOTE_ABILITY_BYCALL, eventResult,
-        bundleName, abilityName, callingAppUid);
+    BehaviorEventParam param = { EventCallingType::LOCAL, BehaviorEvent::START_REMOTE_ABILITY_BYCALL, eventResult,
+        bundleName, abilityName, callingAppUid };
+    result = DmsHiSysEventReport::ReportBehaviorEvent(param);
     EXPECT_TRUE(result == 0);
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_004 end "<< std::endl;
 }
@@ -137,11 +129,9 @@ HWTEST_F(DmsHiSysEventReportTest, DmsHiSysEventReportTest_005, TestSize.Level1)
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_005 begin" << std::endl;
 
     int32_t result = -1;
-    result = DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::DISCONNECT_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
-    EXPECT_TRUE(result == 0);
-    result = DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::DISCONNECT_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
+    BehaviorEventParam param = { EventCallingType::LOCAL, BehaviorEvent::DISCONNECT_REMOTE_ABILITY, eventResult,
+        bundleName, abilityName, callingAppUid };
+    result = DmsHiSysEventReport::ReportBehaviorEvent(param);
     EXPECT_TRUE(result == 0);
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_005 end "<< std::endl;
 }
@@ -156,11 +146,9 @@ HWTEST_F(DmsHiSysEventReportTest, DmsHiSysEventReportTest_006, TestSize.Level1)
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_006 begin" << std::endl;
 
     int32_t result = -1;
-    result = DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::RELEASE_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
-    EXPECT_TRUE(result == 0);
-    result = DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::RELEASE_REMOTE_ABILITY, eventResult,
-        bundleName, abilityName, callingAppUid);
+    BehaviorEventParam param = { EventCallingType::LOCAL, BehaviorEvent::RELEASE_REMOTE_ABILITY, eventResult,
+        bundleName, abilityName, callingAppUid };
+    result = DmsHiSysEventReport::ReportBehaviorEvent(param);
     EXPECT_TRUE(result == 0);
     DTEST_LOG << "DmsHiSysEventReportTest DmsHiSysEventReportTest_006 end "<< std::endl;
 }

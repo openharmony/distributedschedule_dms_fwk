@@ -37,34 +37,16 @@ namespace {
     const std::string KEY_TARGET_BUNDLE = "TARGET_BUNDLE";
 }
 
-int DmsHiSysEventReport::ReportBehaviorEvent(const std::string& eventName, const int32_t& eventResult,
-    const std::string& bundleName, const std::string& abilityName, const int32_t& callingAppUid)
+int DmsHiSysEventReport::ReportBehaviorEvent(const BehaviorEventParam& param)
 {
-    int result = HiSysEvent::Write(DOMAIN_NAME, eventName, HiSysEvent::EventType::BEHAVIOR,
-        KEY_CALLING_TYPE, "local",
+    int result = HiSysEvent::Write(DOMAIN_NAME, param.eventName, HiSysEvent::EventType::BEHAVIOR,
+        KEY_CALLING_TYPE, param.callingType,
         KEY_CALLING_UID, IPCSkeleton::GetCallingUid(),
         KEY_CALLING_PID, IPCSkeleton::GetCallingPid(),
-        KEY_CALLING_APP_UID, callingAppUid,
-        KEY_TARGET_BUNDLE, bundleName,
-        KEY_TARGET_ABILITY, abilityName,
-        KEY_RESULT, eventResult);
-    if (result != 0) {
-        HILOGE("hisysevent report failed! ret %{public}d.", result);
-    }
-    return result;
-}
-
-int DmsHiSysEventReport::ReportBehaviorEventFromRemote(const std::string& eventName, const int32_t& eventResult,
-    const std::string& bundleName, const std::string& abilityName, const int32_t& callingAppUid)
-{
-    int result = HiSysEvent::Write(DOMAIN_NAME, eventName, HiSysEvent::EventType::BEHAVIOR,
-        KEY_CALLING_TYPE, "remote",
-        KEY_CALLING_UID, IPCSkeleton::GetCallingUid(),
-        KEY_CALLING_PID, IPCSkeleton::GetCallingPid(),
-        KEY_CALLING_APP_UID, callingAppUid,
-        KEY_TARGET_BUNDLE, bundleName,
-        KEY_TARGET_ABILITY, abilityName,
-        KEY_RESULT, eventResult);
+        KEY_CALLING_APP_UID, param.callingAppUid,
+        KEY_TARGET_BUNDLE, param.bundleName,
+        KEY_TARGET_ABILITY, param.abilityName,
+        KEY_RESULT, param.eventResult);
     if (result != 0) {
         HILOGE("hisysevent report failed! ret %{public}d.", result);
     }
