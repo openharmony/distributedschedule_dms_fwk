@@ -1,0 +1,101 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+domain: DISTSCHEDULE
+
+START_REMOTE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: start, desc: start remote ability}
+  CALLING_TYPE: {type: STRING, desc: calling type}
+  CALLING_UID: {type: INT32, desc: calling uid}
+  CALLING_PID: {type: INT32, desc: calling pid}
+  TARGET_BUNDLE: {type: STRING, desc: target bundle name}
+  TARGET_ABILITY: {type: STRING, desc: target ability name}
+  CALLING_APP_UID: {type: INT32, desc: calling app uid}
+  RESULT: {type: INT32, desc: result}
+
+CONNECT_REMOTE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: connect, desc: connect remote ability}
+  CALLING_TYPE: {type: STRING, desc: calling type}
+  CALLING_UID: {type: INT32, desc: calling uid}
+  CALLING_PID: {type: INT32, desc: calling pid}
+  TARGET_BUNDLE: {type: STRING, desc: target bundle name}
+  TARGET_ABILITY: {type: STRING, desc: target ability name}
+  CALLING_APP_UID: {type: INT32, desc: calling app uid}
+  RESULT: {type: INT32, desc: result}
+
+DISCONNECT_REMOTE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: connect, desc: disconnect remote ability}
+  CALLING_TYPE: {type: STRING, desc: calling type}
+  CALLING_UID: {type: INT32, desc: calling uid}
+  CALLING_PID: {type: INT32, desc: calling pid}
+  TARGET_BUNDLE: {type: STRING, desc: target bundle name}
+  TARGET_ABILITY: {type: STRING, desc: target ability name}
+  CALLING_APP_UID: {type: INT32, desc: calling app uid}
+  RESULT: {type: INT32, desc: result}
+
+START_REMOTE_ABILITY_BYCALL:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: start, desc: start remote ability by call}
+  CALLING_TYPE: {type: STRING, desc: calling type}
+  CALLING_UID: {type: INT32, desc: calling uid}
+  CALLING_PID: {type: INT32, desc: calling pid}
+  TARGET_BUNDLE: {type: STRING, desc: target bundle name}
+  TARGET_ABILITY: {type: STRING, desc: target ability name}
+  CALLING_APP_UID: {type: INT32, desc: calling app uid}
+  RESULT: {type: INT32, desc: result}
+
+RELEASE_REMOTE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: start, desc: release remote ability}
+  CALLING_TYPE: {type: STRING, desc: calling type}
+  CALLING_UID: {type: INT32, desc: calling uid}
+  CALLING_PID: {type: INT32, desc: calling pid}
+  TARGET_BUNDLE: {type: STRING, desc: target bundle name}
+  TARGET_ABILITY: {type: STRING, desc: target ability name}
+  CALLING_APP_UID: {type: INT32, desc: calling app uid}
+  RESULT: {type: INT32, desc: result}
+
+START_CONTINUATION:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: continue, desc: start continuation}
+  CALLING_TYPE: {type: STRING, desc: calling type}
+  CALLING_UID: {type: INT32, desc: calling uid}
+  CALLING_PID: {type: INT32, desc: calling pid}
+  TARGET_BUNDLE: {type: STRING, desc: target bundle name}
+  TARGET_ABILITY: {type: STRING, desc: target ability name}
+  CALLING_APP_UID: {type: INT32, desc: calling app uid}
+  RESULT: {type: INT32, desc: result}
+
+
+START_ABILITY_FAILED:
+  __BASE: {type: FAULT, level: CRITICAL, tag: start, desc: start remote ability}
+  ERROR_TYPE: {type: STRING, desc: error type}
+
+CONNECT_ABILITY_FAILED:
+  __BASE: {type: FAULT, level: CRITICAL, tag: connect, desc: connect remote ability}
+  ERROR_TYPE: {type: STRING, desc: error type}
+
+DISCONNECT_ABILITY_FAILED:
+  __BASE: {type: FAULT, level: CRITICAL, tag: connect, desc: disconnect remote ability}
+  ERROR_TYPE: {type: STRING, desc: error type}
+
+START_ABILITY_BYCALL_FAILED:
+  __BASE: {type: FAULT, level: CRITICAL, tag: start, desc: start remote ability by call}
+  ERROR_TYPE: {type: STRING, desc: error type}
+
+RELEASE_ABILITY_FAILED:
+  __BASE: {type: FAULT, level: CRITICAL, tag: start, desc: release remote ability}
+  ERROR_TYPE: {type: STRING, desc: error type}
+
+START_CONTINUATION_FAILED:
+  __BASE: {type: FAULT, level: CRITICAL, tag: continue, desc: start continuation}
+  ERROR_TYPE: {type: STRING, desc: error type}
+
+

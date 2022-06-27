@@ -40,6 +40,8 @@ dsched_external_deps = [
   "dmsfwk_standard:dmsbaseinner",
   "dsoftbus:softbus_client",
   "eventhandler:libeventhandler",
+  "hitrace_native:hitrace_meter",
+  "hitrace_native:libhitrace",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
   "os_account:os_account_innerkits",
@@ -203,16 +205,31 @@ ohos_unittest("bundlemanagerinternaltest") {
   part_name = "dmsfwk_standard"
 }
 
+ohos_unittest("hisyseventreporttest") {
+  module_out_path = module_output_path
+  sources = [ "unittest/dms_hisysevent_report_test.cpp" ]
+  sources += dtbschedmgr_sources
+  configs = [ ":test_config" ]
+  configs += dsched_configs
+  deps = [ "${distributed_service}/dtbschedmgr:distributedschedsvr" ]
+  if (is_standard_system) {
+    external_deps = dsched_external_deps
+    public_deps = dsched_public_deps
+  }
+  part_name = "dmsfwk_standard"
+}
+
 group("unittest") {
   testonly = true
   deps = [
+    ":bundlemanagerinternaltest",
     ":distributedschedsvrtest",
     ":dschedconnecttest",
     ":dschedcontinuetest",
+    ":hisyseventreporttest",
   ]
   if (dmsfwk_standard_mission_manager) {
     deps += [
-      ":bundlemanagerinternaltest",
       ":dscheddatastoragetest",
       ":dschedmissionmanagertest",
       ":dschedpermissiontest",
