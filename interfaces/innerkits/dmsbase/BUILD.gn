@@ -24,6 +24,8 @@ ohos_shared_library("dmsbaseinner") {
   sources = [
     "../../../services/base/src/adapter/dnetwork_adapter.cpp",
     "../../../services/base/src/deviceManager/dms_device_info.cpp",
+    "../../../services/base/src/dfx/dms_hisysevent_report.cpp",
+    "../../../services/base/src/dfx/dms_hitrace_chain.cpp",
     "../../../services/base/src/distributed_device_node_listener.cpp",
     "../../../services/base/src/dtbschedmgr_device_info_storage.cpp",
   ]
@@ -35,6 +37,9 @@ ohos_shared_library("dmsbaseinner") {
     "device_auth:deviceauth_sdk",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
+    "hisysevent_native:libhisysevent",
+    "hitrace_native:hitrace_meter",
+    "hitrace_native:libhitrace",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

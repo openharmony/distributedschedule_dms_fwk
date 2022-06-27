@@ -18,6 +18,9 @@
       "features" : [
         "dmsfwk_standard_mission_manager"
       ],
+      "hisysevent_config": [
+        "//foundation/distributedschedule/dmsfwk/hisysevent.yaml"
+      ],
       "rom": "",
       "ram": "",
       "deps": {
@@ -28,6 +31,8 @@
           "distributeddatamgr",
           "dsoftbus",
           "eventhandler",
+          "hisysevent_native",
+          "hitrace_native",
           "hiviewdfx_hilog_native",
           "ipc",
           "multimedia_image_standard",
@@ -53,9 +58,12 @@
                         "adapter/dnetwork_adapter.h",
                         "deviceManager/dms_device_info.h",
                         "deviceManager/dms_device_listener.h",
+                        "dfx/dms_hisysevent_report.h",
+                        "dfx/dms_hitrace_chain.h",
+                        "dfx/dms_hitrace_constants.h",
                         "distributed_device_node_listener.h",
                         "dtbschedmgr_device_info_storage.h",
-		        "dtbschedmgr_log.h",
+                        "dtbschedmgr_log.h",
                         "parcel_helper.h"
                     ]
                 },

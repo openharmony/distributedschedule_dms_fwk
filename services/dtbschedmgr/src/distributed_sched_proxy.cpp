@@ -15,8 +15,8 @@
 
 #include "distributed_sched_proxy.h"
 
+#include "dfx/dms_hitrace_constants.h"
 #include "dtbschedmgr_log.h"
-
 #include "ipc_types.h"
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 #include "mission/mission_info_converter.h"
@@ -87,6 +87,7 @@ int32_t DistributedSchedProxy::StartAbilityFromRemote(const OHOS::AAFwk::Want& w
     std::string extraInfo = extraInfoJson.dump();
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::REMOTE_PROCEDURE_CALL);
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_FROM_REMOTE, data, reply);
 }
 
@@ -281,6 +282,7 @@ int32_t DistributedSchedProxy::ConnectAbilityFromRemote(const OHOS::AAFwk::Want&
     std::string extraInfo = extraInfoJson.dump();
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::REMOTE_PROCEDURE_CALL);
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_ABILITY_FROM_REMOTE, data, reply);
 }
 
@@ -305,6 +307,7 @@ int32_t DistributedSchedProxy::DisconnectAbilityFromRemote(const sptr<IRemoteObj
     PARCEL_WRITE_HELPER(data, Int32, uid);
     PARCEL_WRITE_HELPER(data, String, sourceDeviceId);
     MessageParcel reply;
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::REMOTE_PROCEDURE_CALL);
     PARCEL_TRANSACT_SYNC_RET_INT(remote, DISCONNECT_ABILITY_FROM_REMOTE, data, reply);
 }
 
@@ -750,6 +753,7 @@ int32_t DistributedSchedProxy::StartAbilityByCallFromRemote(const OHOS::AAFwk::W
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
     MessageParcel reply;
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::REMOTE_PROCEDURE_CALL);
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_ABILITY_BY_CALL_FROM_REMOTE, data, reply);
 }
 
@@ -779,6 +783,7 @@ int32_t DistributedSchedProxy::ReleaseAbilityFromRemote(const sptr<IRemoteObject
     std::string extraInfo = "";
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::REMOTE_PROCEDURE_CALL);
     PARCEL_TRANSACT_SYNC_RET_INT(remote, RELEASE_ABILITY_FROM_REMOTE, data, reply);
 }
 
@@ -842,6 +847,7 @@ int32_t DistributedSchedProxy::StartFreeInstallFromRemote(const FreeInstallInfo&
     std::string extraInfo = extraInfoJson.dump();
     PARCEL_WRITE_HELPER(data, String, extraInfo);
     MessageParcel reply;
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::REMOTE_PROCEDURE_CALL);
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_FREE_INSTALL_FROM_REMOTE, data, reply);
 }
 

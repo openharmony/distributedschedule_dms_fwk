@@ -15,6 +15,7 @@
 
 #include "bundle/bundle_manager_internal.h"
 
+#include "dfx/dms_hisysevent_report.h"
 #include "distributed_sched_adapter.h"
 #include "dtbschedmgr_log.h"
 #include "ipc_skeleton.h"
