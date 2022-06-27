@@ -378,13 +378,13 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
     }
     bool flag = dschedContinuation_->IsFreeInstall(missionId);
     if (flag) {
-        result = StartRemoteFreeInstall(newWant, callerUid, 0, accessToken, nullptr);
+        result = StartRemoteFreeInstall(newWant, callerUid, DEFAULT_REQUEST_CODE, accessToken, nullptr);
         if (result != ERR_OK) {
             HILOGE("continue free install failed, result = %{public}d", result);
             return result;
         }
     } else {
-        result = StartRemoteAbility(newWant, callerUid, 0, accessToken);
+        result = StartRemoteAbility(newWant, callerUid, DEFAULT_REQUEST_CODE, accessToken);
         if (result != ERR_OK) {
             HILOGE("continue ability failed, errorCode = %{public}d", result);
             return result;
