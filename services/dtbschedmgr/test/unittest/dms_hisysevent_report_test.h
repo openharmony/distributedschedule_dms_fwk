@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef BUNDLE_MANAGER_INTERNAL_TEST_H
-#define BUNDLE_MANAGER_INTERNAL_TEST_H
+#ifndef HISYS_EVENT_REPORT_TEST_H
+#define HISYS_EVENT_REPORT_TEST_H
 
 #include "gtest/gtest.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-class BundleManagerInternalTest : public testing::Test {
+class DmsHiSysEventReportTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -29,4 +29,4 @@ public:
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // BUNDLE_MANAGER_INTERNAL_TEST_H
+#endif // HISYS_EVENT_REPORT_TEST_H

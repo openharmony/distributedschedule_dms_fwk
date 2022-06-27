@@ -16,6 +16,7 @@
 #include "distributed_sched_adapter.h"
 
 #include "datetime_ex.h"
+#include "dfx/dms_hisysevent_report.h"
 #include "distributed_sched_service.h"
 #include "dtbschedmgr_device_info_storage.h"
 #include "dtbschedmgr_log.h"
@@ -68,6 +69,8 @@ int32_t DistributedSchedAdapter::ConnectAbility(const OHOS::AAFwk::Want& want,
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
         HILOGE("connect ability server failed, errCode=%{public}d", errCode);
+        DmsHiSysEventReport::ReportFaultEvent(FaultEvent::CONNECT_REMOTE_ABILITY,
+            EventErrorType::GET_ABILITY_MGR_FAILED);
         return errCode;
     }
     std::vector<int> ids;
@@ -86,6 +89,8 @@ int32_t DistributedSchedAdapter::DisconnectAbility(const sptr<IRemoteObject>& co
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
         HILOGE("connect ability server failed, errCode=%{public}d", errCode);
+        DmsHiSysEventReport::ReportFaultEvent(FaultEvent::DISCONNECT_REMOTE_ABILITY,
+            EventErrorType::GET_ABILITY_MGR_FAILED);
         return errCode;
     }
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(
@@ -199,6 +204,8 @@ int32_t DistributedSchedAdapter::ReleaseAbility(const sptr<IRemoteObject>& conne
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
         HILOGE("ReleaseAbility:connect ability server failed, errCode=%{public}d", errCode);
+        DmsHiSysEventReport::ReportFaultEvent(FaultEvent::RELEASE_REMOTE_ABILITY,
+            EventErrorType::GET_ABILITY_MGR_FAILED);
         return errCode;
     }
     AppExecFwk::ElementName elementWithoutDeviceId("", element.GetBundleName(), element.GetAbilityName());
@@ -214,6 +221,8 @@ int32_t DistributedSchedAdapter::StartAbilityByCall(const OHOS::AAFwk::Want& wan
     ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
     if (errCode != ERR_OK) {
         HILOGE("ResolveAbility:connect ability server failed, errCode=%{public}d", errCode);
+        DmsHiSysEventReport::ReportFaultEvent(FaultEvent::START_REMOTE_ABILITY_BYCALL,
+            EventErrorType::GET_ABILITY_MGR_FAILED);
         return errCode;
     }
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want,
