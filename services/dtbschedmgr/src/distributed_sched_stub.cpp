@@ -19,6 +19,9 @@
 #include "adapter/dnetwork_adapter.h"
 #include "caller_info.h"
 #include "datetime_ex.h"
+#include "dfx/dms_hisysevent_report.h"
+#include "dfx/dms_hitrace_chain.h"
+#include "dfx/dms_hitrace_constants.h"
 #include "distributed_sched_permission.h"
 #include "dtbschedmgr_log.h"
 #include "dtbschedmgr_device_info_storage.h"
@@ -136,6 +139,8 @@ int32_t DistributedSchedStub::OnRemoteRequest(uint32_t code,
 
 int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    DmsHiTraceChain hiTraceChain(TraceValue::START_REMOTE_ABILITY);
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::START_REMOTE_ABILITY);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOGW("START_ABILITY want readParcelable failed!");
@@ -154,6 +159,8 @@ int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, Messa
         return DMS_PERMISSION_DENIED;
     }
     int32_t result = StartRemoteAbility(*want, callerUid, requestCode, accessToken);
+    DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::START_REMOTE_ABILITY, result,
+        want->GetElement().GetBundleName(), want->GetElement().GetAbilityName(), callerUid);
     HILOGI("StartRemoteAbilityInner result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -201,6 +208,8 @@ int32_t DistributedSchedStub::StartAbilityFromRemoteInner(MessageParcel& data, M
         HILOGD("parse extra info, accessTokenID = %u", accessToken);
     }
     int32_t result = StartAbilityFromRemote(*want, abilityInfo, requestCode, callerInfo, accountInfo);
+    DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::START_REMOTE_ABILITY, result,
+        want->GetElement().GetBundleName(), want->GetElement().GetAbilityName(), callerInfo.uid);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_HELPER(reply, Int32, result);
     int64_t end = GetTickCount();
@@ -272,6 +281,8 @@ int32_t DistributedSchedStub::ContinueMissionInner(MessageParcel& data, MessageP
 
 int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, MessageParcel& reply)
 {
+    DmsHiTraceChain hiTraceChain(TraceValue::START_CONTINUATION);
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::START_CONTINUATION);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOGW("want readParcelable failed!");
@@ -289,6 +300,8 @@ int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, Messag
         return DMS_PERMISSION_DENIED;
     }
     int32_t result = StartContinuation(*want, missionId, callerUid, status, accessToken);
+    DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::START_CONTINUATION, result,
+        want->GetElement().GetBundleName(), want->GetElement().GetAbilityName(), callerUid);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -326,6 +339,8 @@ int32_t DistributedSchedStub::NotifyContinuationResultFromRemoteInner(MessagePar
 
 int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    DmsHiTraceChain hiTraceChain(TraceValue::CONNECT_REMOTE_ABILITY);
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::CONNECT_REMOTE_ABILITY);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOGW("want readParcelable failed!");
@@ -346,12 +361,16 @@ int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, Mes
         return DMS_PERMISSION_DENIED;
     }
     int32_t result = ConnectRemoteAbility(*want, connect, callerUid, callerPid, accessToken);
+    DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::CONNECT_REMOTE_ABILITY, result,
+        want->GetElement().GetBundleName(), want->GetElement().GetAbilityName(), callerUid);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
 int32_t DistributedSchedStub::DisconnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    DmsHiTraceChain hiTraceChain(TraceValue::DISCONNECT_REMOTE_ABILITY);
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::DISCONNECT_REMOTE_ABILITY);
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
     int32_t callerUid = 0;
     PARCEL_READ_HELPER(data, Int32, callerUid);
@@ -364,6 +383,7 @@ int32_t DistributedSchedStub::DisconnectRemoteAbilityInner(MessageParcel& data, 
         return DMS_PERMISSION_DENIED;
     }
     int32_t result = DisconnectRemoteAbility(connect, callerUid, accessToken);
+    DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::DISCONNECT_REMOTE_ABILITY, result);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -411,6 +431,8 @@ int32_t DistributedSchedStub::ConnectAbilityFromRemoteInner(MessageParcel& data,
     std::string deviceId = abilityInfo.deviceId;
     int64_t begin = GetTickCount();
     int32_t result = ConnectAbilityFromRemote(*want, abilityInfo, connect, callerInfo, accountInfo);
+    DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::CONNECT_REMOTE_ABILITY, result,
+        want->GetElement().GetBundleName(), want->GetElement().GetAbilityName(), callerInfo.uid);
     HILOGW("result = %{public}d", result);
     int64_t end = GetTickCount();
     PARCEL_WRITE_HELPER(reply, Int32, result);
@@ -433,6 +455,7 @@ int32_t DistributedSchedStub::DisconnectAbilityFromRemoteInner(MessageParcel& da
     string sourceDeviceId;
     PARCEL_READ_HELPER(data, String, sourceDeviceId);
     int32_t result = DisconnectAbilityFromRemote(connect, uid, sourceDeviceId);
+    DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::DISCONNECT_REMOTE_ABILITY, result);
     HILOGI("result %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -782,6 +805,8 @@ bool DistributedSchedStub::CallerInfoUnmarshalling(CallerInfo& callerInfo, Messa
 
 int32_t DistributedSchedStub::StartRemoteAbilityByCallInner(MessageParcel& data, MessageParcel& reply)
 {
+    DmsHiTraceChain hiTraceChain(TraceValue::START_REMOTE_ABILITY_BYCALL);
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::START_REMOTE_ABILITY_BYCALL);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOGW("want readParcelable failed!");
@@ -800,12 +825,16 @@ int32_t DistributedSchedStub::StartRemoteAbilityByCallInner(MessageParcel& data,
         return DMS_PERMISSION_DENIED;
     }
     int32_t result = StartRemoteAbilityByCall(*want, connect, callerUid, callerPid, accessToken);
+    DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::START_REMOTE_ABILITY_BYCALL, result,
+        want->GetElement().GetBundleName(), want->GetElement().GetAbilityName(), callerUid);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
 
 int32_t DistributedSchedStub::ReleaseRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    DmsHiTraceChain hiTraceChain(TraceValue::RELEASE_REMOTE_ABILITY);
+    HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::RELEASE_REMOTE_ABILITY);
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
     shared_ptr<AppExecFwk::ElementName> element(data.ReadParcelable<AppExecFwk::ElementName>());
     if (element == nullptr) {
@@ -813,6 +842,8 @@ int32_t DistributedSchedStub::ReleaseRemoteAbilityInner(MessageParcel& data, Mes
         return ERR_INVALID_VALUE;
     }
     int32_t result = ReleaseRemoteAbility(connect, *element);
+    DmsHiSysEventReport::ReportBehaviorEvent(BehaviorEvent::RELEASE_REMOTE_ABILITY, result,
+        element->GetBundleName(), element->GetAbilityName());
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }
@@ -850,6 +881,8 @@ int32_t DistributedSchedStub::StartAbilityByCallFromRemoteInner(MessageParcel& d
         return ERR_NULL_OBJECT;
     }
     int32_t result = StartAbilityByCallFromRemote(*want, connect, callerInfo, accountInfo);
+    DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::START_REMOTE_ABILITY_BYCALL, result,
+        want->GetElement().GetBundleName(), want->GetElement().GetAbilityName(), callerInfo.uid);
     HILOGI("result = %{public}d", result);
     PARCEL_WRITE_HELPER(reply, Int32, result);
     return ERR_NONE;
@@ -873,6 +906,8 @@ int32_t DistributedSchedStub::ReleaseAbilityFromRemoteInner(MessageParcel& data,
     std::string extraInfo;
     PARCEL_READ_HELPER(data, String, extraInfo);
     int32_t result = ReleaseAbilityFromRemote(connect, *element, callerInfo);
+    DmsHiSysEventReport::ReportBehaviorEventFromRemote(BehaviorEvent::RELEASE_REMOTE_ABILITY, result,
+        element->GetBundleName(), element->GetAbilityName());
     HILOGI("result %{public}d", result);
     PARCEL_WRITE_REPLY_NOERROR(reply, Int32, result);
 }

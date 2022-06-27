@@ -13,20 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef BUNDLE_MANAGER_INTERNAL_TEST_H
-#define BUNDLE_MANAGER_INTERNAL_TEST_H
-
-#include "gtest/gtest.h"
+#include "dfx/dms_hitrace_chain.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-class BundleManagerInternalTest : public testing::Test {
-public:
-    static void SetUpTestCase();
-    static void TearDownTestCase();
-    void SetUp();
-    void TearDown();
-};
-} // namespace DistributedSchedule
-} // namespace OHOS
-#endif // BUNDLE_MANAGER_INTERNAL_TEST_H
+using namespace OHOS::HiviewDFX;
+DmsHiTraceChain::DmsHiTraceChain(const std::string &name)
+{
+    hiTraceId = HiTrace::Begin(name, HITRACE_FLAG_INCLUDE_ASYNC);
+}
+
+DmsHiTraceChain:: ~DmsHiTraceChain()
+{
+    HiTrace::End(hiTraceId);
+}
+}
+}
