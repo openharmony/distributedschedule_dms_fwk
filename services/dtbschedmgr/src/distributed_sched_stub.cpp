@@ -579,6 +579,9 @@ int32_t DistributedSchedStub::GetRemoteMissionSnapshotInfoInner(MessageParcel& d
 
 int32_t DistributedSchedStub::RegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
     u16string devId = data.ReadString16();
     if (devId.empty()) {
@@ -596,6 +599,9 @@ int32_t DistributedSchedStub::RegisterMissionListenerInner(MessageParcel& data, 
 
 int32_t DistributedSchedStub::UnRegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
     u16string devId = data.ReadString16();
     if (devId.empty()) {
@@ -800,6 +806,9 @@ int32_t DistributedSchedStub::StartRemoteAbilityByCallInner(MessageParcel& data,
 
 int32_t DistributedSchedStub::ReleaseRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     DmsHiTraceChain hiTraceChain(TraceValue::RELEASE_REMOTE_ABILITY);
     HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::RELEASE_REMOTE_ABILITY);
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
@@ -997,6 +1006,10 @@ int32_t DistributedSchedStub::StartFreeInstallFromRemoteInner(MessageParcel& dat
 
 int32_t DistributedSchedStub::NotifyCompleteFreeInstallFromRemoteInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!CheckCallingUid()) {
+        HILOGW("request DENIED!");
+        return DMS_PERMISSION_DENIED;
+    }
     int64_t taskId = 0;
     int32_t resultCode = 0;
     PARCEL_READ_HELPER(data, Int64, taskId);
