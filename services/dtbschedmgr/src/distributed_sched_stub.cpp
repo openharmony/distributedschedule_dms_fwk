@@ -63,9 +63,6 @@ DistributedSchedStub::DistributedSchedStub()
     // request codes for mission manager
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     localFuncsMap_[CHECK_SUPPORTED_OSD] = &DistributedSchedStub::CheckSupportOsdInner;
-    localFuncsMap_[STORE_SNAPSHOT_INFO] = &DistributedSchedStub::StoreSnapshotInfoInner;
-    localFuncsMap_[REMOVE_SNAPSHOT_INFO] = &DistributedSchedStub::RemoveSnapshotInfoInner;
-    localFuncsMap_[GET_REMOTE_SNAPSHOT_INFO] = &DistributedSchedStub::GetRemoteSnapshotInfoInner;
     localFuncsMap_[GET_REMOTE_MISSION_SNAPSHOT_INFO] = &DistributedSchedStub::GetRemoteMissionSnapshotInfoInner;
     localFuncsMap_[REGISTER_MISSION_LISTENER] = &DistributedSchedStub::RegisterMissionListenerInner;
     localFuncsMap_[UNREGISTER_MISSION_LISTENER] = &DistributedSchedStub::UnRegisterMissionListenerInner;
@@ -139,6 +136,9 @@ int32_t DistributedSchedStub::OnRemoteRequest(uint32_t code,
 
 int32_t DistributedSchedStub::StartRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     DmsHiTraceChain hiTraceChain(TraceValue::START_REMOTE_ABILITY);
     HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::START_REMOTE_ABILITY);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
@@ -283,6 +283,9 @@ int32_t DistributedSchedStub::ContinueMissionInner(MessageParcel& data, MessageP
 
 int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     DmsHiTraceChain hiTraceChain(TraceValue::START_CONTINUATION);
     HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::START_CONTINUATION);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
@@ -342,6 +345,9 @@ int32_t DistributedSchedStub::NotifyContinuationResultFromRemoteInner(MessagePar
 
 int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     DmsHiTraceChain hiTraceChain(TraceValue::CONNECT_REMOTE_ABILITY);
     HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::CONNECT_REMOTE_ABILITY);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
@@ -373,6 +379,9 @@ int32_t DistributedSchedStub::ConnectRemoteAbilityInner(MessageParcel& data, Mes
 
 int32_t DistributedSchedStub::DisconnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     DmsHiTraceChain hiTraceChain(TraceValue::DISCONNECT_REMOTE_ABILITY);
     HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::DISCONNECT_REMOTE_ABILITY);
     sptr<IRemoteObject> connect = data.ReadRemoteObject();
@@ -520,39 +529,12 @@ int32_t DistributedSchedStub::GetMissionInfosInner(MessageParcel& data, MessageP
     return result;
 }
 
-int32_t DistributedSchedStub::GetRemoteSnapshotInfoInner(MessageParcel& data, MessageParcel& reply)
-{
-    HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
-    u16string deviceId = data.ReadString16();
-    int32_t missionId = 0;
-    PARCEL_READ_HELPER(data, Int32, missionId);
-    if (deviceId.empty()) {
-        HILOGE("deviceId is empty!");
-        return ERR_FLATTEN_OBJECT;
-    }
-    unique_ptr<Snapshot> snapShot = GetRemoteSnapshotInfo(deviceId, missionId);
-    if (snapShot == nullptr) {
-        HILOGE("snapShot object nullptr!");
-        return ERR_NULL_OBJECT;
-    }
-    bool ret = snapShot->WriteToParcel(reply);
-    if (!ret) {
-        HILOGE("snapShot WriteToParcel failed!");
-        return ERR_NULL_OBJECT;
-    }
-    std::string uuid = DnetworkAdapter::GetInstance()->GetUuidByNetworkId(Str16ToStr8(deviceId));
-    if (uuid.empty()) {
-        HILOGE("uuid is empty!");
-        return ERR_NULL_OBJECT;
-    }
-    DistributedSchedMissionManager::GetInstance().EnqueueCachedSnapshotInfo(uuid,
-        missionId, std::move(snapShot));
-    return ERR_NONE;
-}
-
 int32_t DistributedSchedStub::GetRemoteMissionSnapshotInfoInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     string networkId = data.ReadString();
     if (networkId.empty()) {
         HILOGE("networkId is empty!");
@@ -711,44 +693,6 @@ int32_t DistributedSchedStub::GetOsdSwitchValueFromRemoteInner(MessageParcel& da
     return ERR_NONE;
 }
 
-int32_t DistributedSchedStub::StoreSnapshotInfoInner(MessageParcel& data, MessageParcel& reply)
-{
-    HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
-    int32_t missionId = 0;
-    if (!data.ReadInt32(missionId)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    size_t len = data.GetReadableBytes();
-    const uint8_t* byteSteam = data.ReadBuffer(len);
-    std::string deviceId;
-    DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(deviceId);
-    if (deviceId.empty()) {
-        HILOGE("get deviceId failed!");
-        return INVALID_PARAMETERS_ERR;
-    }
-    int32_t result = StoreSnapshotInfo(deviceId, missionId, byteSteam, len);
-    PARCEL_WRITE_HELPER(reply, Int32, result);
-    return ERR_NONE;
-}
-
-int32_t DistributedSchedStub::RemoveSnapshotInfoInner(MessageParcel& data, MessageParcel& reply)
-{
-    HILOGI("[PerformanceTest] called, IPC end = %{public}" PRId64, GetTickCount());
-    int32_t missionId = 0;
-    if (!data.ReadInt32(missionId)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    std::string deviceId;
-    DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(deviceId);
-    if (deviceId.empty()) {
-        HILOGE("get deviceId failed!");
-        return INVALID_PARAMETERS_ERR;
-    }
-    int32_t result = RemoveSnapshotInfo(deviceId, missionId);
-    PARCEL_WRITE_HELPER(reply, Int32, result);
-    return ERR_NONE;
-}
-
 int32_t DistributedSchedStub::NotifyOsdSwitchChangedInner(MessageParcel& data, MessageParcel& reply)
 {
     int32_t result = DistributedSchedMissionManager::GetInstance().UpdateSwitchValueToRemote();
@@ -812,6 +756,9 @@ bool DistributedSchedStub::CallerInfoUnmarshalling(CallerInfo& callerInfo, Messa
 
 int32_t DistributedSchedStub::StartRemoteAbilityByCallInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     DmsHiTraceChain hiTraceChain(TraceValue::START_REMOTE_ABILITY_BYCALL);
     HITRACE_METER_NAME(TraceTag::DSCHED, TraceValue::START_REMOTE_ABILITY_BYCALL);
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
@@ -951,12 +898,14 @@ int32_t DistributedSchedStub::GetDistributedComponentListInner(MessageParcel& da
 
 int32_t DistributedSchedStub::StartRemoteFreeInstallInner(MessageParcel& data, MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        return DMS_PERMISSION_DENIED;
+    }
     shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOGE("want readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
-
     int32_t callerUid = 0;
     int32_t requestCode = 0;
     uint32_t accessToken = 0;
@@ -968,11 +917,9 @@ int32_t DistributedSchedStub::StartRemoteFreeInstallInner(MessageParcel& data, M
         HILOGE("read callback failed!");
         return ERR_NULL_OBJECT;
     }
-
-    auto &dsPermission = DistributedSchedPermission::GetInstance();
-    auto checkRet = dsPermission.CheckPermission(accessToken, PERMISSION_DISTRIBUTED_DATASYNC);
-    if (checkRet != ERR_OK) {
-        HILOGE("check data_sync permission is not ok! accessToken = %{public}u", accessToken);
+    if (DistributedSchedPermission::GetInstance().CheckPermission(accessToken,
+        PERMISSION_DISTRIBUTED_DATASYNC) != ERR_OK) {
+        HILOGE("check data_sync permission failed!");
         return DMS_PERMISSION_DENIED;
     }
     int32_t result = StartRemoteFreeInstall(*want, callerUid, requestCode, accessToken, callback);
