@@ -260,6 +260,13 @@ int32_t DistributedSchedStub::SendResultFromRemoteInner(MessageParcel& data, Mes
 
 int32_t DistributedSchedStub::ContinueMissionInner(MessageParcel& data, MessageParcel& reply)
 {
+    bool isLocalCalling = IPCSkeleton::IsLocalCalling();
+    if ((isLocalCalling && !DistributedSchedPermission::GetInstance().IsFoundationCall()) ||
+        (!isLocalCalling && !CheckCallingUid())) {
+        HILOGE("check permission failed!");
+        return DMS_PERMISSION_DENIED;
+    }
+
     std::string srcDevId;
     std::string dstDevId;
     PARCEL_READ_HELPER(data, String, srcDevId);
@@ -315,6 +322,11 @@ int32_t DistributedSchedStub::StartContinuationInner(MessageParcel& data, Messag
 int32_t DistributedSchedStub::NotifyCompleteContinuationInner(MessageParcel& data,
     [[maybe_unused]] MessageParcel& reply)
 {
+    if (!DistributedSchedPermission::GetInstance().IsFoundationCall()) {
+        HILOGE("check permission failed!");
+        return DMS_PERMISSION_DENIED;
+    }
+
     u16string devId = data.ReadString16();
     if (devId.empty()) {
         HILOGE("devId is empty!");
