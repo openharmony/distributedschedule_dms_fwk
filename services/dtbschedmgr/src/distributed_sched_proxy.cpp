@@ -586,17 +586,6 @@ int32_t DistributedSchedProxy::GetOsdSwitchValueFromRemote()
     return result;
 }
 
-int32_t DistributedSchedProxy::StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
-    const uint8_t* byteStream, size_t len)
-{
-    return ERR_NONE;
-}
-
-int32_t DistributedSchedProxy::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
-{
-    return ERR_NONE;
-}
-
 int32_t DistributedSchedProxy::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
     std::unique_ptr<MissionSnapshot>& missionSnapshot)
 {

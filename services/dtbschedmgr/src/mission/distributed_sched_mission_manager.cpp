@@ -217,40 +217,6 @@ int32_t DistributedSchedMissionManager::RemoveSnapshotInfo(const std::string& de
     return ERR_NONE;
 }
 
-std::unique_ptr<Snapshot> DistributedSchedMissionManager::GetRemoteSnapshotInfo(const std::string& deviceId,
-    int32_t missionId)
-{
-    if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
-        HILOGE("GetRemoteSnapshotInfo permission denied!");
-        return nullptr;
-    }
-    std::string uuid = DtbschedmgrDeviceInfoStorage::GetInstance().GetUuidByNetworkId(deviceId);
-    if (uuid.empty()) {
-        HILOGE("GetRemoteSnapshotInfo uuid empty!");
-        return nullptr;
-    }
-    std::unique_ptr<Snapshot> snapshot = DequeueCachedSnapshotInfo(uuid, missionId);
-    if (snapshot != nullptr) {
-        return snapshot;
-    }
-    if (distributedDataStorage_ == nullptr) {
-        HILOGE("GetRemoteSnapshotInfo DistributedDataStorage null!");
-        return nullptr;
-    }
-    DistributedKv::Value value;
-    bool ret = distributedDataStorage_->Query(deviceId, missionId, value);
-    if (!ret) {
-        HILOGE("GetRemoteSnapshotInfo DistributedDataStorage query failed!");
-        return nullptr;
-    }
-    snapshot = Snapshot::Create(value.Data());
-    if (snapshot == nullptr) {
-        HILOGE("GetRemoteSnapshotInfo snapshot create failed!");
-        return nullptr;
-    }
-    return snapshot;
-}
-
 int32_t DistributedSchedMissionManager::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
     std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot)
 {

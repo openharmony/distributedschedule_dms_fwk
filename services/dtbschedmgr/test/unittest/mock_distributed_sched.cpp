@@ -112,17 +112,6 @@ int32_t MockDistributedSched::UnRegisterMissionListener(const std::u16string& de
     return ERR_NONE;
 }
 
-int32_t MockDistributedSched::StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
-    const uint8_t* byteStream, size_t len)
-{
-    return ERR_NONE;
-}
-
-int32_t MockDistributedSched::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
-{
-    return ERR_NONE;
-}
-
 int32_t MockDistributedSched::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
     std::unique_ptr<MissionSnapshot>& missionSnapshot)
 {

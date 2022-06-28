@@ -89,9 +89,6 @@ public:
     virtual int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) = 0;
     virtual int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
         std::vector<AAFwk::MissionInfo>& missionInfos) = 0;
-    virtual int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
-        const uint8_t* byteStream, size_t len) = 0;
-    virtual int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) = 0;
     virtual int32_t GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
         std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot) = 0;
     virtual int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
@@ -150,9 +147,6 @@ public:
 
         // request code for mission
         GET_MISSION_INFOS = 80,
-        STORE_SNAPSHOT_INFO = 81,
-        GET_REMOTE_SNAPSHOT_INFO = 82,
-        REMOVE_SNAPSHOT_INFO = 83,
         REGISTER_MISSION_LISTENER = 84,
         UNREGISTER_MISSION_LISTENER = 85,
         START_SYNC_MISSIONS_FROM_REMOTE = 86,
