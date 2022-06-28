@@ -47,6 +47,7 @@ public:
         bool needQueryExtension = false);
     int32_t CheckGetCallerPermission(const AAFwk::Want& want, const CallerInfo& callerInfo,
         const AccountInfo& accountInfo, const std::string& localDeviceId);
+    bool IsFoundationCall() const;
     int32_t CheckPermission(uint32_t accessToken, const std::string& permissionName) const;
     int32_t GetAccountInfo(const std::string& remoteNetworkId, const CallerInfo& callerInfo,
         AccountInfo& accountInfo);
@@ -56,7 +57,6 @@ private:
         AccountInfo& accountInfo);
     bool ParseGroupInfos(const std::string& returnGroupStr, std::vector<GroupInfo>& groupInfos);
     bool IsNativeCall(uint32_t accessToken) const;
-    bool IsFoundationCall(uint32_t accessToken) const;
     bool VerifyPermission(uint32_t accessToken, const std::string& permissionName) const;
     bool CheckAccountAccessPermission(const CallerInfo& callerInfo,
         const AccountInfo& accountInfo, const std::string& targetBundleName);

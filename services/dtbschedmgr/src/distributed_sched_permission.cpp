@@ -205,26 +205,9 @@ int32_t DistributedSchedPermission::CheckGetCallerPermission(const AAFwk::Want& 
     return ERR_OK;
 }
 
-int32_t DistributedSchedPermission::CheckPermission(uint32_t accessToken, const std::string& permissionName) const
+bool DistributedSchedPermission::IsFoundationCall() const
 {
-    HILOGI("called.");
-    if (!IsFoundationCall(IPCSkeleton::GetCallingTokenID())) {
-        return DMS_PERMISSION_DENIED;
-    }
-    if (IsNativeCall(accessToken)) {
-        return ERR_OK;
-    }
-    if (VerifyPermission(accessToken, permissionName)) {
-        return ERR_OK;
-    }
-    return DMS_PERMISSION_DENIED;
-}
-
-bool DistributedSchedPermission::IsFoundationCall(uint32_t accessToken) const
-{
-    if (!IsNativeCall(accessToken)) {
-        return false;
-    }
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     AccessToken::NativeTokenInfo nativeTokenInfo;
     int32_t result = AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
     if (result == ERR_OK && nativeTokenInfo.processName == FOUNDATION_PROCESS_NAME) {
@@ -234,13 +217,25 @@ bool DistributedSchedPermission::IsFoundationCall(uint32_t accessToken) const
     return false;
 }
 
+int32_t DistributedSchedPermission::CheckPermission(uint32_t accessToken, const std::string& permissionName) const
+{
+    HILOGI("called.");
+    // if called from xts, granted directly, no need to check permissions.
+    if (IsNativeCall(accessToken)) {
+        return ERR_OK;
+    }
+    if (VerifyPermission(accessToken, permissionName)) {
+        return ERR_OK;
+    }
+    return DMS_PERMISSION_DENIED;
+}
+
 bool DistributedSchedPermission::IsNativeCall(uint32_t accessToken) const
 {
     auto tokenType = AccessToken::AccessTokenKit::GetTokenTypeFlag(accessToken);
     if (tokenType == AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
         return true;
     }
-    HILOGE("not native called.");
     return false;
 }
 

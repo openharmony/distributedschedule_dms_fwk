@@ -1581,14 +1581,6 @@ int32_t DistributedSchedService::NotifyMissionsChangedFromRemote(const std::vect
         .NotifyMissionsChangedFromRemote(callerInfo, missionInfos);
 }
 
-std::unique_ptr<Snapshot> DistributedSchedService::GetRemoteSnapshotInfo(const std::u16string& deviceId,
-    int32_t missionId)
-{
-    std::string strDeviceId = Str16ToStr8(deviceId);
-    HILOGI("GetRemoteSnapShot missionId:%{public}d", missionId);
-    return DistributedSchedMissionManager::GetInstance().GetRemoteSnapshotInfo(strDeviceId, missionId);
-}
-
 int32_t DistributedSchedService::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
     std::unique_ptr<MissionSnapshot>& missionSnapshot)
 {
@@ -1609,17 +1601,6 @@ void DistributedSchedService::GetCachedOsdSwitch(std::vector<std::u16string>& de
 int32_t DistributedSchedService::GetOsdSwitchValueFromRemote()
 {
     return DistributedSchedMissionManager::GetInstance().GetOsdSwitchValueFromRemote();
-}
-
-int32_t DistributedSchedService::StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
-    const uint8_t* byteStream, size_t len)
-{
-    return DistributedSchedMissionManager::GetInstance().StoreSnapshotInfo(deviceId, missionId, byteStream, len);
-}
-
-int32_t DistributedSchedService::RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId)
-{
-    return DistributedSchedMissionManager::GetInstance().RemoveSnapshotInfo(deviceId, missionId);
 }
 
 int32_t DistributedSchedService::RegisterMissionListener(const std::u16string& devId,
