@@ -27,7 +27,9 @@
         "components": [
           "ability_base",
           "ability_runtime",
-          "appexecfwk_standard",
+          "access_token",
+          "bundle_framework",
+          "device_auth",
           "distributeddatamgr",
           "dsoftbus",
           "eventhandler",
@@ -36,6 +38,7 @@
           "hiviewdfx_hilog_native",
           "ipc",
           "multimedia_image_standard",
+          "os_account",
           "safwk",
           "samgr_standard",
           "utils_base"
