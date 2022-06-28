@@ -31,14 +31,6 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel& data,
         MessageParcel& reply, MessageOption& option) override;
 
-protected:
-#ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
-    virtual std::unique_ptr<Snapshot> GetRemoteSnapshotInfo(const std::u16string& deviceId, int32_t missionId)
-    {
-        return nullptr;
-    }
-#endif
-
 private:
     int32_t StartRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t StartAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
@@ -58,9 +50,6 @@ private:
     int32_t GetCachedOsdSwitchInner(MessageParcel& data, MessageParcel& reply);
     int32_t GetMissionInfosInner(MessageParcel& data, MessageParcel& reply);
     int32_t GetOsdSwitchValueFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    int32_t StoreSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
-    int32_t RemoveSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
-    int32_t GetRemoteSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
     int32_t GetRemoteMissionSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
     int32_t RegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply);
     int32_t UnRegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply);

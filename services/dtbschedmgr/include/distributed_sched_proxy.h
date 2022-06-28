@@ -59,9 +59,6 @@ public:
     int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj) override;
     int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
         std::vector<AAFwk::MissionInfo>& missionInfos) override;
-    int32_t StoreSnapshotInfo(const std::string& deviceId, int32_t missionId,
-        const uint8_t* byteStream, size_t len) override;
-    int32_t RemoveSnapshotInfo(const std::string& deviceId, int32_t missionId) override;
     int32_t GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
         std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot) override;
     int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
