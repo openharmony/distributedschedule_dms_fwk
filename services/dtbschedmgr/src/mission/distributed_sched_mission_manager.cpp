@@ -38,16 +38,11 @@ namespace DistributedSchedule {
 namespace {
 const std::string TAG = "DistributedSchedMissionManager";
 constexpr size_t MAX_CACHED_ITEM = 10;
-constexpr int32_t FIRST_APPLICATION_UID = 10000;
-constexpr int32_t MULTIUSER_HAP_PER_USER_RANGE = 100000;
 constexpr int32_t MAX_RETRY_TIMES = 15;
 constexpr int32_t RETRY_DELAYED = 2000;
 constexpr int32_t GET_FOREGROUND_SNAPSHOT_DELAY_TIME = 800; // ms
 const std::string DELETE_DATA_STORAGE = "DeleteDataStorage";
 constexpr int32_t DELETE_DATA_STORAGE_DELAYED = 60000; // ms
-constexpr int32_t REGISTER_MISSION_LISTENER = 0;
-constexpr int32_t UNREGISTER_MISSION_LISTENER = 1;
-constexpr int64_t DELAY_TIME = 300;
 const std::string INVAILD_LOCAL_DEVICE_ID = "-1";
 }
 namespace Mission {
@@ -76,10 +71,6 @@ int32_t DistributedSchedMissionManager::GetMissionInfos(const std::string& devic
     int32_t numMissions, std::vector<AAFwk::MissionInfo>& missionInfos)
 {
     HILOGI("start!");
-    if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
-        HILOGE("permission denied!");
-        return ERR_PERMISSION_DENIED;
-    }
     if (!IsDeviceIdValidated(deviceId)) {
         return INVALID_PARAMETERS_ERR;
     }
@@ -220,10 +211,6 @@ int32_t DistributedSchedMissionManager::RemoveSnapshotInfo(const std::string& de
 int32_t DistributedSchedMissionManager::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
     std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot)
 {
-    if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
-        HILOGE("permission denied!");
-        return DMS_PERMISSION_DENIED;
-    }
     std::string uuid = DtbschedmgrDeviceInfoStorage::GetInstance().GetUuidByNetworkId(networkId);
     if (uuid.empty()) {
         HILOGE("uuid is empty!");
@@ -287,46 +274,8 @@ void DistributedSchedMissionManager::DeviceOfflineNotify(const std::string& devi
             remoteDmsMap_.erase(iter);
         }
     }
-    int64_t begin = GetTickCount();
-    {
-        std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-        connCapSupportOsdMap_.erase(deviceId);
-    }
-    HILOGI("DeviceOfflineNotify erase value for deviceId: %{public}s spend %{public}" PRId64 " ms",
-        DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str(), GetTickCount() - begin);
-}
-
-void DistributedSchedMissionManager::UpdateConnCapSupportOsd(const std::string& deviceId)
-{
-    HILOGI("UpdateConnCapSupportOsd begin, deviceId is %{public}s",
+    HILOGI("DeviceOfflineNotify erase value for deviceId: %{public}s",
         DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
-    bool isSupportOsd = IsConnCapSupportOsd(deviceId);
-    bool needNotifyChanged = false;
-    int32_t switchVal = MISSION_OSD_NOT_SUPPORTED;
-    {
-        std::string uuid = DtbschedmgrDeviceInfoStorage::GetInstance().GetUuidByNetworkId(deviceId);
-        std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-        auto iter = connCapSupportOsdMap_.find(deviceId);
-        if (iter != connCapSupportOsdMap_.end()) {
-            needNotifyChanged = (iter->second != isSupportOsd);
-        } else {
-            needNotifyChanged = true;
-        }
-        connCapSupportOsdMap_[deviceId] = isSupportOsd;
-        HILOGI("UpdateConnCapSupportOsd end, isSupportOsd is %{public}d", isSupportOsd);
-        auto iterOsdSwitch = osdSwitchValueMap_.find(uuid);
-        if (isSupportOsd && iterOsdSwitch == osdSwitchValueMap_.end()) {
-            HILOGI("UpdateConnCapSupportOsd can not find osd switch value!");
-            return;
-        }
-        switchVal = isSupportOsd ? iterOsdSwitch->second : MISSION_OSD_NOT_SUPPORTED;
-    }
-    NotifyOsdSwitchChanged(needNotifyChanged, deviceId, switchVal);
-}
-
-bool DistributedSchedMissionManager::IsConnCapSupportOsd(const std::string& deviceId)
-{
-    return true;
 }
 
 void DistributedSchedMissionManager::DeleteDataStorage(const std::string& deviceId, bool isDelayed)
@@ -368,10 +317,6 @@ int32_t DistributedSchedMissionManager::RegisterMissionListener(const std::u16st
     if (listener == nullptr) {
         return INVALID_PARAMETERS_ERR;
     }
-    if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
-        HILOGE("permission denied!");
-        return DMS_PERMISSION_DENIED;
-    }
     std::string localDeviceId;
     std::string remoteDeviceId = Str16ToStr8(devId);
     if (!DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(localDeviceId)
@@ -394,11 +339,6 @@ int32_t DistributedSchedMissionManager::RegisterMissionListener(const std::u16st
             HILOGI("RegisterMissionListener not notify remote DMS!");
             return ERR_NONE;
         }
-    }
-
-    if (CheckOsdSwitch(remoteDeviceId) != MISSION_OSD_ENABLED) {
-        NotifyOsdSwitchChanged(true, remoteDeviceId, MISSION_OSD_NOT_SUPPORTED);
-        return MISSION_OSD_NOT_SUPPORTED;
     }
     return ERR_NONE;
 }
@@ -459,10 +399,6 @@ int32_t DistributedSchedMissionManager::UnRegisterMissionListener(const std::u16
 {
     if (listener == nullptr) {
         return INVALID_PARAMETERS_ERR;
-    }
-    if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
-        HILOGE("permission denied!");
-        return DMS_PERMISSION_DENIED;
     }
     std::string localDeviceId;
     if (!DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(localDeviceId)
@@ -549,11 +485,6 @@ int32_t DistributedSchedMissionManager::StartSyncRemoteMissions(const std::strin
     HILOGI("begin, dstDevId is %{public}s, local deviceId is %{public}s",
         DnetworkAdapter::AnonymizeDeviceId(dstDevId).c_str(),
         DnetworkAdapter::AnonymizeDeviceId(localDeviceId).c_str());
-    if (dstDevId != INVAILD_LOCAL_DEVICE_ID && dstDevId != localDeviceId &&
-        CheckOsdSwitch(dstDevId) != MISSION_OSD_ENABLED) {
-        NotifyOsdSwitchChanged(true, dstDevId, MISSION_OSD_NOT_SUPPORTED);
-        return MISSION_OSD_NOT_SUPPORTED;
-    }
     auto ret = StartSyncRemoteMissions(dstDevId, localDeviceId);
     if (ret != ERR_NONE) {
         HILOGE("StartSyncRemoteMissions failed, %{public}d", ret);
@@ -570,13 +501,6 @@ int32_t DistributedSchedMissionManager::StartSyncMissionsFromRemote(const Caller
     {
         std::lock_guard<std::mutex> autoLock(remoteSyncDeviceLock_);
         remoteSyncDeviceSet_.emplace(deviceId);
-        if (remoteSyncDeviceSet_.size() == 1) {
-            DistributedSchedAdapter::GetInstance().OnOsdEventOccur(REGISTER_MISSION_LISTENER);
-        }
-    }
-    if (GetOsdSwitchValueFromRemote() != MISSION_OSD_ENABLED) {
-        HILOGI("osd function is disable!");
-        return ERR_NONE;
     }
     int32_t result = DistributedSchedAdapter::GetInstance().GetLocalMissionInfos(Mission::GET_MAX_MISSIONS,
         missionInfos);
@@ -606,7 +530,6 @@ void DistributedSchedMissionManager::StopSyncMissionsFromRemote(const std::strin
             auto func = [this]() {
                 int32_t ret = DistributedSchedAdapter::GetInstance().UnRegisterMissionListener(missonChangeListener_);
                 if (ret == ERR_OK) {
-                    DistributedSchedAdapter::GetInstance().OnOsdEventOccur(UNREGISTER_MISSION_LISTENER);
                     isRegMissionChange_ = false;
                 }
             };
@@ -972,156 +895,6 @@ std::shared_ptr<AppExecFwk::EventHandler> DistributedSchedMissionManager::FetchD
     return handler;
 }
 
-bool DistributedSchedMissionManager::GetConnCapSupportOsd(const std::string& deviceId)
-{
-    HILOGI("GetConnCapSupportOsd begin, deviceId is %{public}s",
-        DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
-    std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-    return GetConnCapSupportOsdInnerLocked(deviceId);
-}
-
-bool DistributedSchedMissionManager::GetConnCapSupportOsdInnerLocked(const std::string& deviceId)
-{
-    bool connCapSupportOsd = false;
-    auto iter = connCapSupportOsdMap_.find(deviceId);
-    if (iter != connCapSupportOsdMap_.end()) {
-        connCapSupportOsd = iter->second;
-        HILOGI("CheckSupportOsd find connCapSupportOsd is %{public}d", connCapSupportOsd);
-    } else {
-        HILOGI("CheckSupportOsd can not find connCapSupportOsd, try to get it!");
-        connCapSupportOsd = IsConnCapSupportOsd(deviceId);
-        connCapSupportOsdMap_[deviceId] = connCapSupportOsd;
-    }
-    return connCapSupportOsd;
-}
-
-bool DistributedSchedMissionManager::PreCheckSupportOsd(const std::string& deviceId)
-{
-    if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
-        HILOGE("CheckSupportOsd permission denied!");
-        return false;
-    }
-    if (!IsDeviceIdValidated(deviceId)) {
-        HILOGE("DeviceId is inValidated!");
-        return false;
-    }
-    if (!GetConnCapSupportOsd(deviceId)) {
-        HILOGI("CheckSupportOsd conn cap not support osd!");
-        return false;
-    }
-    return true;
-}
-
-int32_t DistributedSchedMissionManager::CheckSupportOsd(const std::string& deviceId)
-{
-    HILOGI("CheckSupportOsd start, deviceId: %{public}s!",
-        DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
-    if (!PreCheckSupportOsd(deviceId)) {
-        return MISSION_OSD_NOT_SUPPORTED;
-    }
-    int64_t begin = GetTickCount();
-    {
-        std::string uuid = DtbschedmgrDeviceInfoStorage::GetInstance().GetUuidByNetworkId(deviceId);
-        std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-        auto iter = osdSwitchValueMap_.find(uuid);
-        if (iter != osdSwitchValueMap_.end()) {
-            HILOGI("CheckSupportOsd find value spend %{public}" PRId64 " ms", GetTickCount() - begin);
-            return iter->second;
-        }
-    }
-    HILOGI("CheckSupportOsd can not find value spend %{public}" PRId64 " ms", GetTickCount() - begin);
-
-    sptr<IDistributedSched> remoteDms = GetRemoteDms(deviceId);
-    if (remoteDms == nullptr) {
-        HILOGE("CheckSupportOsd DMS get remoteDms failed");
-        return MISSION_OSD_NOT_SUPPORTED;
-    }
-    begin = GetTickCount();
-    int32_t osdSwitchVal = remoteDms->GetOsdSwitchValueFromRemote();
-    HILOGI("[PerformanceTest] GetOsdSwitchValueFromRemote osdSwitch:%d, spend %{public}" PRId64 " ms",
-        osdSwitchVal, GetTickCount() - begin);
-    if (osdSwitchVal == IPC_STUB_UNKNOW_TRANS_ERR) {
-        HILOGI("GetOsdSwitchValueFromRemote destUuid: %{public}s does not support osd result: %{public}d",
-            DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str(), osdSwitchVal);
-        osdSwitchVal = MISSION_OSD_NOT_SUPPORTED;
-    }
-    if (!IsValidOsdSwitchValue(osdSwitchVal)) {
-        HILOGE("CheckSupportOsd osdSwitch %{public}d is invalid!", osdSwitchVal);
-        return MISSION_OSD_NOT_SUPPORTED;
-    }
-    begin = GetTickCount();
-    std::string uuid = DtbschedmgrDeviceInfoStorage::GetInstance().GetUuidByNetworkId(deviceId);
-    std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-    osdSwitchValueMap_[uuid] = osdSwitchVal;
-    HILOGI("CheckSupportOsd insert value spend %{public}" PRId64 " ms", GetTickCount() - begin);
-    return osdSwitchVal;
-}
-
-int32_t DistributedSchedMissionManager::CheckOsdSwitch(const std::string& deviceId)
-{
-    HILOGI("CheckOsdSwitch start, deviceId: %{public}s!",
-        DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
-    if (!PreCheckSupportOsd(deviceId)) {
-        return MISSION_OSD_NOT_SUPPORTED;
-    }
-    int64_t begin = GetTickCount();
-    {
-        std::string uuid = DtbschedmgrDeviceInfoStorage::GetInstance().GetUuidByNetworkId(deviceId);
-        std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-        auto iter = osdSwitchValueMap_.find(uuid);
-        if (iter != osdSwitchValueMap_.end()) {
-            HILOGI("CheckOsdSwitch find value spend %{public}" PRId64 " ms", GetTickCount() - begin);
-            return iter->second;
-        }
-    }
-    HILOGI("CheckOsdSwitch can not find value spend %{public}" PRId64 " ms", GetTickCount() - begin);
-    return MISSION_OSD_ENABLED;
-}
-
-void DistributedSchedMissionManager::GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds,
-    std::vector<int32_t>& values)
-{
-    HILOGI("GetCachedOsdSwitch start");
-    if (!AllowMissionUid(IPCSkeleton::GetCallingUid())) {
-        HILOGE("GetCachedOsdSwitch permission denied!");
-        return;
-    }
-    std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-    for (const auto& [uuid, value] : osdSwitchValueMap_) {
-        std::string deviceId = DtbschedmgrDeviceInfoStorage::GetInstance().GetNetworkIdByUuid(uuid);
-        deviceIds.emplace_back(Str8ToStr16(deviceId));
-        bool connCapSupportOsd = GetConnCapSupportOsdInnerLocked(deviceId);
-        values.emplace_back(connCapSupportOsd ? value : MISSION_OSD_NOT_SUPPORTED);
-    }
-}
-
-int32_t DistributedSchedMissionManager::GetOsdSwitchValueFromRemote()
-{
-    HILOGI("GetOsdSwitchValueFromRemote start!");
-    return DistributedSchedAdapter::GetInstance().GetOsdSwitch();
-}
-
-bool DistributedSchedMissionManager::AllowMissionUid(int32_t uid)
-{
-    int32_t appId = uid % MULTIUSER_HAP_PER_USER_RANGE;
-    if (appId < FIRST_APPLICATION_UID) {
-        return true;
-    }
-    std::lock_guard<std::mutex> autoLock(allowMissionUidsLock_);
-    if (allowMissionUids_.count(appId) == 0) {
-        int64_t begin = GetTickCount();
-        bool ret = DistributedSchedAdapter::GetInstance().AllowMissionUid(uid);
-        HILOGI("AllowMissionUid ret:%{public}s, spend %{public}" PRId64 " ms!",
-            (ret ? "succ" : "fail"), GetTickCount() - begin);
-        if (!ret) {
-            HILOGW("AllowMissionUid failed!");
-            return false;
-        }
-        allowMissionUids_.insert(appId);
-    }
-    return true;
-}
-
 void DistributedSchedMissionManager::RemoteDmsDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
     HILOGI("OnRemoteDied received died notify!");
@@ -1164,139 +937,6 @@ void DistributedSchedMissionManager::RetryStartSyncRemoteMissions(const std::str
     if (missionHandler_ != nullptr && retryTimes < MAX_RETRY_TIMES) {
         missionHandler_->PostTask(retryFunc, RETRY_DELAYED);
     }
-}
-
-int32_t DistributedSchedMissionManager::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
-    const std::string& deviceId)
-{
-    HILOGI("UpdateOsdSwitchValueFromRemote notify start, switchVal: %{public}d, deviceId: %{public}s!",
-        switchVal, DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
-    bool needNotifyChanged = false;
-    bool connCap = false;
-    int64_t begin = GetTickCount();
-    {
-        std::string uuid = DtbschedmgrDeviceInfoStorage::GetInstance().GetUuidByNetworkId(deviceId);
-        std::lock_guard<std::mutex> autoLock(osdSwitchLock_);
-        auto iter = osdSwitchValueMap_.find(uuid);
-        if (iter != osdSwitchValueMap_.end()) {
-            needNotifyChanged = (iter->second != switchVal);
-        } else {
-            needNotifyChanged = true;
-        }
-        osdSwitchValueMap_[uuid] = switchVal;
-        connCap = GetConnCapSupportOsdInnerLocked(deviceId);
-    }
-    HILOGI("UpdateOsdSwitchValueFromRemote update value spend %{public}" PRId64 " ms", GetTickCount() - begin);
-    NotifyOsdSwitchChanged(needNotifyChanged, deviceId, connCap ? switchVal : MISSION_OSD_NOT_SUPPORTED);
-    HILOGD("UpdateOsdSwitchValueFromRemote end!");
-    return ERR_NONE;
-}
-
-void DistributedSchedMissionManager::NotifyOsdSwitchChanged(bool needNotifyChanged, const std::string& deviceId,
-    int32_t switchVal)
-{
-    std::lock_guard<std::mutex> autoLock(listenDeviceLock_);
-    if (!needNotifyChanged) {
-        HILOGI("NotifyOsdSwitchChanged no need to notify!");
-        return;
-    }
-    auto iter = listenDeviceMap_.find(Str8ToStr16(deviceId));
-    if (iter == listenDeviceMap_.end()) {
-        HILOGI("NotifyOsdSwitchChanged notify no listener!");
-        return;
-    }
-
-    auto& listenerSet = iter->second.listenerSet;
-    auto notifyChanged = [listenerSet, deviceId, switchVal, this] () {
-        HILOGI("NotifyOsdSwitchChanged %{public}s!",
-            DnetworkAdapter::AnonymizeDeviceId(deviceId).c_str());
-        bool isSwitchOn = (switchVal == MISSION_OSD_ENABLED);
-        for (const auto& listener : listenerSet) {
-            MissionChangedNotify::NotifyOsdSwitchChanged(listener, Str8ToStr16(deviceId), isSwitchOn);
-        }
-    };
-    if (missionHandler_ != nullptr && !missionHandler_->PostTask(notifyChanged)) {
-        HILOGE("NotifyOsdSwitchChanged PostTask failed!");
-    }
-}
-
-int32_t DistributedSchedMissionManager::UpdateSwitchValueToRemote()
-{
-    auto callback = [this] () {
-        std::string localNetworkId;
-        if (!DtbschedmgrDeviceInfoStorage::GetInstance().GetLocalDeviceId(localNetworkId)) {
-            HILOGE("UpdateSwitchValueToRemote get local uuid failed!");
-            return;
-        }
-        std::set<std::string> remoteSyncDeviceSet;
-        DtbschedmgrDeviceInfoStorage::GetInstance().GetDeviceIdSet(remoteSyncDeviceSet);
-        UpdateSwitchValueToRemoteInner(remoteSyncDeviceSet, localNetworkId);
-    };
-    if (updateHandler_ == nullptr) {
-        HILOGE("UpdateSwitchValueToRemote updateHandler_ is nullptr");
-        return ERR_NULL_OBJECT;
-    }
-    if (!updateHandler_->PostTask(callback)) {
-        HILOGE("UpdateSwitchValueToRemote PostTask failed!");
-        return ERR_NULL_OBJECT;
-    }
-    return ERR_NONE;
-}
-
-void DistributedSchedMissionManager::UpdateSwitchValueToRemoteInner(std::set<std::string>& remoteSyncDeviceSet,
-    const std::string& localNetworkId)
-{
-    HILOGD("UpdateSwitchValueToRemote Start");
-    for (auto iter = remoteSyncDeviceSet.begin(); iter != remoteSyncDeviceSet.end(); iter++) {
-        TryUpdateSwitchValueToRemote(localNetworkId, *iter, 0);
-    }
-}
-
-void DistributedSchedMissionManager::TryUpdateSwitchValueToRemote(const std::string& localNetworkId,
-    const std::string& destUuid, int32_t retryTime)
-{
-    std::lock_guard<std::mutex> autoLock(remoteSyncDeviceLock_);
-    auto handler = FetchDeviceHandler(destUuid);
-    auto callback = [retryTime, localNetworkId, destUuid, this] () {
-        sptr<IDistributedSched> remoteDms = GetRemoteDms(destUuid);
-        int32_t result = ERR_FLATTEN_OBJECT;
-        if (remoteDms != nullptr) {
-            int64_t begin = GetTickCount();
-            int32_t switchVal = DistributedSchedAdapter::GetInstance().GetOsdSwitch();
-            HILOGI("TryUpdateSwitchValueToRemote switchVal: %{public}d, destUuid: %{public}s retry:%{public}d",
-                switchVal, DnetworkAdapter::AnonymizeDeviceId(destUuid).c_str(), retryTime);
-            if (!IsValidOsdSwitchValue(switchVal)) {
-                HILOGI("UpdateSwitchValueToRemote invalid switch value %{public}d!", switchVal);
-                return;
-            }
-            result = remoteDms->UpdateOsdSwitchValueFromRemote(switchVal, localNetworkId);
-            HILOGI("[PerformanceTest] TryUpdateSwitchValueToRemote ret:%d, spend %{public}" PRId64 " ms",
-                result, GetTickCount() - begin);
-        } else {
-            HILOGE("TryUpdateSwitchValueToRemote DMS get remoteDms failed");
-        }
-        if (result == IPC_STUB_UNKNOW_TRANS_ERR) {
-            HILOGI("TryUpdateSwitchValueToRemote destUuid: %{public}s does not support osd result: %{public}d",
-                DnetworkAdapter::AnonymizeDeviceId(destUuid).c_str(), result);
-            return;
-        }
-        if (result != ERR_NONE) {
-            TryUpdateSwitchValueToRemote(localNetworkId, destUuid, retryTime + 1);
-            HILOGI("DMS TryUpdateSwitchValueToRemote retry");
-        }
-        HILOGI("DMS TryUpdateSwitchValueToRemote result:%{public}d", result);
-    };
-    if (handler != nullptr && retryTime < MAX_RETRY_TIMES) {
-        handler->PostTask(callback, DELAY_TIME);
-    }
-}
-
-bool DistributedSchedMissionManager::IsValidOsdSwitchValue(int32_t osdSwitchVal)
-{
-    return osdSwitchVal == MISSION_OSD_NOT_SUPPORTED || osdSwitchVal == MISSION_OSD_NOT_ENABLED ||
-        osdSwitchVal == MISSION_OSD_ENABLED || osdSwitchVal == MISSION_OSD_CCM_NOT_SUPPORTED ||
-        osdSwitchVal == MISSION_OSD_WIFI_OFF || osdSwitchVal == MISSION_OSD_CHILDMODE_ON ||
-        osdSwitchVal == MISSION_OSD_CLOUD_SWITCH_OFF;
 }
 
 void DistributedSchedMissionManager::OnMissionListenerDied(const sptr<IRemoteObject>& remote)
@@ -1464,7 +1104,6 @@ void DistributedSchedMissionManager::OnDnetDied()
         }
         remoteSyncDeviceSet_.clear();
         DistributedSchedAdapter::GetInstance().UnRegisterMissionListener(missonChangeListener_);
-        DistributedSchedAdapter::GetInstance().OnOsdEventOccur(UNREGISTER_MISSION_LISTENER);
         isRegMissionChange_ = false;
     };
     if (missionHandler_ != nullptr) {

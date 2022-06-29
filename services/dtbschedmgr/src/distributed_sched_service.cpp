@@ -1588,21 +1588,6 @@ int32_t DistributedSchedService::GetRemoteMissionSnapshotInfo(const std::string&
         .GetRemoteMissionSnapshotInfo(networkId, missionId, missionSnapshot);
 }
 
-int32_t DistributedSchedService::CheckSupportOsd(const std::string& deviceId)
-{
-    return DistributedSchedMissionManager::GetInstance().CheckSupportOsd(deviceId);
-}
-
-void DistributedSchedService::GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values)
-{
-    return DistributedSchedMissionManager::GetInstance().GetCachedOsdSwitch(deviceIds, values);
-}
-
-int32_t DistributedSchedService::GetOsdSwitchValueFromRemote()
-{
-    return DistributedSchedMissionManager::GetInstance().GetOsdSwitchValueFromRemote();
-}
-
 int32_t DistributedSchedService::RegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
@@ -1635,13 +1620,6 @@ int32_t DistributedSchedService::StopSyncMissionsFromRemote(const CallerInfo& ca
 {
     DistributedSchedMissionManager::GetInstance().StopSyncMissionsFromRemote(callerInfo.sourceDeviceId);
     return ERR_NONE;
-}
-
-int32_t DistributedSchedService::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
-    const std::string& sourceDeviceId)
-{
-    return DistributedSchedMissionManager::GetInstance()
-        .UpdateOsdSwitchValueFromRemote(switchVal, sourceDeviceId);
 }
 #endif
 

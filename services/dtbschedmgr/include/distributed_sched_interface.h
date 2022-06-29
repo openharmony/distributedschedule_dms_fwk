@@ -93,10 +93,6 @@ public:
         std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot) = 0;
     virtual int32_t NotifyMissionsChangedFromRemote(const std::vector<DstbMissionInfo>& missionInfos,
          const CallerInfo& callerInfo) = 0;
-    virtual int32_t CheckSupportOsd(const std::string& deviceId) = 0;
-    virtual void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values) = 0;
-    virtual int32_t GetOsdSwitchValueFromRemote() = 0;
-    virtual int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) = 0;
 #endif
     virtual int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         int32_t callerUid, int32_t callerPid, uint32_t accessToken) = 0;

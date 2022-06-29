@@ -25,7 +25,6 @@ namespace {
 constexpr int32_t CODE_NOTIFY_MISSION = 0;
 constexpr int32_t NOTIFY_SNAP_SHOT = 1;
 constexpr int32_t NOTIFY_NET_DISCONNECT = 2;
-constexpr int32_t CODE_NOTIFY_SWITCH = 4;
 
 const std::u16string DESCRIPTOR = u"ohos.aafwk.RemoteMissionListener";
 const std::string TAG = "MissionChangedNotify";
@@ -105,32 +104,6 @@ void MissionChangedNotify::NotifyNetDisconnect(const sptr<IRemoteObject>& remote
         return;
     }
     HILOGI("NotifyNetDisconnect finished!");
-}
-
-void MissionChangedNotify::NotifyOsdSwitchChanged(const sptr<IRemoteObject>& remoteObject,
-    const std::u16string& deviceId, bool isSwitchOn)
-{
-    HILOGI("NotifyOsdSwitchChanged start!");
-    if (remoteObject == nullptr) {
-        HILOGE("NotifyOsdSwitchChanged remote service is null!");
-        return;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
-    if (!data.WriteInterfaceToken(DESCRIPTOR)) {
-        HILOGE("NotifyOsdSwitchChanged write interface token failed!");
-        return;
-    }
-    PARCEL_WRITE_HELPER_NORET(data, String, Str16ToStr8(deviceId));
-    PARCEL_WRITE_HELPER_NORET(data, Bool, isSwitchOn);
-    HILOGI("[PerformanceTest] NotifyOsdSwitchChanged called, IPC begin = %{public}" PRId64, GetTickCount());
-    int32_t error = remoteObject->SendRequest(CODE_NOTIFY_SWITCH, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOGE("NotifyOsdSwitchChanged fail, error: %{public}d", error);
-        return;
-    }
-    HILOGI("NotifyOsdSwitchChanged finished!");
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

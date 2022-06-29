@@ -39,17 +39,13 @@ private:
     int32_t StartContinuationInner(MessageParcel& data, MessageParcel& reply);
     int32_t NotifyCompleteContinuationInner(MessageParcel& data, MessageParcel& reply);
     int32_t NotifyContinuationResultFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    bool CheckDmsRequestPermission();
     int32_t ConnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t DisconnectRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t ConnectAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     int32_t DisconnectAbilityFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     int32_t NotifyProcessDiedFromRemoteInner(MessageParcel& data, MessageParcel& reply);
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
-    int32_t CheckSupportOsdInner(MessageParcel& data, MessageParcel& reply);
-    int32_t GetCachedOsdSwitchInner(MessageParcel& data, MessageParcel& reply);
     int32_t GetMissionInfosInner(MessageParcel& data, MessageParcel& reply);
-    int32_t GetOsdSwitchValueFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     int32_t GetRemoteMissionSnapshotInfoInner(MessageParcel& data, MessageParcel& reply);
     int32_t RegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply);
     int32_t UnRegisterMissionListenerInner(MessageParcel& data, MessageParcel& reply);
@@ -58,11 +54,7 @@ private:
     int32_t StopSyncRemoteMissionsInner(MessageParcel& data, MessageParcel& reply);
     int32_t StopSyncMissionsFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     int32_t NotifyMissionsChangedFromRemoteInner(MessageParcel& data, MessageParcel& reply);
-    int32_t NotifyOsdSwitchChangedInner(MessageParcel& data, MessageParcel& reply);
-    int32_t UpdateOsdSwitchValueFromRemoteInner(MessageParcel& data, MessageParcel& reply);
 #endif
-    bool CheckCallingUid();
-    bool EnforceInterfaceToken(MessageParcel& data);
     int32_t StartRemoteAbilityByCallInner(MessageParcel& data, MessageParcel& reply);
     int32_t ReleaseRemoteAbilityInner(MessageParcel& data, MessageParcel& reply);
     int32_t StartAbilityByCallFromRemoteInner(MessageParcel& data, MessageParcel& reply);
@@ -72,8 +64,11 @@ private:
     int32_t NotifyCompleteFreeInstallFromRemoteInner(MessageParcel& data, MessageParcel& reply);
     int32_t RegisterDistributedComponentListenerInner(MessageParcel& data, MessageParcel& reply);
     int32_t GetDistributedComponentListInner(MessageParcel& data, MessageParcel& reply);
-
+    bool CheckDmsRequestPermission();
+    bool CheckCallingUid();
+    bool EnforceInterfaceToken(MessageParcel& data);
     bool CallerInfoUnmarshalling(CallerInfo& callerInfo, MessageParcel& data);
+
     using DistributedSchedFunc = int32_t(DistributedSchedStub::*)(MessageParcel& data, MessageParcel& reply);
     std::map<uint32_t, DistributedSchedFunc> remoteFuncsMap_;
     std::map<uint32_t, DistributedSchedFunc> localFuncsMap_;

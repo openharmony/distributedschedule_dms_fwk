@@ -100,14 +100,6 @@ public:
     int32_t NotifyMissionsChangedToRemote(const std::vector<DstbMissionInfo>& missionInfos);
     int32_t NotifyMissionsChangedFromRemote(const CallerInfo& callerInfo,
         const std::vector<DstbMissionInfo>& missionInfos);
-    int32_t CheckSupportOsd(const std::string& deviceId);
-    int32_t CheckOsdSwitch(const std::string& deviceId);
-    void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values);
-    int32_t GetOsdSwitchValueFromRemote();
-    int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& deviceId);
-    int32_t UpdateSwitchValueToRemote();
-    void UpdateConnCapSupportOsd(const std::string& deviceId);
-    void NotifyOsdSwitchChanged(bool needNotifyChanged);
     void OnRemoteDmsDied(const wptr<IRemoteObject>& remote);
     void NotifyDmsProxyProcessDied();
     void OnDnetDied();
@@ -130,7 +122,6 @@ private:
     {
         return devId + "_" + std::to_string(missionId);
     }
-    bool AllowMissionUid(int32_t uid);
     int32_t StartSyncRemoteMissions(const std::string& dstDevId, const std::string& localDevId);
     int32_t StartSyncRemoteMissions(const std::string& dstDevId, const sptr<IDistributedSched>& remoteDms);
     void CleanMissionResources(const std::string& dstDevId);
@@ -142,16 +133,6 @@ private:
         std::vector<DstbMissionInfo>& missionInfos);
     void RebornMissionCache(const std::string& deviceId, const std::vector<DstbMissionInfo>& missionInfos);
     void CleanMissionCache(const std::string& deviceId);
-    void UpdateSwitchValueToRemoteInner(std::set<std::string>& remoteSyncDeviceSet,
-        const std::string& localNetworkId);
-    void TryUpdateSwitchValueToRemote(const std::string& localNetworkId,
-        const std::string& destUuid, int32_t retryTime);
-    bool IsValidOsdSwitchValue(int32_t osdSwitchVal);
-    bool IsConnCapSupportOsd(const std::string& deviceId);
-    bool GetConnCapSupportOsd(const std::string& deviceId);
-    bool GetConnCapSupportOsdInnerLocked(const std::string& deviceId);
-    bool PreCheckSupportOsd(const std::string& deviceId);
-    void NotifyOsdSwitchChanged(bool needNotifyChanged, const std::string& deviceId, int32_t switchVal);
     void OnMissionListenerDied(const sptr<IRemoteObject>& remote);
     void OnRemoteDmsDied(const sptr<IRemoteObject>& remote);
     void RetryRegisterMissionChange(int32_t retryTimes);
@@ -189,9 +170,6 @@ private:
     std::mutex remoteDmsLock_;
     std::shared_ptr<AppExecFwk::EventHandler> missionHandler_;
     std::shared_ptr<AppExecFwk::EventHandler> updateHandler_;
-    std::mutex osdSwitchLock_;
-    std::map<std::string, int32_t> osdSwitchValueMap_; // key is uuid
-    std::map<std::string, bool> connCapSupportOsdMap_; // key is networkId
 };
 }
 }

@@ -30,8 +30,6 @@ public:
     static void NotifyMissionsChanged(const sptr<IRemoteObject>& remoteObject, const std::u16string& deviceId);
     static void NotifyNetDisconnect(const sptr<IRemoteObject>& remoteObject, const std::u16string& deviceId,
         int32_t state);
-    static void NotifyOsdSwitchChanged(const sptr<IRemoteObject>& remoteObject, const std::u16string& deviceId,
-        bool isSwitchOn);
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
