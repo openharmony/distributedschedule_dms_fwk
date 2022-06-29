@@ -519,73 +519,6 @@ int32_t DistributedSchedProxy::NotifyMissionsChangedFromRemote(const std::vector
     return result;
 }
 
-int32_t DistributedSchedProxy::CheckSupportOsd(const std::string& deviceId)
-{
-    HILOGI("CheckSupportOsd is called");
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOGE("CheckSupportOsd remote service is null");
-        return ERR_NULL_OBJECT;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    PARCEL_WRITE_HELPER(data, String, deviceId);
-    return remote->SendRequest(CHECK_SUPPORTED_OSD, data, reply, option);
-}
-
-void DistributedSchedProxy::GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values)
-{
-    HILOGI("GetCachedOsdSwitch is called");
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOGE("GetCachedOsdSwitch remote service is null");
-        return;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        return;
-    }
-    int32_t error = remote->SendRequest(GET_CACHED_SUPPORTED_OSD, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOGE("%{public}s transact failed, error: %{public}d", __func__, error);
-        return;
-    }
-    PARCEL_READ_HELPER_NORET(reply, String16Vector, &deviceIds);
-    PARCEL_READ_HELPER_NORET(reply, Int32Vector, &values);
-    return;
-}
-
-int32_t DistributedSchedProxy::GetOsdSwitchValueFromRemote()
-{
-    HILOGI("GetOsdSwitchValueFromRemote is called");
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOGE("GetOsdSwitchValueFromRemote remote service is null");
-        return ERR_NULL_OBJECT;
-    }
-
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    MessageParcel reply;
-    MessageOption option { MessageOption::TF_SYNC, WAIT_TIME };
-    int32_t error = remote->SendRequest(CHECK_SUPPORT_OSD_FROM_REMOTE, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOGE("%{public}s transact failed, error: %{public}d", __func__, error);
-        return error;
-    }
-    int32_t result = reply.ReadInt32();
-    HILOGD("%{public}s get result from server data = %{public}d", __func__, result);
-    return result;
-}
-
 int32_t DistributedSchedProxy::GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
     std::unique_ptr<MissionSnapshot>& missionSnapshot)
 {
@@ -618,33 +551,6 @@ int32_t DistributedSchedProxy::GetRemoteMissionSnapshotInfo(const std::string& n
     std::unique_ptr<MissionSnapshot> missionSnapshotPtr(reply.ReadParcelable<MissionSnapshot>());
     missionSnapshot = std::move(missionSnapshotPtr);
     return ERR_NONE;
-}
-
-int32_t DistributedSchedProxy::UpdateOsdSwitchValueFromRemote(int32_t switchVal,
-    const std::string& sourceDeviceId)
-{
-    HILOGD("called");
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOGE("remote service is null");
-        return ERR_NULL_OBJECT;
-    }
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    PARCEL_WRITE_HELPER(data, Int32, switchVal);
-    PARCEL_WRITE_HELPER(data, String, sourceDeviceId);
-    MessageParcel reply;
-    MessageOption option { MessageOption::TF_SYNC, WAIT_TIME };
-    int32_t error = remote->SendRequest(NOTIFY_SWITCH_CHANGED_FROM_REMOTE, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOGE("%{public}s transact failed, error: %{public}d", __func__, error);
-        return error;
-    }
-    int32_t result = reply.ReadInt32();
-    HILOGD("%{public}s get result from server data = %{public}d", __func__, result);
-    return result;
 }
 #endif
 
