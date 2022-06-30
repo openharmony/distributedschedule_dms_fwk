@@ -100,10 +100,6 @@ public:
     void DumpSessionsLocked(const std::list<ConnectAbilitySession>& sessionsList, std::string& info);
     void DumpElementLocked(const std::list<AppExecFwk::ElementName>& elementsList, std::string& info);
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
-    int32_t CheckSupportOsd(const std::string& deviceId) override;
-    void GetCachedOsdSwitch(std::vector<std::u16string>& deviceIds, std::vector<int32_t>& values) override;
-    int32_t GetOsdSwitchValueFromRemote() override;
-    int32_t UpdateOsdSwitchValueFromRemote(int32_t switchVal, const std::string& sourceDeviceId) override;
     int32_t GetRemoteMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
         std::unique_ptr<AAFwk::MissionSnapshot>& missionSnapshot) override;
     int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;

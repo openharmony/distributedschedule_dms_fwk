@@ -47,11 +47,8 @@ public:
     void DeviceOffline(const std::string& deviceId);
     void ProcessConnectDied(const sptr<IRemoteObject>& connect);
     int32_t GetLocalMissionInfos(int32_t numMissions, std::vector<DstbMissionInfo>& missionInfos);
-    bool AllowMissionUid(int32_t uid);
     int32_t RegisterMissionListener(const sptr<DistributedMissionChangeListener>& listener);
     int32_t UnRegisterMissionListener(const sptr<DistributedMissionChangeListener>& listener);
-    int32_t GetOsdSwitch();
-    void OnOsdEventOccur(int32_t flag);
     int32_t GetLocalMissionSnapshotInfo(const std::string& networkId, int32_t missionId,
         AAFwk::MissionSnapshot& missionSnapshot);
     int32_t ReleaseAbility(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element);
