@@ -297,7 +297,7 @@ HWTEST_F(DMSMissionManagerTest, testRegisterMissionListener002, TestSize.Level1)
     EXPECT_TRUE(ret != ERR_NONE);
 
     ret = proxy->UnRegisterMissionListener(U16DEVICE_ID, listener);
-    EXPECT_TRUE(ret == ERR_NONE);
+    EXPECT_TRUE(ret != ERR_NONE);
 
     ret = proxy->UnRegisterMissionListener(u16localDeviceId_, listener);
     EXPECT_TRUE(ret != ERR_NONE);
@@ -373,110 +373,6 @@ HWTEST_F(DMSMissionManagerTest, testFetchCachedRemoteMissions001, TestSize.Level
 {
     std::vector<DstbMissionInfo> infos;
     auto ret = DistributedSchedMissionManager::GetInstance().FetchCachedRemoteMissions(DEVICE_ID, 0, infos);
-    EXPECT_TRUE(ret != ERR_NONE);
-}
-
-/**
- * @tc.name: testFetchCachedRemoteMissions001
- * @tc.desc: test check support osd fake device, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, testCheckSupportOsd001, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().CheckSupportOsd(DEVICE_ID);
-    EXPECT_TRUE(ret != ERR_NONE);
-}
-
-/**
- * @tc.name: testFetchCachedRemoteMissions002
- * @tc.desc: test check support osd fake device, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, testCheckSupportOsd002, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().CheckSupportOsd(DEVICE_ID);
-    EXPECT_TRUE(ret != ERR_NONE);
-    ret = DistributedSchedMissionManager::GetInstance().CheckSupportOsd("");
-    EXPECT_TRUE(ret != ERR_NONE);
-}
-
-/**
- * @tc.name: GetOsdSwitchValueFromRemote001
- * @tc.desc: test GetOsdSwitchValueFromRemote, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, GetOsdSwitchValueFromRemote001, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().GetOsdSwitchValueFromRemote();
-    EXPECT_TRUE(ret != ERR_NONE);
-}
-
-/**
- * @tc.name: testUpdateOsdSwitchValueFromRemote001
- * @tc.desc: test UpdateOsdSwitchValueFromRemote fake device, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, testUpdateOsdSwitchValueFromRemote001, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().UpdateOsdSwitchValueFromRemote(0, DEVICE_ID);
-    EXPECT_TRUE(ret == ERR_NONE);
-}
-
-/**
- * @tc.name: testUpdateOsdSwitchValueFromRemote002
- * @tc.desc: test UpdateOsdSwitchValueFromRemote fake device, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, testUpdateOsdSwitchValueFromRemote002, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().UpdateOsdSwitchValueFromRemote(0, DEVICE_ID);
-    EXPECT_TRUE(ret == ERR_NONE);
-    ret = DistributedSchedMissionManager::GetInstance().UpdateOsdSwitchValueFromRemote(1, DEVICE_ID);
-    EXPECT_TRUE(ret == ERR_NONE);
-}
-
-/**
- * @tc.name: testUpdateOsdSwitchValueFromRemote003
- * @tc.desc: test UpdateOsdSwitchValueFromRemote fake device, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, testUpdateOsdSwitchValueFromRemote003, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().UpdateOsdSwitchValueFromRemote(0, "");
-    EXPECT_TRUE(ret == ERR_NONE);
-    ret = DistributedSchedMissionManager::GetInstance().UpdateOsdSwitchValueFromRemote(1, "");
-    EXPECT_TRUE(ret == ERR_NONE);
-}
-
-/**
- * @tc.name: testUpdateSwitchValueToRemote001
- * @tc.desc: test UpdateSwitchValueToRemote, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, testUpdateSwitchValueToRemote001, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().UpdateSwitchValueToRemote();
-    EXPECT_TRUE(ret != ERR_NONE);
-}
-
-/**
- * @tc.name: testUpdateSwitchValueToRemote002
- * @tc.desc: test check support osd fake device, return error code
- * @tc.type: FUNC
- * @tc.require:AR000GK67M
- */
-HWTEST_F(DMSMissionManagerTest, testUpdateSwitchValueToRemote002, TestSize.Level1)
-{
-    auto ret = DistributedSchedMissionManager::GetInstance().UpdateSwitchValueToRemote();
-    EXPECT_TRUE(ret != ERR_NONE);
-    ret = DistributedSchedMissionManager::GetInstance().UpdateSwitchValueToRemote();
     EXPECT_TRUE(ret != ERR_NONE);
 }
 } // namespace DistributedSchedule

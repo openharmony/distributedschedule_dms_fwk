@@ -315,15 +315,6 @@ int32_t DistributedSchedAdapter::GetLocalMissionInfos(int32_t numMissions,
     return MissionInfoConverter::ConvertToDstbMissionInfos(amsMissions, missionInfos);
 }
 
-bool DistributedSchedAdapter::AllowMissionUid(int32_t uid)
-{
-    if (uid < 0) {
-        HILOGE("AllowMissionUid invalid params!");
-        return false;
-    }
-    return true;
-}
-
 int32_t DistributedSchedAdapter::RegisterMissionListener(const sptr<DstbMissionChangeListener>& listener)
 {
     HILOGD("called.");
@@ -387,15 +378,6 @@ int32_t DistributedSchedAdapter::GetLocalMissionSnapshotInfo(const std::string& 
     HILOGD("pixelMap size:%{public}d", missionSnapshot.snapshot->GetCapacity());
     return ERR_OK;
 }
-
-int32_t DistributedSchedAdapter::GetOsdSwitch()
-{
-    return MISSION_OSD_ENABLED;
-}
 #endif
-
-void DistributedSchedAdapter::OnOsdEventOccur(int32_t flag)
-{
-}
 } // namespace DistributedSchedule
 } // namespace OHOS
