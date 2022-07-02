@@ -23,7 +23,6 @@ namespace OHOS {
 namespace DistributedSchedule {
 namespace {
 constexpr int64_t CONTINUATION_DELAY_TIME = 20000;
-constexpr int64_t FREE_INSTALL_TIMEOUT = 30000;
 const std::string TAG = "DSchedContinuation";
 const std::u16string NAPI_MISSION_CENTER_INTERFACE_TOKEN = u"ohos.DistributedSchedule.IMissionCallback";
 constexpr int32_t NOTIFY_MISSION_CENTER_RESULT = 4;
@@ -100,13 +99,13 @@ int32_t DSchedContinuation::GenerateSessionId()
     return currValue;
 }
 
-void DSchedContinuation::SetTimeOut(int32_t missionId)
+void DSchedContinuation::SetTimeOut(int32_t missionId, int32_t timeout)
 {
     if (continuationHandler_ == nullptr) {
         HILOGE("continuationHandler not initialized!");
         return;
     }
-    continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME);
+    continuationHandler_->SendEvent(missionId, 0, timeout);
 }
 
 void DSchedContinuation::RemoveTimeOut(int32_t missionId)
@@ -153,19 +152,6 @@ bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObjec
         return false;
     }
 
-    bool ret = true;
-    if (isFreeInstall) {
-        HILOGI("get freeInstall true!");
-        ret = continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME + FREE_INSTALL_TIMEOUT);
-    } else {
-        HILOGI("get freeInstall false!");
-        ret = continuationHandler_->SendEvent(missionId, 0, CONTINUATION_DELAY_TIME);
-    }
-    if (!ret) {
-        HILOGE("PushCallback SendEvent failed!");
-        return false;
-    }
-
     std::lock_guard<std::mutex> autoLock(continuationLock_);
     auto iterSession = callbackMap_.find(missionId);
     if (iterSession != callbackMap_.end()) {
@@ -194,15 +180,13 @@ sptr<IRemoteObject> DSchedContinuation::PopCallback(int32_t missionId)
         (void)freeInstall_.erase(it);
     }
     (void)callbackMap_.erase(iter);
-    if (continuationHandler_ != nullptr) {
-        continuationHandler_->RemoveEvent(missionId);
-    }
     return callback;
 }
 
 int32_t DSchedContinuation::NotifyMissionCenterResult(int32_t missionId, int32_t isSuccess)
 {
     sptr<IRemoteObject> callback = PopCallback(missionId);
+    RemoveTimeOut(missionId);
     if (callback == nullptr) {
         HILOGE("NotifyMissionCenterResult callback is null");
         return INVALID_PARAMETERS_ERR;

@@ -63,6 +63,7 @@ dsched_public_deps = [
 dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_proxy.cpp",
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_stub.cpp",
+  "${distributed_service}/dtbschedmgr/src/bundle/bundle_manager_callback_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/bundle/bundle_manager_internal.cpp",
   "${distributed_service}/dtbschedmgr/src/connect_death_recipient.cpp",
   "${distributed_service}/dtbschedmgr/src/distributed_sched_adapter.cpp",
