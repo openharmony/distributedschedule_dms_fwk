@@ -361,6 +361,10 @@ enum {
      * Result(29360205) for continue freeinstall failed.
      */
     CONTINUE_FREE_INSTALL_FAILED = 29360205,
+    /*
+     * Result(29360206) for continue remote cannot install.
+     */
+    CONTINUE_REMOTE_UNINSTALLED_CANNOT_FREEINSTALL = 29360206,
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

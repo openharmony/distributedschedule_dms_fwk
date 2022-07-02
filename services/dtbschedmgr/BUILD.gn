@@ -33,6 +33,7 @@ ohos_shared_library("distributedschedsvr") {
   sources = [
     "src/ability_connection_wrapper_proxy.cpp",
     "src/ability_connection_wrapper_stub.cpp",
+    "src/bundle/bundle_manager_callback_stub.cpp",
     "src/bundle/bundle_manager_internal.cpp",
     "src/connect_death_recipient.cpp",
     "src/distributed_sched_adapter.cpp",
