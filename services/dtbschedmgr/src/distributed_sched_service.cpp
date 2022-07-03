@@ -75,6 +75,8 @@ constexpr int32_t IASS_CALLBACK_ON_REMOTE_FREE_INSTALL_DONE = 1;
 constexpr int32_t DISTRIBUTED_COMPONENT_ADD = 1;
 constexpr int32_t DISTRIBUTED_COMPONENT_REMOVE = 2;
 constexpr int32_t REPORT_DISTRIBUTED_COMPONENT_CHANGE_CODE = 1;
+constexpr int64_t CONTINUATION_TIMEOUT = 20000; // 20s
+constexpr int64_t CHECK_REMOTE_INSTALL_ABILITY = 300000; // 30s
 }
 
 extern "C" {
@@ -248,6 +250,24 @@ int32_t DistributedSchedService::SendResultFromRemote(OHOS::AAFwk::Want& want, i
     return err;
 }
 
+void DistributedSchedService::RemoveContinuationTimeout(int32_t missionId)
+{
+    if (dschedContinuation_ == nullptr) {
+        HILOGE("continuation object null!");
+        return;
+    }
+    dschedContinuation_->RemoveTimeOut(missionId);
+}
+
+void DistributedSchedService::SetContinuationTimeout(int32_t missionId, int32_t timeout)
+{
+    if (dschedContinuation_ == nullptr) {
+        HILOGE("continuation object null!");
+        return;
+    }
+    dschedContinuation_->SetTimeOut(missionId, timeout);
+}
+
 int32_t DistributedSchedService::ContinueLocalMission(const std::string& dstDeviceId, int32_t missionId,
     const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
 {
@@ -272,20 +292,36 @@ int32_t DistributedSchedService::ContinueLocalMission(const std::string& dstDevi
     DistributedBundleInfo remoteBundleInfo;
     result = BundleManagerInternal::CheckRemoteBundleInfoForContinuation(dstDeviceId,
         bundleName, remoteBundleInfo);
-    if (result != ERR_OK) {
-        isFreeInstall = missionInfo.want.GetBoolParam("isFreeInstall", false);
-        if (!isFreeInstall) {
-            HILOGE("ContinueLocalMission result: %{public}d!", result);
-            return result;
-        }
-        dschedContinuation_->PopCallback(missionId);
+    if (result == ERR_OK) {
+        dschedContinuation_->PushCallback(missionId, callback, false);
+        SetContinuationTimeout(missionId, CONTINUATION_TIMEOUT);
+        uint32_t remoteBundleVersion = remoteBundleInfo.versionCode;
+        result = AbilityManagerClient::GetInstance()->ContinueAbility(dstDeviceId, missionId, remoteBundleVersion);
+        HILOGI("result: %{public}d!", result);
+        return result;
     }
-    dschedContinuation_->PushCallback(missionId, callback, isFreeInstall);
-    uint32_t remoteBundleVersion = remoteBundleInfo.versionCode;
+    if (result == CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL) {
+        HILOGE("remote not installed and app not support free install");
+        return result;
+    }
+    // if remote not installed
+    isFreeInstall = missionInfo.want.GetBoolParam("isFreeInstall", false);
+    if (!isFreeInstall) {
+        HILOGE("remote not installed but support freeInstall, try again with freeInstall flag");
+        return CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL;
+    }
 
-    result = AbilityManagerClient::GetInstance()->ContinueAbility(dstDeviceId, missionId, remoteBundleVersion);
-    HILOGI("ContinueLocalMission result: %{public}d!", result);
-    return result;
+    dschedContinuation_->PushCallback(missionId, callback, true);
+    SetContinuationTimeout(missionId, CHECK_REMOTE_INSTALL_ABILITY);
+
+    missionInfo.want.SetDeviceId(dstDeviceId);
+    if (!BundleManagerInternal::CheckIfRemoteCanInstall(missionInfo.want, missionId)) {
+        HILOGE("call CheckIfRemoteCanInstall failed");
+        RemoveContinuationTimeout(missionId);
+        dschedContinuation_->PopCallback(missionId);
+        return INVALID_PARAMETERS_ERR;
+    }
+    return ERR_OK;
 }
 
 int32_t DistributedSchedService::ContinueRemoteMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
@@ -367,7 +403,7 @@ int32_t DistributedSchedService::StartContinuation(const OHOS::AAFwk::Want& want
         return INVALID_REMOTE_PARAMETERS_ERR;
     }
     if (!dschedContinuation_->IsInContinuationProgress(missionId)) {
-        dschedContinuation_->SetTimeOut(missionId);
+        dschedContinuation_->SetTimeOut(missionId, CONTINUATION_TIMEOUT);
     }
 
     AAFwk::Want newWant = want;

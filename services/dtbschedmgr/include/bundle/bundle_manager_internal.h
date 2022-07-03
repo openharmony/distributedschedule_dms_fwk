@@ -42,6 +42,7 @@ public:
         const std::string& bundleName, AppExecFwk::DistributedBundleInfo& remoteBundleInfo);
     static sptr<AppExecFwk::IBundleMgr> GetBundleManager();
     static int32_t GetUidFromBms(const std::string& bundleName);
+    static bool CheckIfRemoteCanInstall(const AAFwk::Want& want, int32_t missionId);
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

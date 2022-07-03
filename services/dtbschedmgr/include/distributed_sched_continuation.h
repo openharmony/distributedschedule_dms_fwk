@@ -35,7 +35,7 @@ public:
     sptr<IRemoteObject> PopAbilityToken(int32_t sessionId);
     int32_t GenerateSessionId();
     bool IsInContinuationProgress(int32_t missionId);
-    void SetTimeOut(int32_t missionId);
+    void SetTimeOut(int32_t missionId, int32_t timeout);
     void RemoveTimeOut(int32_t missionId);
     bool PushCallback(int32_t missionId, const sptr<IRemoteObject>& callback, bool isFreeInstall = false);
     sptr<IRemoteObject> PopCallback(int32_t missionId);
