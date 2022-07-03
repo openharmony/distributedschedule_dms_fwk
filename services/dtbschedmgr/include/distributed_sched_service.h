@@ -77,6 +77,7 @@ public:
         int32_t status, uint32_t accessToken) override;
     void NotifyCompleteContinuation(const std::u16string& devId, int32_t sessionId, bool isSuccess) override;
     int32_t NotifyContinuationResultFromRemote(int32_t sessionId, bool isSuccess) override;
+    void NotifyContinuationCallbackResult(int32_t missionId, int32_t isSuccess);
     int32_t NotifyFreeInstallResult(const CallbackTaskItem item, int32_t resultCode);
     int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
         int32_t callerUid, int32_t callerPid, uint32_t accessToken) override;
@@ -127,10 +128,11 @@ public:
     int32_t NotifyCompleteFreeInstall(const FreeInstallInfo& info, int64_t taskId, int32_t resultCode);
     int32_t RegisterDistributedComponentListener(const sptr<IRemoteObject>& callback) override;
     int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) override;
+    void SetContinuationTimeout(int32_t missionId, int32_t timeout);
+    void RemoveContinuationTimeout(int32_t missionId);
 private:
     DistributedSchedService();
     bool Init();
-    void NotifyContinuationCallbackResult(int32_t missionId, int32_t isSuccess);
     void RemoteConnectAbilityMappingLocked(const sptr<IRemoteObject>& connect, const std::string& localDeviceId,
         const std::string& remoteDeviceId, const AppExecFwk::ElementName& element, const CallerInfo& callerInfo,
         TargetComponent targetComponent);

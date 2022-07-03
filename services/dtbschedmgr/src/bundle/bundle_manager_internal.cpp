@@ -14,7 +14,7 @@
  */
 
 #include "bundle/bundle_manager_internal.h"
-
+#include "bundle/bundle_manager_callback_stub.h"
 #include "distributed_sched_adapter.h"
 #include "dtbschedmgr_log.h"
 #include "ipc_skeleton.h"
@@ -215,11 +215,38 @@ int32_t BundleManagerInternal::CheckRemoteBundleInfoForContinuation(const std::s
         return INVALID_PARAMETERS_ERR;
     }
     if (localBundleInfo.entryInstallationFree) {
-        HILOGE("remote not installed and support free install");
         return CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL;
     }
-    HILOGE("remote not installed and not support free install");
     return CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL;
+}
+
+bool BundleManagerInternal::CheckIfRemoteCanInstall(const AAFwk::Want& want, int32_t missionId)
+{
+    std::string bundleName = want.GetElement().GetBundleName();
+    std::string moduleName = want.GetElement().GetModuleName();
+    std::string abilityName = want.GetElement().GetAbilityName();
+    std::string deviceId = want.GetElement().GetDeviceID();
+    HILOGD("bundleName = %{public}s, moduleName = %{public}s, abilityName = %{public}s, deviceId = %{public}s",
+        bundleName.c_str(), moduleName.c_str(), abilityName.c_str(), deviceId.c_str());
+
+    if (bundleName.empty() || moduleName.empty() || abilityName.empty() || deviceId.empty()) {
+        HILOGE("deviceId or bundle or module or ability name is empty");
+        return false;
+    }
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOGE("get bundle manager failed");
+        return false;
+    }
+
+    AAFwk::Want newWant;
+    newWant.SetElementName(deviceId, bundleName, abilityName, moduleName);
+    auto callback = new DmsBundleManagerCallbackStub();
+    bool ret = bms->CheckAbilityEnableInstall(newWant, missionId, callback);
+    if (ret != true) {
+        HILOGE("CheckAbilityEnableInstall from bms failed");
+    }
+    return ret;
 }
 
 sptr<AppExecFwk::IBundleMgr> BundleManagerInternal::GetBundleManager()
