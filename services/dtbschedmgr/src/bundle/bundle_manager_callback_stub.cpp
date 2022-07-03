@@ -24,6 +24,7 @@
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
+const std::string TAG = "DmsBundleManagerCallbackStub";
 constexpr int64_t CONTINUATION_FREE_INSTALL_TIMEOUT = 50000; // 50s
 }
 
