@@ -1,0 +1,52 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+config("common_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "include/",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase/include/",
+    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/include/",
+    "//foundation/distributedschedule/dmsfwk/utils/native/include/",
+  ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+}
+
+ohos_shared_library("common_sdk") {
+  sources = [
+    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/distributed_ability_manager_client.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/distributed_ability_manager_proxy.cpp",
+  ]
+
+  public_configs = [ ":common_public_config" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "bundle_framework:appexecfwk_base",
+    "dmsfwk_standard:continuation_manager",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
+  ]
+
+  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk_standard"
+}

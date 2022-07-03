@@ -33,6 +33,7 @@ ohos_shared_library("distributedschedsvr") {
   sources = [
     "src/ability_connection_wrapper_proxy.cpp",
     "src/ability_connection_wrapper_stub.cpp",
+    "src/app_connection_stub.cpp",
     "src/bundle/bundle_manager_callback_stub.cpp",
     "src/bundle/bundle_manager_internal.cpp",
     "src/connect_death_recipient.cpp",
@@ -61,6 +62,7 @@ ohos_shared_library("distributedschedsvr") {
     "bundle_framework:appexecfwk_core",
     "device_auth:deviceauth_sdk",
     "distributeddatamgr:distributeddata_inner",
+    "dmsfwk_standard:continuation_manager",
     "dmsfwk_standard:dmsbaseinner",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
@@ -71,6 +73,7 @@ ohos_shared_library("distributedschedsvr") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
+    "startup_l2:syspara",
     "utils_base:utils",
   ]
 

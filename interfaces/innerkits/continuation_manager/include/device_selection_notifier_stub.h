@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_SCHED_INTERFACES_INNERKITS_DEVICE_SELECTION_NOTIFIER_STUB_H
-#define OHOS_DISTRIBUTED_SCHED_INTERFACES_INNERKITS_DEVICE_SELECTION_NOTIFIER_STUB_H
+#ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_INTERFACES_INNERKITS_DEVICE_SELECTION_NOTIFIER_STUB_H
+#define OHOS_DISTRIBUTED_ABILITY_MANAGER_INTERFACES_INNERKITS_DEVICE_SELECTION_NOTIFIER_STUB_H
 
 #include <map>
 
-#include "message_parcel.h"
 #include "idevice_selection_notifier.h"
 #include "iremote_stub.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -33,17 +33,10 @@ public:
         MessageParcel& reply, MessageOption& option) override;
 
 private:
-    using Handler = int32_t(DeviceSelectionNotifierStub::*)(MessageParcel& data, MessageParcel& reply);
-    using HandlersMap = std::map<uint32_t, Handler>;
-
-    static HandlersMap InitHandlersMap();
-
-    int32_t OnDeviceConnectInner(MessageParcel& data, MessageParcel& reply);
-    int32_t OnDeviceDisconnectInner(MessageParcel& data, MessageParcel& reply);
-
-private:
-    static const HandlersMap handlersMap_;
+    DISALLOW_COPY_AND_MOVE(DeviceSelectionNotifierStub);
+    int32_t OnDeviceConnectInner(const std::vector<ContinuationResult>& continuationResults);
+    int32_t OnDeviceDisconnectInner(const std::vector<std::string>& deviceIds);
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_SCHED_INTERFACES_INNERKITS_DEVICE_SELECTION_NOTIFIER_STUB_H
+#endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_INTERFACES_INNERKITS_DEVICE_SELECTION_NOTIFIER_STUB_H

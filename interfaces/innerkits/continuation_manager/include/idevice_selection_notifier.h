@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_SCHED_INTERFACES_INNERKITS_I_DEVICE_SELECTION_NOTIFIER_H
-#define OHOS_DISTRIBUTED_SCHED_INTERFACES_INNERKITS_I_DEVICE_SELECTION_NOTIFIER_H
+#ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_INTERFACES_INNERKITS_I_DEVICE_SELECTION_NOTIFIER_H
+#define OHOS_DISTRIBUTED_ABILITY_MANAGER_INTERFACES_INNERKITS_I_DEVICE_SELECTION_NOTIFIER_H
 
 #include <vector>
 
@@ -35,8 +35,8 @@ public:
     IDeviceSelectionNotifier() = default;
     virtual ~IDeviceSelectionNotifier() = default;
 
-    virtual void OnDeviceConnect(const std::vector<ContinuationResult>& continuationResults) {}
-    virtual void OnDeviceDisconnect(const std::vector<std::string>& deviceIds) {}
+    virtual void OnDeviceConnect(const std::vector<ContinuationResult>& continuationResults) = 0;
+    virtual void OnDeviceDisconnect(const std::vector<std::string>& deviceIds) = 0;
 
     enum RequestCode {
         EVENT_DEVICE_CONNECT = 1,
@@ -45,4 +45,4 @@ public:
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_SCHED_INTERFACES_INNERKITS_I_DEVICE_SELECTION_NOTIFIER_H
+#endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_INTERFACES_INNERKITS_I_DEVICE_SELECTION_NOTIFIER_H
