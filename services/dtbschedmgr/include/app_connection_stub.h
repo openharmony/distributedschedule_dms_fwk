@@ -19,17 +19,19 @@
 #include "ability_connect_callback_interface.h"
 
 #include "continuation_extra_params.h"
+#include "dms_notifier.h"
+#include "message_parcel.h"
 #include "nocopyable.h"
 #include "iremote_object.h"
 #include "iremote_stub.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-class APPConnectionStub : public IRemoteStub<AAFwk::IAbilityConnection> {
+class AppConnectionStub : public IRemoteStub<AAFwk::IAbilityConnection> {
 public:
-    APPConnectionStub(int32_t token,
+    AppConnectionStub(const sptr<DmsNotifier>& dmsNotifier, int32_t token,
         const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams = nullptr);
-    virtual ~APPConnectionStub() = default;
+    virtual ~AppConnectionStub() = default;
 
     void OnAbilityConnectDone(const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject,
         int32_t resultCode) override;
@@ -39,7 +41,8 @@ public:
         MessageOption& option) override;
 
 private:
-    DISALLOW_COPY_AND_MOVE(APPConnectionStub);
+    DISALLOW_COPY_AND_MOVE(AppConnectionStub);
+    sptr<DmsNotifier> dmsNotifier_;
     int32_t token_;
     std::shared_ptr<ContinuationExtraParams> continuationExtraParams_;
 };

@@ -22,6 +22,7 @@
 #include "ability_manager_client.h"
 #include "ability_manager_errors.h"
 #include "adapter/dnetwork_adapter.h"
+#include "app_connection_stub.h"
 #include "bundle/bundle_manager_internal.h"
 #include "connect_death_recipient.h"
 #include "datetime_ex.h"
@@ -42,6 +43,7 @@
 #include "mission/distributed_sched_mission_manager.h"
 #endif
 #include "os_account_manager.h"
+#include "parameters.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
@@ -67,6 +69,9 @@ const std::string UID_KEY = "uid";
 const std::string COMPONENT_TYPE_KEY = "componentType";
 const std::string DEVICE_TYPE_KEY = "deviceType";
 const std::string CHANGE_TYPE_KEY = "changeType";
+const std::string PANEL_NAME_KEY = "const.distributedsched.panelname";
+const std::string DEFAULT_PANEL_NAME_VALUE = "";
+constexpr int32_t MAX_SPLIT_VARS = 2;
 constexpr int32_t BIND_CONNECT_RETRY_TIMES = 3;
 constexpr int32_t BIND_CONNECT_TIMEOUT = 500; // 500ms
 constexpr int32_t MAX_DISTRIBUTED_CONNECT_NUM = 600;
@@ -105,6 +110,17 @@ void DeviceOfflineNotify(const std::string& deviceId)
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
     DistributedSchedMissionManager::GetInstance().DeviceOfflineNotify(deviceId);
 #endif
+}
+
+int32_t ConnectAbility(const sptr<DmsNotifier>& dmsNotifier, int32_t token,
+    const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams)
+{
+    return DistributedSchedService::GetInstance().ConnectAbility(dmsNotifier, token, continuationExtraParams);
+}
+
+int32_t DisconnectAbility()
+{
+    return DistributedSchedService::GetInstance().DisconnectAbility();
 }
 }
 
@@ -1905,6 +1921,49 @@ int32_t DistributedSchedService::NotifyFreeInstallResult(const CallbackTaskItem 
     MessageParcel reply;
     MessageOption option;
     return item.callback->SendRequest(IASS_CALLBACK_ON_REMOTE_FREE_INSTALL_DONE, data, reply, option);
+}
+
+int32_t DistributedSchedService::ConnectAbility(const sptr<DmsNotifier>& dmsNotifier, int32_t token,
+    const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams)
+{
+    Want want;
+    // get bundleName and abilityName from parameter
+    std::string panelName = system::GetParameter(PANEL_NAME_KEY, DEFAULT_PANEL_NAME_VALUE);
+    if (panelName.empty()) {
+        HILOGE("get panelName from parameter failed");
+        return PANEL_NAME_NOT_CONFIGURED;
+    }
+    std::vector<std::string> nameVector;
+    SplitStr(panelName, "_", nameVector);
+    if (nameVector.size() != MAX_SPLIT_VARS) {
+        HILOGE("parse panelName failed");
+        return PANEL_NAME_NOT_CONFIGURED;
+    }
+    want.SetElementName(nameVector[0], nameVector[1]);
+    if (connect_ == nullptr) {
+        connect_ = new AppConnectionStub(dmsNotifier, token, continuationExtraParams);
+    }
+    int32_t errCode = DistributedSchedAdapter::GetInstance().ConnectAbility(want, connect_, this);
+    if (errCode != ERR_OK) {
+        HILOGE("ConnectAbility failed");
+        connect_ = nullptr;
+        return CONNECT_ABILITY_FAILED;
+    }
+    return ERR_OK;
+}
+
+int32_t DistributedSchedService::DisconnectAbility()
+{
+    if (connect_ == nullptr) {
+        return ERR_NULL_OBJECT;
+    }
+    int32_t errCode = DistributedSchedAdapter::GetInstance().DisconnectAbility(connect_);
+    connect_ = nullptr;
+    if (errCode != ERR_OK) {
+        HILOGE("DisconnectAbility failed");
+        return DISCONNECT_ABILITY_FAILED;
+    }
+    return ERR_OK;
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

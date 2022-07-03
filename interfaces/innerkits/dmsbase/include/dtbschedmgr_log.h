@@ -365,6 +365,46 @@ enum {
      * Result(29360206) for continue remote cannot install.
      */
     CONTINUE_REMOTE_UNINSTALLED_CANNOT_FREEINSTALL = 29360206,
+    /*
+     * Result(29360207) for app registered exceed max times.
+     */
+    REGISTER_EXCEED_MAX_TIMES = 29360207,
+    /*
+     * Result(29360208) for token has not registered.
+     */
+    TOKEN_HAS_NOT_REGISTERED = 29360208,
+    /*
+     * Result(29360209) for callback has registered.
+     */
+    CALLBACK_HAS_REGISTERED = 29360209,
+    /*
+     * Result(29360210) for callback has not registered.
+     */
+    CALLBACK_HAS_NOT_REGISTERED = 29360210,
+    /*
+     * Result(29360211) for connect ability failed.
+     */
+    CONNECT_ABILITY_FAILED = 29360211,
+    /*
+     * Result(29360212) for disconnect ability failed.
+     */
+    DISCONNECT_ABILITY_FAILED = 29360212,
+    /*
+     * Result(29360213) for panel name not configured.
+     */
+    PANEL_NAME_NOT_CONFIGURED = 29360213,
+    /*
+     * Result(29360214) for unknown callback type.
+     */
+    UNKNOWN_CALLBACK_TYPE = 29360214,
+    /*
+     * Result(29360215) for invalid connect status.
+     */
+    INVALID_CONNECT_STATUS = 29360215,
+    /*
+     * Result(29360216) for invalid continuation mode.
+     */
+    INVALID_CONTINUATION_MODE = 29360216,
 };
 } // namespace DistributedSchedule
 } // namespace OHOS

@@ -21,9 +21,11 @@
 #include <set>
 #include <unordered_map>
 
+#include "continuation_extra_params.h"
 #include "distributed_sched_stub.h"
 #include "distributed_sched_continuation.h"
 #include "dms_callback_task.h"
+#include "dms_notifier.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
@@ -130,6 +132,10 @@ public:
     int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) override;
     void SetContinuationTimeout(int32_t missionId, int32_t timeout);
     void RemoveContinuationTimeout(int32_t missionId);
+
+    int32_t ConnectAbility(const sptr<DmsNotifier>& dmsNotifier, int32_t token,
+        const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams);
+    int32_t DisconnectAbility();
 private:
     DistributedSchedService();
     bool Init();
@@ -195,6 +201,7 @@ private:
     std::mutex callerLock_;
     std::map<sptr<IRemoteObject>, std::list<ConnectAbilitySession>> callerMap_;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipientForLocalDevice_;
+    sptr<IRemoteObject> connect_;
 };
 
 class ConnectAbilitySession {
