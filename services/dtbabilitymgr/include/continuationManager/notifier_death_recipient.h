@@ -13,20 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_SCHED_NOTIFIER_DEATH_RECIPIENT_H
-#define OHOS_DISTRIBUTED_SCHED_NOTIFIER_DEATH_RECIPIENT_H
+#ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_DEATH_RECIPIENT_H
+#define OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_DEATH_RECIPIENT_H
 
+#include "dms_notifier.h"
 #include "iremote_object.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
 class NotifierDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    NotifierDeathRecipient() = default;
+    explicit NotifierDeathRecipient(const sptr<DmsNotifier>& dmsNotifier);
     ~NotifierDeathRecipient() override = default;
 
     void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+
+private:
+    sptr<DmsNotifier> dmsNotifier_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_SCHED_NOTIFIER_DEATH_RECIPIENT_H
+#endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_DEATH_RECIPIENT_H

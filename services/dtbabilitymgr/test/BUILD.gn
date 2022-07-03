@@ -1,0 +1,83 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/ohos_var.gni")
+import("//build/test.gni")
+import("//foundation/distributedschedule/dmsfwk/dmsfwk.gni")
+
+module_output_path = "dmsfwk_standard/distributed_ability_manager_svr_test"
+
+distributed_service = "//foundation/distributedschedule/dmsfwk/services"
+
+dtbabilitymgr_configs = [
+  "${distributed_service}/dtbabilitymgr:distributed_ability_manager_config",
+]
+
+config("test_config") {
+  visibility = [ ":*" ]
+  include_dirs =
+      [ "//foundation/distributedschedule/dmsfwk/utils/native/include" ]
+}
+
+dtbabilitymgr_external_deps = [
+  "dmsfwk_standard:dmsbaseinner",
+  "dsoftbus:softbus_client",
+  "eventhandler:libeventhandler",
+  "hiviewdfx_hilog_native:libhilog",
+  "ipc:ipc_core",
+  "safwk:system_ability_fwk",
+  "samgr_standard:samgr_proxy",
+  "startup_l2:syspara",
+  "utils_base:utils",
+]
+
+dtbabilitymgr_public_deps = [
+  "//third_party/googletest:gmock_main",
+  "//third_party/googletest:gtest_main",
+  "//third_party/libxml2:libxml2",
+]
+
+dtbabilitymgr_sources = [
+  "${distributed_service}/dtbabilitymgr/src/continuationManager/connect_status_info.cpp",
+  "${distributed_service}/dtbabilitymgr/src/continuationManager/continuation_extra_params.cpp",
+  "${distributed_service}/dtbabilitymgr/src/continuationManager/continuation_result.cpp",
+  "${distributed_service}/dtbabilitymgr/src/continuationManager/device_selection_notifier_proxy.cpp",
+  "${distributed_service}/dtbabilitymgr/src/continuationManager/device_selection_notifier_stub.cpp",
+  "${distributed_service}/dtbabilitymgr/src/continuationManager/notifier_death_recipient.cpp",
+  "${distributed_service}/dtbabilitymgr/src/continuationManager/notifier_info.cpp",
+  "${distributed_service}/dtbabilitymgr/src/distributed_ability_manager_client.cpp",
+  "${distributed_service}/dtbabilitymgr/src/distributed_ability_manager_proxy.cpp",
+  "${distributed_service}/dtbabilitymgr/src/distributed_ability_manager_service.cpp",
+  "${distributed_service}/dtbabilitymgr/src/distributed_ability_manager_stub.cpp",
+]
+
+ohos_unittest("continuationmanagertest") {
+  module_out_path = module_output_path
+  sources = [ "unittest/continuationManager/continuation_manager_test.cpp" ]
+  sources += dtbabilitymgr_sources
+  configs = [ ":test_config" ]
+  configs += dtbabilitymgr_configs
+  deps =
+      [ "${distributed_service}/dtbabilitymgr:distributed_ability_manager_svr" ]
+  if (is_standard_system) {
+    external_deps = dtbabilitymgr_external_deps
+    public_deps = dtbabilitymgr_public_deps
+  }
+  part_name = "dmsfwk_standard"
+}
+
+group("unittest") {
+  testonly = true
+  deps = [ ":continuationmanagertest" ]
+}

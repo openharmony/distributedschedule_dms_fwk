@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_SCHED_JS_CONTINUATION_MANAGER_H
-#define OHOS_DISTRIBUTED_SCHED_JS_CONTINUATION_MANAGER_H
+#ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_JS_CONTINUATION_MANAGER_H
+#define OHOS_DISTRIBUTED_ABILITY_MANAGER_JS_CONTINUATION_MANAGER_H
 
 #include <utility>
 
@@ -52,14 +52,16 @@ private:
     NativeValue* OnStartDeviceManager(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnInitDeviceConnectStateObject(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnInitContinuationModeObject(NativeEngine &engine, NativeCallbackInfo &info);
-    napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value);
+    napi_status SetEnumItem(const napi_env& env, napi_value object, const char* name, int32_t value);
 
     bool IfCallbackValid(NativeValue* listenerObj);
     bool IfCallbackRegistered(int32_t token, const std::string& cbType);
-    bool UnWrapContinuationExtraParams(napi_env env, napi_value options,
+    bool UnWrapContinuationExtraParams(const napi_env& env, const napi_value& options,
         std::shared_ptr<ContinuationExtraParams>& continuationExtraParams);
     bool UnwrapJsonByPropertyName(const napi_env& env, const napi_value& param,
         const std::string& fieldStr, nlohmann::json& jsonObj);
+    bool PraseJson(const napi_env& env, const napi_value& jsonField, const napi_value& jsProNameList,
+        uint32_t jsProCount, nlohmann::json& jsonObj);
 
     std::mutex jsCbMapMutex_;
     std::map<int32_t, std::map<std::string, CallbackPair>> jsCbMap_;
@@ -68,4 +70,4 @@ private:
 NativeValue* JsContinuationManagerInit(NativeEngine* engine, NativeValue* exportObj);
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_SCHED_JS_CONTINUATION_MANAGER_H
+#endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_JS_CONTINUATION_MANAGER_H

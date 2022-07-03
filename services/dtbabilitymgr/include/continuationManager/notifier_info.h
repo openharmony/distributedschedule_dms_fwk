@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_SCHED_NOTIFIER_INFO_H
-#define OHOS_DISTRIBUTED_SCHED_NOTIFIER_INFO_H
+#ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_INFO_H
+#define OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_INFO_H
 
 #include <map>
 
@@ -40,4 +40,4 @@ private:
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_SCHED_NOTIFIER_INFO_H
+#endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_INFO_H

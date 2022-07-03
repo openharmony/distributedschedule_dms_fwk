@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "distributed_sched_client.h"
+#include "distributed_ability_manager_client.h"
 
-#include "distributed_sched_proxy.h"
+#include "distributed_ability_manager_proxy.h"
 #include "dtbschedmgr_log.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -24,13 +24,12 @@
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
-const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
-const std::string TAG = "DistributedSchedClient";
+const std::string TAG = "DistributedAbilityManagerClient";
 }
 
-IMPLEMENT_SINGLE_INSTANCE(DistributedSchedClient);
+IMPLEMENT_SINGLE_INSTANCE(DistributedAbilityManagerClient);
 
-sptr<IDistributedSched> DistributedSchedClient::GetDmsProxy()
+sptr<IDistributedAbilityManager> DistributedAbilityManagerClient::GetDmsProxy()
 {
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrProxy == nullptr) {
@@ -42,14 +41,14 @@ sptr<IDistributedSched> DistributedSchedClient::GetDmsProxy()
         HILOGE("get dms SA failed.");
         return nullptr;
     }
-    return iface_cast<IDistributedSched>(remoteObj);
+    return iface_cast<IDistributedAbilityManager>(remoteObj);
 }
 
-int32_t DistributedSchedClient::Register(
+int32_t DistributedAbilityManagerClient::Register(
     const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams, int32_t& token)
 {
     HILOGD("called.");
-    sptr<IDistributedSched> dmsProxy = GetDmsProxy();
+    sptr<IDistributedAbilityManager> dmsProxy = GetDmsProxy();
     if (dmsProxy == nullptr) {
         HILOGE("dmsProxy is nullptr");
         return ERR_NULL_OBJECT;
@@ -57,10 +56,10 @@ int32_t DistributedSchedClient::Register(
     return dmsProxy->Register(continuationExtraParams, token);
 }
 
-int32_t DistributedSchedClient::Unregister(int32_t token)
+int32_t DistributedAbilityManagerClient::Unregister(int32_t token)
 {
     HILOGD("called.");
-    sptr<IDistributedSched> dmsProxy = GetDmsProxy();
+    sptr<IDistributedAbilityManager> dmsProxy = GetDmsProxy();
     if (dmsProxy == nullptr) {
         HILOGE("dmsProxy is nullptr");
         return ERR_NULL_OBJECT;
@@ -68,11 +67,11 @@ int32_t DistributedSchedClient::Unregister(int32_t token)
     return dmsProxy->Unregister(token);
 }
 
-int32_t DistributedSchedClient::RegisterDeviceSelectionCallback(int32_t token, const std::string& cbType,
+int32_t DistributedAbilityManagerClient::RegisterDeviceSelectionCallback(int32_t token, const std::string& cbType,
     const sptr<DeviceSelectionNotifierStub>& notifier)
 {
     HILOGD("called.");
-    sptr<IDistributedSched> dmsProxy = GetDmsProxy();
+    sptr<IDistributedAbilityManager> dmsProxy = GetDmsProxy();
     if (dmsProxy == nullptr) {
         HILOGE("dmsProxy is nullptr");
         return ERR_NULL_OBJECT;
@@ -80,10 +79,10 @@ int32_t DistributedSchedClient::RegisterDeviceSelectionCallback(int32_t token, c
     return dmsProxy->RegisterDeviceSelectionCallback(token, cbType, notifier);
 }
 
-int32_t DistributedSchedClient::UnregisterDeviceSelectionCallback(int32_t token, const std::string& cbType)
+int32_t DistributedAbilityManagerClient::UnregisterDeviceSelectionCallback(int32_t token, const std::string& cbType)
 {
     HILOGD("called.");
-    sptr<IDistributedSched> dmsProxy = GetDmsProxy();
+    sptr<IDistributedAbilityManager> dmsProxy = GetDmsProxy();
     if (dmsProxy == nullptr) {
         HILOGE("dmsProxy is nullptr");
         return ERR_NULL_OBJECT;
@@ -91,11 +90,11 @@ int32_t DistributedSchedClient::UnregisterDeviceSelectionCallback(int32_t token,
     return dmsProxy->UnregisterDeviceSelectionCallback(token, cbType);
 }
 
-int32_t DistributedSchedClient::UpdateConnectStatus(int32_t token, const std::string& deviceId,
+int32_t DistributedAbilityManagerClient::UpdateConnectStatus(int32_t token, const std::string& deviceId,
     const DeviceConnectStatus& deviceConnectStatus)
 {
     HILOGD("called.");
-    sptr<IDistributedSched> dmsProxy = GetDmsProxy();
+    sptr<IDistributedAbilityManager> dmsProxy = GetDmsProxy();
     if (dmsProxy == nullptr) {
         HILOGE("dmsProxy is nullptr");
         return ERR_NULL_OBJECT;
@@ -103,11 +102,11 @@ int32_t DistributedSchedClient::UpdateConnectStatus(int32_t token, const std::st
     return dmsProxy->UpdateConnectStatus(token, deviceId, deviceConnectStatus);
 }
 
-int32_t DistributedSchedClient::StartDeviceManager(
+int32_t DistributedAbilityManagerClient::StartDeviceManager(
     int32_t token, const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams)
 {
     HILOGD("called.");
-    sptr<IDistributedSched> dmsProxy = GetDmsProxy();
+    sptr<IDistributedAbilityManager> dmsProxy = GetDmsProxy();
     if (dmsProxy == nullptr) {
         HILOGE("dmsProxy is nullptr");
         return ERR_NULL_OBJECT;

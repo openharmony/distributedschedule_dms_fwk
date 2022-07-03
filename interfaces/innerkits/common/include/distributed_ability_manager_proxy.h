@@ -13,19 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_SCHED_PROXY_H
-#define OHOS_DISTRIBUTED_SCHED_PROXY_H
+#ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_PROXY_H
+#define OHOS_DISTRIBUTED_ABILITY_MANAGER_PROXY_H
 
-#include "distributed_sched_interface.h"
+#include "distributed_ability_manager_interface.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-class DistributedSchedProxy : public IRemoteProxy<IDistributedSched> {
+class DistributedAbilityManagerProxy : public IRemoteProxy<IDistributedAbilityManager> {
 public:
-    explicit DistributedSchedProxy(const sptr<IRemoteObject>& impl)
-        : IRemoteProxy<IDistributedSched>(impl) {}
-    ~DistributedSchedProxy() {}
+    explicit DistributedAbilityManagerProxy(const sptr<IRemoteObject>& impl)
+        : IRemoteProxy<IDistributedAbilityManager>(impl) {}
+    ~DistributedAbilityManagerProxy() {}
+
     int32_t Register(
         const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams, int32_t& token) override;
     int32_t Unregister(int32_t token) override;
@@ -36,12 +37,9 @@ public:
         const DeviceConnectStatus& deviceConnectStatus) override;
     int32_t StartDeviceManager(
         int32_t token, const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams = nullptr) override;
-    int32_t OnDeviceConnect(int32_t token, const std::vector<ContinuationResult>& continuationResults) override;
-    int32_t OnDeviceDisconnect(int32_t token, const std::vector<std::string>& deviceIds) override;
-    int32_t OnDeviceCancel(int32_t token) override;
 private:
-    static inline BrokerDelegator<DistributedSchedProxy> delegator_;
+    static inline BrokerDelegator<DistributedAbilityManagerProxy> delegator_;
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_SCHED_PROXY_H
+#endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_PROXY_H

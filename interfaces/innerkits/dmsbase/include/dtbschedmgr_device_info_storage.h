@@ -20,8 +20,8 @@
 
 #include "adapter/dnetwork_adapter.h"
 #include "deviceManager/dms_device_info.h"
-#include "deviceManager/dms_device_listener.h"
 #include "distributed_device_node_listener.h"
+#include "dms_notifier.h"
 #include "event_handler.h"
 #include "iremote_object.h"
 #include "single_instance.h"
@@ -40,7 +40,7 @@ class DtbschedmgrDeviceInfoStorage {
 
 public:
     bool Init();
-    bool Init(sptr<DmsDeviceListener> listener);
+    bool Init(sptr<DmsNotifier> listener);
     void Stop();
     bool GetLocalDeviceId(std::string& deviceId);
     void DeviceOnlineNotify(const std::shared_ptr<DmsDeviceInfo> devInfo);
@@ -84,7 +84,7 @@ private:
     bool GetLocalDeviceFromDnet(std::string& deviceId);
     void RegisterUuidNetworkIdMap(const std::string& networkId);
     void UnregisterUuidNetworkIdMap(const std::string& networkId);
-    sptr<DmsDeviceListener> listener_;
+    sptr<DmsNotifier> listener_;
     std::mutex deviceLock_;
     std::shared_ptr<DistributedDeviceNodeListener> deviceNodeListener_;
     std::map<std::string, std::shared_ptr<DmsDeviceInfo>> remoteDevices_;

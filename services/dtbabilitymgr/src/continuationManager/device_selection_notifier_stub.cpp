@@ -16,6 +16,7 @@
 #include "device_selection_notifier_stub.h"
 
 #include "dtbschedmgr_log.h"
+#include "parcel_helper.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
@@ -23,58 +24,48 @@ namespace {
 const std::string TAG = "DeviceSelectionNotifierStub";
 }
 
-const DeviceSelectionNotifierStub::HandlersMap DeviceSelectionNotifierStub::handlersMap_ =
-    DeviceSelectionNotifierStub::InitHandlersMap();
-
-DeviceSelectionNotifierStub::HandlersMap DeviceSelectionNotifierStub::InitHandlersMap()
-{
-    DeviceSelectionNotifierStub::HandlersMap m;
-    m[EVENT_DEVICE_CONNECT] = &DeviceSelectionNotifierStub::OnDeviceConnectInner;
-    m[EVENT_DEVICE_DISCONNECT] = &DeviceSelectionNotifierStub::OnDeviceDisconnectInner;
-    return m;
-}
-
 int32_t DeviceSelectionNotifierStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     MessageParcel& reply, MessageOption& option)
 {
     HILOGI("code = %{public}u", code);
-    std::u16string descriptor = DeviceSelectionNotifierStub::GetDescriptor();
+    std::u16string descriptor = IDeviceSelectionNotifier::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
         HILOGE("descriptor check failed");
         return ERR_INVALID_VALUE;
     }
-
-    auto iter = handlersMap_.find(code);
-    if (iter != handlersMap_.end()) {
-        auto handler = iter->second;
-        if (handler != nullptr) {
-            return (this->*handler)(data, reply);
+    switch (code) {
+        case IDeviceSelectionNotifier::EVENT_DEVICE_CONNECT: {
+            std::vector<ContinuationResult> continuationResults;
+            if (!ContinuationResult::ReadContinuationResultsFromParcel(data, continuationResults)) {
+                return ERR_FLATTEN_OBJECT;
+            }
+            int32_t result = OnDeviceConnectInner(continuationResults);
+            return result;
+        }
+        case IDeviceSelectionNotifier::EVENT_DEVICE_DISCONNECT: {
+            std::vector<std::string> deviceIds;
+            PARCEL_READ_HELPER(data, StringVector, &deviceIds);
+            int32_t result = OnDeviceDisconnectInner(deviceIds);
+            return result;
+        }
+        default: {
+            HILOGE("unknown request code, please check");
+            return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
         }
     }
-    HILOGW("unknown request code, please check");
-    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-int32_t DeviceSelectionNotifierStub::OnDeviceConnectInner(MessageParcel& data,
-    [[maybe_unused]] MessageParcel& reply)
+int32_t DeviceSelectionNotifierStub::OnDeviceConnectInner(const std::vector<ContinuationResult>& continuationResults)
 {
-    std::vector<ContinuationResult> continuationResults;
-    if (!ContinuationResult::ReadContinuationResultsFromParcel(data, continuationResults)) {
-        return ERR_FLATTEN_OBJECT;
-    }
+    HILOGD("called");
     OnDeviceConnect(continuationResults);
     return ERR_OK;
 }
 
-int32_t DeviceSelectionNotifierStub::OnDeviceDisconnectInner(MessageParcel& data,
-    [[maybe_unused]] MessageParcel& reply)
+int32_t DeviceSelectionNotifierStub::OnDeviceDisconnectInner(const std::vector<std::string>& deviceIds)
 {
-    std::vector<std::string> deviceIds;
-    if (!data.ReadStringVector(&deviceIds)) {
-        HILOGE("read deviceIds failed.");
-        return ERR_FLATTEN_OBJECT;
-    }
+    HILOGD("called");
     OnDeviceDisconnect(deviceIds);
     return ERR_OK;
 }

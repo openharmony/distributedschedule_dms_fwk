@@ -1,0 +1,56 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+config("continuationmanager_napi_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "include/",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase/include/",
+  ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+}
+
+ohos_shared_library("continuationmanager_napi") {
+  sources = [
+    "continuation_manager_module.cpp",
+    "js_continuation_manager.cpp",
+    "js_device_selection_listener.cpp",
+  ]
+
+  public_configs = [ ":continuationmanager_napi_public_config" ]
+
+  deps = [ "//foundation/ability/ability_runtime/frameworks/js/napi/aafwk/inner/napi_common:napi_common" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:runtime",
+    "dmsfwk_standard:common_sdk",
+    "dmsfwk_standard:continuation_manager",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "utils_base:utils",
+  ]
+
+  relative_install_dir = "module/continuation"
+
+  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk_standard"
+}

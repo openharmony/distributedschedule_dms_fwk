@@ -17,8 +17,8 @@
 
 #include <memory>
 
-#include "distributed_sched_client.h"
 #include "device_connect_status.h"
+#include "distributed_ability_manager_client.h"
 #include "dtbschedmgr_log.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"
@@ -111,8 +111,8 @@ NativeValue* JsContinuationManager::OnRegister(NativeEngine &engine, NativeCallb
             return;
         }
         int32_t token = -1;
-        int32_t ret = (unwrapArgc == 0) ? DistributedSchedClient::GetInstance().Register(nullptr, token) :
-            DistributedSchedClient::GetInstance().Register(continuationExtraParams, token);
+        int32_t ret = (unwrapArgc == 0) ? DistributedAbilityManagerClient::GetInstance().Register(nullptr, token) :
+            DistributedAbilityManagerClient::GetInstance().Register(continuationExtraParams, token);
         if (ret == ERR_OK) {
             task.Resolve(engine, engine.CreateNumber(token));
         } else {
@@ -146,7 +146,7 @@ NativeValue* JsContinuationManager::OnUnregister(NativeEngine &engine, NativeCal
             task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
             return;
         }
-        int32_t ret = DistributedSchedClient::GetInstance().Unregister(token);
+        int32_t ret = DistributedAbilityManagerClient::GetInstance().Unregister(token);
         if (ret == ERR_OK) {
             task.Resolve(engine, engine.CreateUndefined());
         } else {
@@ -192,7 +192,7 @@ NativeValue* JsContinuationManager::OnRegisterDeviceSelectionCallback(NativeEngi
         HILOGE("deviceSelectionListener is nullptr");
         return engine.CreateUndefined();
     }
-    int32_t ret = DistributedSchedClient::GetInstance().RegisterDeviceSelectionCallback(
+    int32_t ret = DistributedAbilityManagerClient::GetInstance().RegisterDeviceSelectionCallback(
         token, cbType, deviceSelectionListener);
     if (ret == ERR_OK) {
         deviceSelectionListener->AddCallback(cbType, jsListenerObj);
@@ -237,7 +237,7 @@ NativeValue* JsContinuationManager::OnUnregisterDeviceSelectionCallback(NativeEn
         std::lock_guard<std::mutex> jsCbMapLock(jsCbMapMutex_);
         CallbackPair& callbackPair = jsCbMap_[token][cbType];
         auto& listener = callbackPair.second;
-        int32_t ret = DistributedSchedClient::GetInstance().UnregisterDeviceSelectionCallback(token, cbType);
+        int32_t ret = DistributedAbilityManagerClient::GetInstance().UnregisterDeviceSelectionCallback(token, cbType);
         if (ret == ERR_OK) {
             listener->RemoveCallback(cbType);
             jsCbMap_[token].erase(cbType);
@@ -281,7 +281,8 @@ NativeValue *JsContinuationManager::OnUpdateConnectStatus(NativeEngine &engine, 
             task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
             return;
         }
-        int32_t ret = DistributedSchedClient::GetInstance().UpdateConnectStatus(token, deviceId, deviceConnectStatus);
+        int32_t ret = DistributedAbilityManagerClient::GetInstance().UpdateConnectStatus(
+            token, deviceId, deviceConnectStatus);
         if (ret == ERR_OK) {
             task.Resolve(engine, engine.CreateUndefined());
         } else {
@@ -326,8 +327,9 @@ NativeValue *JsContinuationManager::OnStartDeviceManager(NativeEngine &engine, N
             task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
             return;
         }
-        int32_t ret = (unwrapArgc == ARG_COUNT_ONE) ? DistributedSchedClient::GetInstance().StartDeviceManager(token) :
-            DistributedSchedClient::GetInstance().StartDeviceManager(token, continuationExtraParams);
+        int32_t ret = (unwrapArgc == ARG_COUNT_ONE) ?
+            DistributedAbilityManagerClient::GetInstance().StartDeviceManager(token) :
+            DistributedAbilityManagerClient::GetInstance().StartDeviceManager(token, continuationExtraParams);
         if (ret == ERR_OK) {
             task.Resolve(engine, engine.CreateUndefined());
         } else {
@@ -374,7 +376,7 @@ NativeValue *JsContinuationManager::OnInitContinuationModeObject(NativeEngine &e
     return reinterpret_cast<NativeValue*>(object);
 }
 
-napi_status JsContinuationManager::SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
+napi_status JsContinuationManager::SetEnumItem(const napi_env& env, napi_value object, const char* name, int32_t value)
 {
     napi_status status;
     napi_value itemName;
@@ -416,7 +418,7 @@ bool JsContinuationManager::IfCallbackRegistered(int32_t token, const std::strin
     return true;
 }
 
-bool JsContinuationManager::UnWrapContinuationExtraParams(napi_env env, napi_value options,
+bool JsContinuationManager::UnWrapContinuationExtraParams(const napi_env& env, const napi_value& options,
     std::shared_ptr<ContinuationExtraParams>& continuationExtraParams)
 {
     HILOGD("called.");
@@ -463,14 +465,27 @@ bool JsContinuationManager::UnwrapJsonByPropertyName(const napi_env& env, const 
     }
     napi_value jsonField = nullptr;
     napi_get_named_property(env, param, fieldStr.c_str(), &jsonField);
-    napi_valuetype jsValueType = napi_undefined;
     napi_value jsProNameList = nullptr;
     uint32_t jsProCount = 0;
     napi_get_property_names(env, jsonField, &jsProNameList);
     napi_get_array_length(env, jsProNameList, &jsProCount);
+    if (jsProCount == 0) {
+        HILOGE("field: %{public}s is invalid json.", fieldStr.c_str());
+        return false;
+    }
+    if (!PraseJson(env, jsonField, jsProNameList, jsProCount, jsonObj)) {
+        HILOGE("PraseJson failed.");
+        return false;
+    }
+    return true;
+}
 
+bool JsContinuationManager::PraseJson(const napi_env& env, const napi_value& jsonField,
+    const napi_value& jsProNameList, uint32_t jsProCount, nlohmann::json& jsonObj)
+{
     napi_value jsProName = nullptr;
     napi_value jsProValue = nullptr;
+    napi_valuetype jsValueType = napi_undefined;
     for (uint32_t index = 0; index < jsProCount; index++) {
         napi_get_element(env, jsProNameList, index, &jsProName);
         std::string strProName = UnwrapStringFromJS(env, jsProName);

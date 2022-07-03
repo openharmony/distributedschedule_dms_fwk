@@ -38,9 +38,11 @@
           "hiviewdfx_hilog_native",
           "ipc",
           "multimedia_image_standard",
+          "napi",
           "os_account",
           "safwk",
           "samgr_standard",
+          "startup_l2",
           "utils_base"
         ],
         "third_party": []
@@ -48,33 +50,60 @@
       "build": {
         "sub_component": [
           "//foundation/distributedschedule/dmsfwk/etc/init:etc",
+          "//foundation/distributedschedule/dmsfwk/etc/param:param_files",
           "//foundation/distributedschedule/dmsfwk/etc/profile:distributedsched_trust",
+          "//foundation/distributedschedule/dmsfwk/interfaces/kits/napi:napi_packages",
           "//foundation/distributedschedule/dmsfwk/sa_profile:dms_sa_profile",
           "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
           "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
         ],
         "inner_kits": [
-            {
-                "header": {
-                    "header_base": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase/include",
-                    "header_files": [
-                        "adapter/dnetwork_adapter.h",
-                        "deviceManager/dms_device_info.h",
-                        "deviceManager/dms_device_listener.h",
-                        "dfx/dms_hisysevent_report.h",
-                        "dfx/dms_hitrace_chain.h",
-                        "dfx/dms_hitrace_constants.h",
-                        "distributed_device_node_listener.h",
-                        "dtbschedmgr_device_info_storage.h",
-                        "dtbschedmgr_log.h",
-                        "parcel_helper.h"
-                    ]
-                },
-                "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase:dmsbaseinner"
-            }
+          {
+            "header": {
+              "header_base": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase/include",
+              "header_files": [
+                "adapter/dnetwork_adapter.h",
+                "deviceManager/dms_device_info.h",
+                "dfx/dms_hisysevent_report.h",
+                "dfx/dms_hitrace_chain.h",
+                "dfx/dms_hitrace_constants.h",
+                "distributed_device_node_listener.h",
+                "dms_notifier.h",
+                "dtbschedmgr_device_info_storage.h",
+                "dtbschedmgr_log.h",
+                "parcel_helper.h"
+              ]
+            },
+            "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase:dmsbaseinner"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager/include",
+              "header_files": [
+                "continuation_extra_params.h",
+                "continuation_mode.h",
+                "continuation_result.h",
+                "device_connect_status.h",
+                "device_selection_notifier_stub.h",
+                "idevice_selection_notifier.h"
+              ]
+            },
+            "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager:continuation_manager"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common/include",
+              "header_files": [
+                "distributed_ability_manager_client.h",
+                "distributed_ability_manager_proxy.h"
+              ]
+            },
+            "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common:common_sdk"
+          }
         ],
         "test": [
-          "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:unittest"
+          "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:unittest",
+          "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr:unittest"
         ]
       }
     }
