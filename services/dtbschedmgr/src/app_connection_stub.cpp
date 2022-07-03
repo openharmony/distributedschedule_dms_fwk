@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-#include "continuationManager/app_connection_stub.h"
+#include "app_connection_stub.h"
 
-#include "distributed_sched_service.h"
 #include "dtbschedmgr_log.h"
 #include "ipc_types.h"
 
@@ -23,17 +22,18 @@ namespace OHOS {
 namespace DistributedSchedule {
 using namespace AAFwk;
 namespace {
-const std::string TAG = "APPConnectionStub";
+const std::string TAG = "AppConnectionStub";
 }
 
-APPConnectionStub::APPConnectionStub(int32_t token,
+AppConnectionStub::AppConnectionStub(const sptr<DmsNotifier>& dmsNotifier, int32_t token,
     const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams)
 {
+    dmsNotifier_ = dmsNotifier;
     token_ = token;
     continuationExtraParams_ = continuationExtraParams;
 }
 
-int32_t APPConnectionStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
+int32_t AppConnectionStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     MessageParcel& reply, MessageOption& option)
 {
     HILOGD("code = %{public}u", code);
@@ -66,25 +66,33 @@ int32_t APPConnectionStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
             return ERR_NONE;
         }
         default: {
-            HILOGE("unknown code");
+            HILOGE("unknown request code, please check");
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
         }
     }
 }
 
-void APPConnectionStub::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
+void AppConnectionStub::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
     const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
     HILOGD("called.");
-    DistributedSchedService::GetInstance().ScheduleStartDeviceManager(remoteObject, token_, continuationExtraParams_);
+    if (dmsNotifier_ == nullptr) {
+        HILOGE("dmsNotifier_ is nullptr");
+        return;
+    }
+    dmsNotifier_->ScheduleStartDeviceManager(remoteObject, token_, continuationExtraParams_);
     return;
 }
 
-void APPConnectionStub::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
+void AppConnectionStub::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
     int32_t resultCode)
 {
     HILOGD("called.");
-    DistributedSchedService::GetInstance().ScheduleStartDeviceManager(nullptr, token_, continuationExtraParams_);
+    if (dmsNotifier_ == nullptr) {
+        HILOGE("dmsNotifier_ is nullptr");
+        return;
+    }
+    dmsNotifier_->ScheduleStartDeviceManager(nullptr, token_, continuationExtraParams_);
     return;
 }
 } // namespace DistributedSchedule

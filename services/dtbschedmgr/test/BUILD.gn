@@ -37,6 +37,7 @@ dsched_external_deps = [
   "bundle_framework:appexecfwk_core",
   "device_auth:deviceauth_sdk",
   "distributeddatamgr:distributeddata_inner",
+  "dmsfwk_standard:continuation_manager",
   "dmsfwk_standard:dmsbaseinner",
   "dsoftbus:softbus_client",
   "eventhandler:libeventhandler",
@@ -47,6 +48,7 @@ dsched_external_deps = [
   "os_account:os_account_innerkits",
   "safwk:system_ability_fwk",
   "samgr_standard:samgr_proxy",
+  "startup_l2:syspara",
   "utils_base:utils",
 ]
 
@@ -63,6 +65,7 @@ dsched_public_deps = [
 dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_proxy.cpp",
   "${distributed_service}/dtbschedmgr/src/ability_connection_wrapper_stub.cpp",
+  "${distributed_service}/dtbschedmgr/src/app_connection_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/bundle/bundle_manager_callback_stub.cpp",
   "${distributed_service}/dtbschedmgr/src/bundle/bundle_manager_internal.cpp",
   "${distributed_service}/dtbschedmgr/src/connect_death_recipient.cpp",

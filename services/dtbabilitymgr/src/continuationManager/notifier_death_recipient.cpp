@@ -15,7 +15,6 @@
 
 #include "continuationManager/notifier_death_recipient.h"
 
-#include "distributed_sched_adapter.h"
 #include "dtbschedmgr_log.h"
 #include "iremote_proxy.h"
 
@@ -24,10 +23,20 @@ namespace DistributedSchedule {
 namespace {
 const std::string TAG = "NotifierDeathRecipient";
 }
+
+NotifierDeathRecipient::NotifierDeathRecipient(const sptr<DmsNotifier>& dmsNotifier)
+{
+    dmsNotifier_ = dmsNotifier;
+}
+
 void NotifierDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
-    HILOGI("OnRemoteDied called");
-    DistributedSchedAdapter::GetInstance().ProcessNotifierDied(remote.promote());
+    HILOGD("called");
+    if (dmsNotifier_ == nullptr) {
+        HILOGE("dmsNotifier_ is nullptr");
+        return;
+    }
+    dmsNotifier_->ProcessNotifierDied(remote.promote());
 }
 } // namespace DistributedSchedule
 } // namespace OHOS

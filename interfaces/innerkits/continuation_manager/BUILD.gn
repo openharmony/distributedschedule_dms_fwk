@@ -12,46 +12,35 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//build/ohos_var.gni")
 
-config("distributed_sched_config") {
+config("continuation_manager_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager/include/",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase/include/",
   ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
 }
 
-ohos_shared_library("dmsbaseinner") {
-  install_enable = true
+ohos_shared_library("continuation_manager") {
   sources = [
-    "../../../services/base/src/adapter/dnetwork_adapter.cpp",
-    "../../../services/base/src/deviceManager/dms_device_info.cpp",
-    "../../../services/base/src/dfx/dms_hisysevent_report.cpp",
-    "../../../services/base/src/dfx/dms_hitrace_chain.cpp",
-    "../../../services/base/src/distributed_device_node_listener.cpp",
-    "../../../services/base/src/dtbschedmgr_device_info_storage.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_extra_params.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_result.cpp",
     "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/device_selection_notifier_stub.cpp",
   ]
 
-  configs = [ ":distributed_sched_config" ]
-  public_configs = [ ":distributed_sched_config" ]
+  public_configs = [ ":continuation_manager_public_config" ]
 
   external_deps = [
-    "device_auth:deviceauth_sdk",
-    "dsoftbus:softbus_client",
-    "eventhandler:libeventhandler",
-    "hisysevent_native:libhisysevent",
-    "hitrace_native:hitrace_meter",
-    "hitrace_native:libhitrace",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
-  part_name = "dmsfwk_standard"
+
   subsystem_name = "distributedschedule"
+  part_name = "dmsfwk_standard"
 }

@@ -14,14 +14,31 @@
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 
+group("unittest") {
+  testonly = true
+  deps = [ "test:unittest" ]
+}
+
 config("distributed_ability_manager_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include/",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common/include/",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager/include/",
+  ]
 }
 
 ohos_shared_library("distributed_ability_manager_svr") {
   install_enable = true
   sources = [
+    "src/continuationManager/app_device_callback_stub.cpp",
+    "src/continuationManager/connect_status_info.cpp",
+    "src/continuationManager/continuation_extra_params.cpp",
+    "src/continuationManager/continuation_result.cpp",
+    "src/continuationManager/device_selection_notifier_proxy.cpp",
+    "src/continuationManager/device_selection_notifier_stub.cpp",
+    "src/continuationManager/notifier_death_recipient.cpp",
+    "src/continuationManager/notifier_info.cpp",
     "src/distributed_ability_manager_service.cpp",
     "src/distributed_ability_manager_stub.cpp",
   ]
@@ -38,6 +55,7 @@ ohos_shared_library("distributed_ability_manager_svr") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
+    "startup_l2:syspara",
     "utils_base:utils",
   ]
 

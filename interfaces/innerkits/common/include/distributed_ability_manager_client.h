@@ -13,20 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_SCHED_CLIENT_H
-#define OHOS_DISTRIBUTED_SCHED_CLIENT_H
+#ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_CLIENT_H
+#define OHOS_DISTRIBUTED_ABILITY_MANAGER_CLIENT_H
 
-#include "continuation_extra_params.h"
-#include "device_connect_status.h"
 #include "device_selection_notifier_stub.h"
-#include "distributed_sched_interface.h"
+#include "distributed_ability_manager_interface.h"
 #include "iremote_broker.h"
 #include "single_instance.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
-class DistributedSchedClient {
-    DECLARE_SINGLE_INSTANCE(DistributedSchedClient);
+class DistributedAbilityManagerClient {
+    DECLARE_SINGLE_INSTANCE(DistributedAbilityManagerClient);
 
 public:
     int32_t Register(const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams, int32_t& token);
@@ -39,8 +37,8 @@ public:
     int32_t StartDeviceManager(
         int32_t token, const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams = nullptr);
 private:
-    sptr<IDistributedSched> GetDmsProxy();
+    sptr<IDistributedAbilityManager> GetDmsProxy();
 };
 } // namespace DistributedSchedule
 } // namespace OHOS
-#endif // OHOS_DISTRIBUTED_SCHED_CLIENT_H
+#endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_CLIENT_H
