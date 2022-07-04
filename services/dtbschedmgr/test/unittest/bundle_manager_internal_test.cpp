@@ -206,6 +206,26 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_007, TestSize.Leve
 }
 
 /**
+ * @tc.name: BundleManagerInternalTest_008
+ * @tc.desc: test CheckIfRemoteCanInstall with unexist bundle
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_008, TestSize.Level1)
+{
+    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_008 begin" << std::endl;
+    string deviceId = "123456";
+    string bundleName = "ohos.samples.testApp";
+    string moduleName = "entry";
+    string abilityName = "MainAbility";
+    AAFwk::Want want;
+    want.SetElementName(deviceId, bundleName, abilityName, moduleName);
+    int32_t missionId = 0;
+    bool ret = BundleManagerInternal::CheckIfRemoteCanInstall(want, missionId);
+    EXPECT_TRUE(false == ret);
+    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_008 end "<< std::endl;
+}
+
+/**
  * @tc.name: BundleManagerCallBackTest_001
  * @tc.desc: test OnQueryInstallationFinished with failed result
  * @tc.type: FUNC
@@ -214,11 +234,10 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerCallBackTest_001, TestSize.Leve
 {
     DTEST_LOG << "BundleManagerCallBackTest BundleManagerCallBackTest_001 begin" << std::endl;
     int32_t resultCode = -1;
-    string deviceId = "123456";
     int32_t missionId = 0;
     int32_t versionCode = 10000;
     auto callback = new DmsBundleManagerCallbackStub();
-    int32_t ret = callback->OnQueryInstallationFinished(resultCode, deviceId, missionId, versionCode);
+    int32_t ret = callback->OnQueryInstallationFinished(resultCode, missionId, versionCode);
     EXPECT_TRUE(CONTINUE_REMOTE_UNINSTALLED_CANNOT_FREEINSTALL == ret);
     DTEST_LOG << "BundleManagerCallBackTest BundleManagerCallBackTest_001 end "<< std::endl;
 }
@@ -232,11 +251,10 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerCallBackTest_002, TestSize.Leve
 {
     DTEST_LOG << "BundleManagerCallBackTest BundleManagerCallBackTest_002 begin" << std::endl;
     int32_t resultCode = 0;
-    string deviceId = "123456";
     int32_t missionId = 0;
     int32_t versionCode = 10000;
     auto callback = new DmsBundleManagerCallbackStub();
-    int32_t ret = callback->OnQueryInstallationFinished(resultCode, deviceId, missionId, versionCode);
+    int32_t ret = callback->OnQueryInstallationFinished(resultCode, missionId, versionCode);
     EXPECT_TRUE(ERR_OK != ret);
     DTEST_LOG << "BundleManagerCallBackTest BundleManagerCallBackTest_002 end "<< std::endl;
 }
