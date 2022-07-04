@@ -25,15 +25,12 @@ config("distributed_sched_config") {
 ohos_shared_library("dmsbaseinner") {
   install_enable = true
   sources = [
-    "../../../services/base/src/adapter/dnetwork_adapter.cpp",
-    "../../../services/base/src/deviceManager/dms_device_info.cpp",
-    "../../../services/base/src/dfx/dms_hisysevent_report.cpp",
-    "../../../services/base/src/dfx/dms_hitrace_chain.cpp",
-    "../../../services/base/src/distributed_device_node_listener.cpp",
-    "../../../services/base/src/dtbschedmgr_device_info_storage.cpp",
-    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_extra_params.cpp",
-    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_result.cpp",
-    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/device_selection_notifier_stub.cpp",
+    "src/adapter/dnetwork_adapter.cpp",
+    "src/deviceManager/dms_device_info.cpp",
+    "src/dfx/dms_hisysevent_report.cpp",
+    "src/dfx/dms_hitrace_chain.cpp",
+    "src/distributed_device_node_listener.cpp",
+    "src/dtbschedmgr_device_info_storage.cpp",
   ]
 
   configs = [ ":distributed_sched_config" ]

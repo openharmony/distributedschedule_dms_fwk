@@ -22,7 +22,10 @@ group("unittest") {
 
 config("distributed_sched_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "../base/include/",
+  ]
   if (dmsfwk_standard_mission_manager) {
     defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
   }
@@ -63,7 +66,6 @@ ohos_shared_library("distributedschedsvr") {
     "device_auth:deviceauth_sdk",
     "distributeddatamgr:distributeddata_inner",
     "dmsfwk_standard:continuation_manager",
-    "dmsfwk_standard:dmsbaseinner",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hitrace_native:hitrace_meter",
@@ -76,6 +78,9 @@ ohos_shared_library("distributedschedsvr") {
     "startup_l2:syspara",
     "utils_base:utils",
   ]
+
+  deps =
+      [ "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner" ]
 
   if (dmsfwk_standard_mission_manager) {
     defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
