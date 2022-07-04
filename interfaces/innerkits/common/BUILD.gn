@@ -17,7 +17,7 @@ config("common_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/dmsbase/include/",
+    "//foundation/distributedschedule/dmsfwk/services/base/include",
     "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/include/",
     "//foundation/distributedschedule/dmsfwk/utils/native/include/",
   ]
