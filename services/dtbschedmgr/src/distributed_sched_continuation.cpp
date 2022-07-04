@@ -139,26 +139,39 @@ bool DSchedContinuation::IsInContinuationProgress(int32_t missionId)
     return false;
 }
 
-bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObject>& callback, bool isFreeInstall)
+std::string DSchedContinuation::GetTargetDevice(int32_t missionId)
+{
+    std::lock_guard<std::mutex> autoLock(continuationLock_);
+    auto iter = continuationDevices_.find(missionId);
+    if (iter != continuationDevices_.end()) {
+        HILOGD("missionId:%{public}d exist!", missionId);
+        return iter->second;
+    }
+    return "";
+}
+
+bool DSchedContinuation::PushCallback(int32_t missionId, const sptr<IRemoteObject>& callback,
+    std::string deviceId, bool isFreeInstall)
 {
     HILOGI("DSchedContinuation PushCallback start!");
     if (callback == nullptr) {
-        HILOGE("PushCallback callback null!");
+        HILOGE("callback null!");
         return false;
     }
 
     if (continuationHandler_ == nullptr) {
-        HILOGE("PushCallback not initialized!");
+        HILOGE("not initialized!");
         return false;
     }
 
     std::lock_guard<std::mutex> autoLock(continuationLock_);
     auto iterSession = callbackMap_.find(missionId);
     if (iterSession != callbackMap_.end()) {
-        HILOGE("PushCallback missionId:%{public}d exist!", missionId);
+        HILOGE("missionId:%{public}d exist!", missionId);
         return false;
     }
     (void)callbackMap_.emplace(missionId, callback);
+    (void)continuationDevices_.emplace(missionId, deviceId);
     if (isFreeInstall) {
         freeInstall_[missionId] = isFreeInstall;
     }
@@ -174,6 +187,13 @@ sptr<IRemoteObject> DSchedContinuation::PopCallback(int32_t missionId)
         return nullptr;
     }
     sptr<IRemoteObject> callback = iter->second;
+
+    auto iteration = continuationDevices_.find(missionId);
+    if (iteration != continuationDevices_.end()) {
+        HILOGD("%{public}d need pop from continuationDevices_", missionId);
+        (void)continuationDevices_.erase(iteration);
+    }
+
     auto it = freeInstall_.find(missionId);
     if (it != freeInstall_.end()) {
         HILOGD("%{public}d need pop from freeInstall_", missionId);

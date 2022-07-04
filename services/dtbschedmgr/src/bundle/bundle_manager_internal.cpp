@@ -241,8 +241,12 @@ bool BundleManagerInternal::CheckIfRemoteCanInstall(const AAFwk::Want& want, int
 
     AAFwk::Want newWant;
     newWant.SetElementName(deviceId, bundleName, abilityName, moduleName);
-    auto callback = new DmsBundleManagerCallbackStub();
-    bool ret = bms->CheckAbilityEnableInstall(newWant, missionId, callback);
+    std::vector<int> ids;
+    ErrCode result = OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (result != ERR_OK || ids.empty()) {
+        return false;
+    }
+    bool ret = bms->CheckAbilityEnableInstall(newWant, missionId, ids[0], new DmsBundleManagerCallbackStub());
     if (ret != true) {
         HILOGE("CheckAbilityEnableInstall from bms failed");
     }
