@@ -34,6 +34,15 @@ public:
 
     sptr<DistributedAbilityManagerService> dtbabilitymgrService_;
 };
+
+class DeviceSelectionNotifierTest : public DeviceSelectionNotifierStub {
+public:
+    DeviceSelectionNotifierTest() = default;
+    ~DeviceSelectionNotifierTest() = default;
+
+    void OnDeviceConnect(const std::vector<ContinuationResult>& continuationResults) override;
+    void OnDeviceDisconnect(const std::vector<std::string>& deviceIds) override;
+};
 } // namespace DistributedSchedule
 } // namespace OHOS
 #endif // OHOS_DISTRIBUTED_ABILITY_MANAGER_CONTINUATION_MANAGER_TEST_H
