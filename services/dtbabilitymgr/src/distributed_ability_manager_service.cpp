@@ -301,6 +301,9 @@ int32_t DistributedAbilityManagerService::UnregisterDeviceSelectionCallback(int3
             if (it != notifierMap.end()) {
                 it->second->RemoveDeathRecipient(notifierDeathRecipient_);
                 notifierMap.erase(it);
+                if (notifierMap.empty()) {
+                    callbackMap_.erase(iter);
+                }
             }
         }
     }
