@@ -132,6 +132,7 @@ public:
     int32_t GetDistributedComponentList(std::vector<std::string>& distributedComponents) override;
     void SetContinuationTimeout(int32_t missionId, int32_t timeout);
     void RemoveContinuationTimeout(int32_t missionId);
+    std::string GetContinuaitonDevice(int32_t missionId);
 
     int32_t ConnectAbility(const sptr<DmsNotifier>& dmsNotifier, int32_t token,
         const std::shared_ptr<ContinuationExtraParams>& continuationExtraParams);

@@ -81,7 +81,8 @@ constexpr int32_t DISTRIBUTED_COMPONENT_ADD = 1;
 constexpr int32_t DISTRIBUTED_COMPONENT_REMOVE = 2;
 constexpr int32_t REPORT_DISTRIBUTED_COMPONENT_CHANGE_CODE = 1;
 constexpr int64_t CONTINUATION_TIMEOUT = 20000; // 20s
-constexpr int64_t CHECK_REMOTE_INSTALL_ABILITY = 300000; // 30s
+// BundleDistributedManager set timeout to 3s, so we set 1s longer
+constexpr int64_t CHECK_REMOTE_INSTALL_ABILITY = 40000;
 }
 
 extern "C" {
@@ -284,6 +285,15 @@ void DistributedSchedService::SetContinuationTimeout(int32_t missionId, int32_t 
     dschedContinuation_->SetTimeOut(missionId, timeout);
 }
 
+std::string DistributedSchedService::GetContinuaitonDevice(int32_t missionId)
+{
+    if (dschedContinuation_ == nullptr) {
+        HILOGE("continuation object null!");
+        return "";
+    }
+    return dschedContinuation_->GetTargetDevice(missionId);
+}
+
 int32_t DistributedSchedService::ContinueLocalMission(const std::string& dstDeviceId, int32_t missionId,
     const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
 {
@@ -309,7 +319,7 @@ int32_t DistributedSchedService::ContinueLocalMission(const std::string& dstDevi
     result = BundleManagerInternal::CheckRemoteBundleInfoForContinuation(dstDeviceId,
         bundleName, remoteBundleInfo);
     if (result == ERR_OK) {
-        dschedContinuation_->PushCallback(missionId, callback, false);
+        dschedContinuation_->PushCallback(missionId, callback, dstDeviceId, false);
         SetContinuationTimeout(missionId, CONTINUATION_TIMEOUT);
         uint32_t remoteBundleVersion = remoteBundleInfo.versionCode;
         result = AbilityManagerClient::GetInstance()->ContinueAbility(dstDeviceId, missionId, remoteBundleVersion);
@@ -327,7 +337,7 @@ int32_t DistributedSchedService::ContinueLocalMission(const std::string& dstDevi
         return CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL;
     }
 
-    dschedContinuation_->PushCallback(missionId, callback, true);
+    dschedContinuation_->PushCallback(missionId, callback, dstDeviceId, true);
     SetContinuationTimeout(missionId, CHECK_REMOTE_INSTALL_ABILITY);
 
     missionInfo.want.SetDeviceId(dstDeviceId);

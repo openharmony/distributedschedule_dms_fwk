@@ -38,7 +38,7 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(DmsBundleManagerCallbackStub);
     int32_t OnQueryInstallationFinishedInner(MessageParcel& data, MessageParcel& reply);
-    int32_t OnQueryInstallationFinished(int32_t resultCode, std::string deviceId, int32_t missionId, int versionCode);
+    int32_t OnQueryInstallationFinished(int32_t resultCode, int32_t missionId, int versionCode);
     using DmsBundleManagerCallbackFunc = int32_t (DmsBundleManagerCallbackStub::*)(
         MessageParcel& data, MessageParcel& reply);
     std::map<uint32_t, DmsBundleManagerCallbackFunc> memberFuncMap_;
