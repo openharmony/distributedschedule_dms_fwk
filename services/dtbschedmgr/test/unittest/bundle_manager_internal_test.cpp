@@ -148,7 +148,7 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_005, TestSize.Leve
 
 /**
  * @tc.name: BundleManagerInternalTest_006
- * @tc.desc: test CheckIfRemoteCanInstall with unexist device
+ * @tc.desc: test CheckIfRemoteCanInstall with valid param
  * @tc.type: FUNC
  */
 HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_006, TestSize.Level1)
@@ -162,38 +162,18 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_006, TestSize.Leve
     want.SetElementName(deviceId, bundleName, abilityName, moduleName);
     int32_t missionId = 0;
     bool ret = BundleManagerInternal::CheckIfRemoteCanInstall(want, missionId);
-    EXPECT_TRUE(false == ret);
+    EXPECT_TRUE(true == ret);
     DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_006 end "<< std::endl;
 }
 
 /**
  * @tc.name: BundleManagerInternalTest_007
- * @tc.desc: test CheckIfRemoteCanInstall with unexist bundle
+ * @tc.desc: test CheckIfRemoteCanInstall with invalid param
  * @tc.type: FUNC
  */
 HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_007, TestSize.Level1)
 {
     DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_007 begin" << std::endl;
-    string deviceId = "123456";
-    string bundleName = "ohos.samples.testApp";
-    string moduleName = "entry";
-    string abilityName = "MainAbility";
-    AAFwk::Want want;
-    want.SetElementName(deviceId, bundleName, abilityName, moduleName);
-    int32_t missionId = 0;
-    bool ret = BundleManagerInternal::CheckIfRemoteCanInstall(want, missionId);
-    EXPECT_TRUE(false == ret);
-    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_007 end "<< std::endl;
-}
-
-/**
- * @tc.name: BundleManagerInternalTest_008
- * @tc.desc: test CheckIfRemoteCanInstall with invalid param
- * @tc.type: FUNC
- */
-HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_008, TestSize.Level1)
-{
-    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_008 begin" << std::endl;
     string deviceId = "";
     string bundleName = "ohos.samples.testApp";
     string moduleName = "entry";
@@ -222,7 +202,7 @@ HWTEST_F(BundleManagerInternalTest, BundleManagerInternalTest_008, TestSize.Leve
     ret = BundleManagerInternal::CheckIfRemoteCanInstall(want, missionId);
     EXPECT_TRUE(false == ret);
 
-    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_008 end "<< std::endl;
+    DTEST_LOG << "BundleManagerInternalTest BundleManagerInternalTest_007 end "<< std::endl;
 }
 
 /**
