@@ -35,7 +35,7 @@ ohos_shared_library("continuationmanager_napi") {
 
   public_configs = [ ":continuationmanager_napi_public_config" ]
 
-  deps = [ "//foundation/ability/ability_runtime/frameworks/js/napi/aafwk/inner/napi_common:napi_common" ]
+  deps = [ "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common" ]
 
   external_deps = [
     "ability_base:want",
