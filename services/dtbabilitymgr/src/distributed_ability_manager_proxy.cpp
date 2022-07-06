@@ -33,7 +33,7 @@ int32_t DistributedAbilityManagerProxy::Register(
     HILOGD("called.");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote is null");
+        HILOGE("Register remote is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -67,7 +67,7 @@ int32_t DistributedAbilityManagerProxy::Unregister(int32_t token)
     HILOGD("called.");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote is null");
+        HILOGE("Unregister remote is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -84,16 +84,16 @@ int32_t DistributedAbilityManagerProxy::RegisterDeviceSelectionCallback(
 {
     HILOGD("called.");
     if (cbType.empty()) {
-        HILOGE("cbType is empty");
+        HILOGE("RegisterDeviceSelectionCallback cbType is empty");
         return ERR_NULL_OBJECT;
     }
     if (notifier == nullptr) {
-        HILOGE("notifier is nullptr");
+        HILOGE("RegisterDeviceSelectionCallback notifier is nullptr");
         return ERR_NULL_OBJECT;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote is null");
+        HILOGE("RegisterDeviceSelectionCallback remote is null");
         return ERR_NULL_OBJECT;
     }
 
@@ -112,12 +112,12 @@ int32_t DistributedAbilityManagerProxy::UnregisterDeviceSelectionCallback(int32_
 {
     HILOGD("called.");
     if (cbType.empty()) {
-        HILOGE("cbType is empty");
+        HILOGE("UnregisterDeviceSelectionCallback cbType is empty");
         return ERR_NULL_OBJECT;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote is null");
+        HILOGE("UnregisterDeviceSelectionCallback remote is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -136,7 +136,7 @@ int32_t DistributedAbilityManagerProxy::UpdateConnectStatus(int32_t token, const
     HILOGD("called.");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote is null");
+        HILOGE("UpdateConnectStatus remote is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
@@ -156,7 +156,7 @@ int32_t DistributedAbilityManagerProxy::StartDeviceManager(
     HILOGD("called.");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOGE("remote is null");
+        HILOGE("StartDeviceManager remote is null");
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
