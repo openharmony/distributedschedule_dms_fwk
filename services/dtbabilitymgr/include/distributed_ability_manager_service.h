@@ -80,6 +80,7 @@ private:
     bool InitDmsImplFunc();
     using LibHandle = void*;
     LibHandle dmsImplHandle_ = nullptr;
+    bool InitFunc();
 
     using OnStartFunc = void(*)();
     using OnRemoteRequestFunc = int32_t(*)(uint32_t code, MessageParcel& data, MessageParcel& reply,

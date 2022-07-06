@@ -90,35 +90,8 @@ bool DistributedAbilityManagerService::InitDmsImplFunc()
         HILOGE("dlopen libdistributedschedsvr failed with errno:%s!", dlerror());
         return false;
     }
-
-    onRemoteRequestFunc_ = reinterpret_cast<OnRemoteRequestFunc>(dlsym(dmsImplHandle_, "OnRemoteRequest"));
-    if (onRemoteRequestFunc_ == nullptr) {
+    if (!InitFunc()) {
         dlclose(dmsImplHandle_);
-        HILOGE("get OnRemoteRequest function error");
-        return false;
-    }
-    deviceOnlineNotifyFunc_ = reinterpret_cast<DeviceOnlineNotifyFunc>(dlsym(dmsImplHandle_, "DeviceOnlineNotify"));
-    if (deviceOnlineNotifyFunc_ == nullptr) {
-        dlclose(dmsImplHandle_);
-        HILOGE("get DeviceOnlineNotify function error");
-        return false;
-    }
-    deviceOfflineNotifyFunc_ = reinterpret_cast<DeviceOfflineNotifyFunc>(dlsym(dmsImplHandle_, "DeviceOfflineNotify"));
-    if (deviceOfflineNotifyFunc_ == nullptr) {
-        dlclose(dmsImplHandle_);
-        HILOGE("get DeviceOfflineNotify function error");
-        return false;
-    }
-    connectAbilityFunc_ = reinterpret_cast<ConnectAbilityFunc>(dlsym(dmsImplHandle_, "ConnectAbility"));
-    if (connectAbilityFunc_ == nullptr) {
-        dlclose(dmsImplHandle_);
-        HILOGE("get ConnectAbility function error");
-        return false;
-    }
-    disconnectAbilityFunc_ = reinterpret_cast<DisconnectAbilityFunc>(dlsym(dmsImplHandle_, "DisconnectAbility"));
-    if (disconnectAbilityFunc_ == nullptr) {
-        dlclose(dmsImplHandle_);
-        HILOGE("get DisconnectAbility function error");
         return false;
     }
     OnStartFunc onStartFunc = reinterpret_cast<OnStartFunc>(dlsym(dmsImplHandle_, "OnStart"));
@@ -130,6 +103,36 @@ bool DistributedAbilityManagerService::InitDmsImplFunc()
     onStartFunc();
     isLoaded_ = true;
     HILOGI("end");
+    return true;
+}
+
+bool DistributedAbilityManagerService::InitFunc()
+{
+    onRemoteRequestFunc_ = reinterpret_cast<OnRemoteRequestFunc>(dlsym(dmsImplHandle_, "OnRemoteRequest"));
+    if (onRemoteRequestFunc_ == nullptr) {
+        HILOGE("get OnRemoteRequest function error");
+        return false;
+    }
+    deviceOnlineNotifyFunc_ = reinterpret_cast<DeviceOnlineNotifyFunc>(dlsym(dmsImplHandle_, "DeviceOnlineNotify"));
+    if (deviceOnlineNotifyFunc_ == nullptr) {
+        HILOGE("get DeviceOnlineNotify function error");
+        return false;
+    }
+    deviceOfflineNotifyFunc_ = reinterpret_cast<DeviceOfflineNotifyFunc>(dlsym(dmsImplHandle_, "DeviceOfflineNotify"));
+    if (deviceOfflineNotifyFunc_ == nullptr) {
+        HILOGE("get DeviceOfflineNotify function error");
+        return false;
+    }
+    connectAbilityFunc_ = reinterpret_cast<ConnectAbilityFunc>(dlsym(dmsImplHandle_, "ConnectAbility"));
+    if (connectAbilityFunc_ == nullptr) {
+        HILOGE("get ConnectAbility function error");
+        return false;
+    }
+    disconnectAbilityFunc_ = reinterpret_cast<DisconnectAbilityFunc>(dlsym(dmsImplHandle_, "DisconnectAbility"));
+    if (disconnectAbilityFunc_ == nullptr) {
+        HILOGE("get DisconnectAbility function error");
+        return false;
+    }
     return true;
 }
 
