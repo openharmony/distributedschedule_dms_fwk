@@ -17,6 +17,5 @@ group("innerkits_target") {
   deps = [
     "common:common_sdk",
     "continuation_manager:continuation_manager",
-    "dmsbase:dmsbaseinner",
   ]
 }

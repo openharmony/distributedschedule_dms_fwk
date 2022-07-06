@@ -26,12 +26,13 @@ dtbabilitymgr_configs = [
 
 config("test_config") {
   visibility = [ ":*" ]
-  include_dirs =
-      [ "//foundation/distributedschedule/dmsfwk/utils/native/include" ]
+  include_dirs = [
+    "//foundation/distributedschedule/dmsfwk/utils/native/include",
+    "//foundation/distributedschedule/dmsfwk/services/base/include",
+  ]
 }
 
 dtbabilitymgr_external_deps = [
-  "dmsfwk_standard:dmsbaseinner",
   "dsoftbus:softbus_client",
   "eventhandler:libeventhandler",
   "hiviewdfx_hilog_native:libhilog",
@@ -43,6 +44,7 @@ dtbabilitymgr_external_deps = [
 ]
 
 dtbabilitymgr_public_deps = [
+  "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner",
   "//third_party/googletest:gmock_main",
   "//third_party/googletest:gtest_main",
   "//third_party/libxml2:libxml2",
