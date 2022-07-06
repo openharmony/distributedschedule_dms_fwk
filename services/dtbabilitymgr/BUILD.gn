@@ -23,6 +23,7 @@ config("distributed_ability_manager_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
+    "../base/include/",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common/include/",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager/include/",
   ]
@@ -48,7 +49,6 @@ ohos_shared_library("distributed_ability_manager_svr") {
   ldflags = [ "-rdynamic" ]
 
   external_deps = [
-    "dmsfwk_standard:dmsbaseinner",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
@@ -58,6 +58,9 @@ ohos_shared_library("distributed_ability_manager_svr") {
     "startup_l2:syspara",
     "utils_base:utils",
   ]
+
+  deps =
+      [ "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner" ]
 
   part_name = "dmsfwk_standard"
   subsystem_name = "distributedschedule"
