@@ -84,10 +84,6 @@ void ContinuationManagerTest::TearDownTestCase()
 void ContinuationManagerTest::SetUp()
 {
     dtbabilitymgrService_ = new DistributedAbilityManagerService(DISTRIBUTED_SCHED_SA_ID, true);
-    if (dtbabilitymgrService_->continuationHandler_ == nullptr) {
-        auto runner = AppExecFwk::EventRunner::Create("continuationManagerTest");
-        dtbabilitymgrService_->continuationHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
-    }
     DTEST_LOG << "ContinuationManagerTest::SetUp" << std::endl;
 }
 
@@ -276,7 +272,7 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_004, TestS
     DTEST_LOG << "result3:" << result3 << std::endl;
     EXPECT_EQ(ERR_OK, result1);
     EXPECT_EQ(ERR_OK, result2);
-    EXPECT_EQ(ERR_OK, result3);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result3);
     DTEST_LOG << "ContinuationManagerTest RegisterDeviceSelectionCallbackTest_004 end" << std::endl;
 }
 
@@ -315,7 +311,7 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_005, TestS
     DTEST_LOG << "result3:" << result3 << std::endl;
     EXPECT_EQ(ERR_OK, result1);
     EXPECT_EQ(ERR_OK, result2);
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result3);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result3);
     DTEST_LOG << "ContinuationManagerTest RegisterDeviceSelectionCallbackTest_005 end" << std::endl;
 }
 
@@ -347,7 +343,7 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_006, TestS
     DTEST_LOG << "result3:" << result3 << std::endl;
     EXPECT_EQ(ERR_OK, result1);
     EXPECT_EQ(ERR_OK, result2);
-    EXPECT_EQ(ERR_OK, result3);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result3);
     DTEST_LOG << "ContinuationManagerTest RegisterDeviceSelectionCallbackTest_006 end" << std::endl;
 }
 
@@ -379,7 +375,7 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_007, TestS
     DTEST_LOG << "result3:" << result3 << std::endl;
     EXPECT_EQ(ERR_OK, result1);
     EXPECT_EQ(ERR_OK, result2);
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result3);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result3);
     DTEST_LOG << "ContinuationManagerTest RegisterDeviceSelectionCallbackTest_007 end" << std::endl;
 }
 
@@ -419,8 +415,8 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_008, TestS
     int32_t result3 = dtbabilitymgrService_->OnDeviceDisconnect(token, deviceIds);
     DTEST_LOG << "result3:" << result3 << std::endl;
     EXPECT_EQ(ERR_OK, result1);
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result2);
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result3);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result2);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result3);
     DTEST_LOG << "ContinuationManagerTest RegisterDeviceSelectionCallbackTest_008 end" << std::endl;
 }
 
@@ -466,8 +462,8 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_009, TestS
     DTEST_LOG << "result4:" << result4 << std::endl;
     EXPECT_EQ(TOKEN_HAS_NOT_REGISTERED, result1);
     EXPECT_EQ(TOKEN_HAS_NOT_REGISTERED, result2);
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result3);
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result4);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result3);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result4);
     DTEST_LOG << "ContinuationManagerTest RegisterDeviceSelectionCallbackTest_009 end" << std::endl;
 }
 
@@ -504,8 +500,8 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_010, TestS
     deviceIds.emplace_back(UNSELECTED_DEVICE_ID3);
     int32_t result2 = dtbabilitymgrService_->OnDeviceDisconnect(UNREGISTER_TOKEN, deviceIds);
     DTEST_LOG << "result2:" << result2 << std::endl;
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result1);
-    EXPECT_EQ(CALLBACK_HAS_NOT_REGISTERED, result2);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result1);
+    EXPECT_EQ(DISCONNECT_ABILITY_FAILED, result2);
     DTEST_LOG << "ContinuationManagerTest RegisterDeviceSelectionCallbackTest_010 end" << std::endl;
 }
 
