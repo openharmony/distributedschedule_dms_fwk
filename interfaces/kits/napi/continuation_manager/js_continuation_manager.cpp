@@ -439,18 +439,17 @@ bool JsContinuationManager::UnWrapContinuationExtraParams(const napi_env& env, c
         continuationExtraParams->SetDescription(descriptionString);
     }
     nlohmann::json filterJson;
-    if (UnwrapJsonByPropertyName(env, options, "filter", filterJson)) {
-        std::string filterString = filterJson.dump();
-        continuationExtraParams->SetFilter(filterString);
+    if (!UnwrapJsonByPropertyName(env, options, "filter", filterJson)) {
+        return false;
     }
+    continuationExtraParams->SetFilter(filterJson.dump());
     int32_t continuationMode = 0;
     if (UnwrapInt32ByPropertyName(env, options, "continuationMode", continuationMode)) {
         continuationExtraParams->SetContinuationMode(static_cast<ContinuationMode>(continuationMode));
     }
     nlohmann::json authInfoJson;
     if (UnwrapJsonByPropertyName(env, options, "authInfo", authInfoJson)) {
-        std::string authInfoString = authInfoJson.dump();
-        continuationExtraParams->SetAuthInfo(authInfoString);
+        continuationExtraParams->SetAuthInfo(authInfoJson.dump());
     }
     return true;
 }
@@ -465,14 +464,16 @@ bool JsContinuationManager::UnwrapJsonByPropertyName(const napi_env& env, const 
     }
     napi_value jsonField = nullptr;
     napi_get_named_property(env, param, fieldStr.c_str(), &jsonField);
+    napi_valuetype jsonFieldType = napi_undefined;
+    napi_typeof(env, jsonField, &jsonFieldType);
+    if (jsonFieldType != napi_object && jsonFieldType != napi_undefined) {
+        HILOGE("field: %{public}s is invalid json.", fieldStr.c_str());
+        return false;
+    }
     napi_value jsProNameList = nullptr;
     uint32_t jsProCount = 0;
     napi_get_property_names(env, jsonField, &jsProNameList);
     napi_get_array_length(env, jsProNameList, &jsProCount);
-    if (jsProCount == 0) {
-        HILOGE("field: %{public}s is invalid json.", fieldStr.c_str());
-        return false;
-    }
     if (!PraseJson(env, jsonField, jsProNameList, jsProCount, jsonObj)) {
         HILOGE("PraseJson failed.");
         return false;
