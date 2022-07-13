@@ -15,7 +15,10 @@
 
 #include "dfx/dms_hisysevent_report.h"
 
+#include <string>
+
 #include "dtbschedmgr_log.h"
+#include "hilog/log_cpp.h"
 #include "hisysevent.h"
 #include "ipc_skeleton.h"
 
@@ -24,17 +27,17 @@ namespace DistributedSchedule {
 using namespace OHOS::HiviewDFX;
 namespace {
     const std::string TAG = "DmsHiSysEventReport";
-    const std::string DOMAIN_NAME = std::string(HiSysEvent::Domain::DISTRIBUTED_SCHEDULE);
+    constexpr const char*  DOMAIN_NAME = HiSysEvent::Domain::DISTRIBUTED_SCHEDULE;
 
-    const std::string KEY_CALLING_APP_UID = "CALLING_APP_UID";
-    const std::string KEY_CALLING_PID = "CALLING_PID";
-    const std::string KEY_CALLING_TYPE = "CALLING_TYPE";
-    const std::string KEY_CALLING_UID = "CALLING_UID";
-    const std::string KEY_ERROR_TYPE = "ERROR_TYPE";
+    constexpr const char*  KEY_CALLING_APP_UID = "CALLING_APP_UID";
+    constexpr const char*  KEY_CALLING_PID = "CALLING_PID";
+    constexpr const char*  KEY_CALLING_TYPE = "CALLING_TYPE";
+    constexpr const char*  KEY_CALLING_UID = "CALLING_UID";
+    constexpr const char*  KEY_ERROR_TYPE = "ERROR_TYPE";
 
-    const std::string KEY_RESULT = "RESULT";
-    const std::string KEY_TARGET_ABILITY = "TARGET_ABILITY";
-    const std::string KEY_TARGET_BUNDLE = "TARGET_BUNDLE";
+    constexpr const char*  KEY_RESULT = "RESULT";
+    constexpr const char*  KEY_TARGET_ABILITY = "TARGET_ABILITY";
+    constexpr const char*  KEY_TARGET_BUNDLE = "TARGET_BUNDLE";
 }
 
 int DmsHiSysEventReport::ReportBehaviorEvent(const BehaviorEventParam& param)

@@ -14,6 +14,8 @@
  */
 
 #include "dfx/dms_hitrace_chain.h"
+#include "hitrace/hitrace.h"
+#include "hitrace/hitracec.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

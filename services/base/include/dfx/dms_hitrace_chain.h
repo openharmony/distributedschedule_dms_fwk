@@ -16,7 +16,8 @@
 #ifndef OHOS_DISTRIBUTED_HITRACE_CHAIN_H
 #define OHOS_DISTRIBUTED_HITRACE_CHAIN_H
 
-#include "hitrace/hitrace.h"
+#include "hitrace/hitraceid.h"
+#include "iosfwd"
 
 namespace OHOS {
 namespace DistributedSchedule {
