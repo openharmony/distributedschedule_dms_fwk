@@ -25,13 +25,13 @@ namespace TraceTag {
 }
 
 namespace TraceValue {
-    const std::string START_REMOTE_ABILITY = "START_REMOTE_ABILITY";
-    const std::string CONNECT_REMOTE_ABILITY = "CONNECT_REMOTE_ABILITY";
-    const std::string DISCONNECT_REMOTE_ABILITY = "DISCONNECT_REMOTE_ABILITY";
-    const std::string START_REMOTE_ABILITY_BYCALL = "START_REMOTE_ABILITY_BYCALL";
-    const std::string RELEASE_REMOTE_ABILITY = "RELEASE_REMOTE_ABILITY";
-    const std::string START_CONTINUATION = "START_CONTINUATION";
-    const std::string REMOTE_PROCEDURE_CALL = "REMOTE_PROCEDURE_CALL";
+    constexpr const char* START_REMOTE_ABILITY = "START_REMOTE_ABILITY";
+    constexpr const char* CONNECT_REMOTE_ABILITY = "CONNECT_REMOTE_ABILITY";
+    constexpr const char* DISCONNECT_REMOTE_ABILITY = "DISCONNECT_REMOTE_ABILITY";
+    constexpr const char* START_REMOTE_ABILITY_BYCALL = "START_REMOTE_ABILITY_BYCALL";
+    constexpr const char* RELEASE_REMOTE_ABILITY = "RELEASE_REMOTE_ABILITY";
+    constexpr const char* START_CONTINUATION = "START_CONTINUATION";
+    constexpr const char* REMOTE_PROCEDURE_CALL = "REMOTE_PROCEDURE_CALL";
 }
 } // namespace DistributedSchedule
 } // namespace OHOS
