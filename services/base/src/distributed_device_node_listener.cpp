@@ -15,6 +15,9 @@
 
 #include "distributed_device_node_listener.h"
 
+#include <memory>
+#include <string>
+
 #include "deviceManager/dms_device_info.h"
 #include "dtbschedmgr_device_info_storage.h"
 #include "dtbschedmgr_log.h"

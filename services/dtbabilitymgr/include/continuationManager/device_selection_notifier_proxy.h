@@ -16,10 +16,14 @@
 #ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_DEVICE_SELECTION_NOTIFIER_PROXY_H
 #define OHOS_DISTRIBUTED_ABILITY_MANAGER_DEVICE_SELECTION_NOTIFIER_PROXY_H
 
-#include "idevice_selection_notifier.h"
+#include <functional>
+#include <iosfwd>
+#include <vector>
 
-#include "iremote_object.h"
+#include "idevice_selection_notifier.h"
+#include "iremote_broker.h"
 #include "iremote_proxy.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

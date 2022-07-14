@@ -15,7 +15,14 @@
 
 #include "device_selection_notifier_stub.h"
 
+#include <iosfwd>
+#include <string>
+#include <vector>
+
 #include "dtbschedmgr_log.h"
+#include "errors.h"
+#include "ipc_object_stub.h"
+#include "ipc_types.h"
 #include "parcel_helper.h"
 
 namespace OHOS {

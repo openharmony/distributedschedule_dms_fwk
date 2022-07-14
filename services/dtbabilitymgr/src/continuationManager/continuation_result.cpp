@@ -15,6 +15,11 @@
 
 #include "continuation_result.h"
 
+#include <cstddef>
+#include <iosfwd>
+#include <new>
+#include <vector>
+
 #include "dtbschedmgr_log.h"
 #include "string_ex.h"
 

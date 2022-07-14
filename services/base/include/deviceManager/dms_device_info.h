@@ -16,6 +16,7 @@
 #ifndef OHOS_DISTRIBUTED_DMS_DEVICE_INFO_H
 #define OHOS_DISTRIBUTED_DMS_DEVICE_INFO_H
 
+#include <iosfwd>
 #include <string>
 
 #include "parcel.h"
