@@ -15,9 +15,13 @@
 
 #include "continuationManager/device_selection_notifier_proxy.h"
 
+#include <string>
+
+#include "continuation_result.h"
 #include "dtbschedmgr_log.h"
-#include "ipc_object_proxy.h"
-#include "ipc_types.h"
+#include "iremote_object.h"
+#include "message_option.h"
+#include "message_parcel.h"
 #include "parcel_helper.h"
 
 namespace OHOS {

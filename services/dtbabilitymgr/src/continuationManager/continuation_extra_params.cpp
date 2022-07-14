@@ -15,6 +15,9 @@
 
 #include "continuation_extra_params.h"
 
+#include <iosfwd>
+#include <new>
+
 #include "dtbschedmgr_log.h"
 
 namespace OHOS {

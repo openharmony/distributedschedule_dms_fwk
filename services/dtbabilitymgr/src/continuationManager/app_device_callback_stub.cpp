@@ -15,7 +15,11 @@
 
 #include "continuationManager/app_device_callback_stub.h"
 
+#include <string>
+
+#include "continuation_extra_params.h"
 #include "dtbschedmgr_log.h"
+#include "ipc_object_stub.h"
 #include "ipc_types.h"
 #include "parcel_helper.h"
 

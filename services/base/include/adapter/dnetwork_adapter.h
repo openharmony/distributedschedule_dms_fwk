@@ -16,10 +16,14 @@
 #ifndef OHOS_DISTRIBUTED_DNETWORK_ADAPTER_H
 #define OHOS_DISTRIBUTED_DNETWORK_ADAPTER_H
 
+#include <iosfwd>
+#include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 
 #include "event_handler.h"
+#include "nocopyable.h"
 #include "softbus_bus_center.h"
 
 namespace OHOS {

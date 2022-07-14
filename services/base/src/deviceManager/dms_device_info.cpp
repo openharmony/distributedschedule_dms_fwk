@@ -15,7 +15,6 @@
 
 #include "deviceManager/dms_device_info.h"
 
-#include "dtbschedmgr_log.h"
 #include "parcel_helper.h"
 #include "string_ex.h"
 
