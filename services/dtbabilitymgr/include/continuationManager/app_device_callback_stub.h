@@ -16,12 +16,17 @@
 #ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_APP_DEVICE_CALLBACK_STUB_H
 #define OHOS_DISTRIBUTED_ABILITY_MANAGER_APP_DEVICE_CALLBACK_STUB_H
 
-#include <map>
+#include <iosfwd>
+#include <vector>
 
+#include "continuation_result.h"
 #include "dms_notifier.h"
 #include "iapp_device_callback_interface.h"
 #include "iremote_stub.h"
+#include "message_option.h"
 #include "message_parcel.h"
+#include "nocopyable.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

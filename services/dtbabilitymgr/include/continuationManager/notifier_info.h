@@ -16,10 +16,15 @@
 #ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_INFO_H
 #define OHOS_DISTRIBUTED_ABILITY_MANAGER_NOTIFIER_INFO_H
 
+#include <functional>
+#include <iosfwd>
 #include <map>
+#include <memory>
+#include <string>
 
 #include "connect_status_info.h"
 #include "iremote_object.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

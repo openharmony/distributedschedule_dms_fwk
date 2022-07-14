@@ -15,8 +15,10 @@
 
 #include "continuationManager/notifier_death_recipient.h"
 
+#include <iosfwd>
+#include <string>
+
 #include "dtbschedmgr_log.h"
-#include "iremote_proxy.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

@@ -18,6 +18,7 @@
 
 #include "dms_notifier.h"
 #include "iremote_object.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

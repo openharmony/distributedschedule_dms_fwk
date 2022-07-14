@@ -16,12 +16,15 @@
 #ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_STUB_H
 #define OHOS_DISTRIBUTED_ABILITY_MANAGER_STUB_H
 
+#include <functional>
 #include <map>
 
 #include "distributed_ability_manager_interface.h"
-#include "ipc_skeleton.h"
+#include "ipc_types.h"
 #include "iremote_stub.h"
+#include "message_option.h"
 #include "message_parcel.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace DistributedSchedule {
