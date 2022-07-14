@@ -248,7 +248,6 @@ group("unittest") {
     ":distributedschedsvrtest",
     ":dschedconnecttest",
     ":dschedcontinuetest",
-    ":hisyseventreporttest",
   ]
   if (dmsfwk_standard_mission_manager) {
     deps += [
