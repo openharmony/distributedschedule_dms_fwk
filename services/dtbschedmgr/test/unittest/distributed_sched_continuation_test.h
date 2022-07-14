@@ -18,9 +18,11 @@
 
 #include "distributed_sched_continuation.h"
 #include "distributed_sched_proxy.h"
+#define private public
 #include "distributed_sched_service.h"
-#include "dtbschedmgr_log.h"
+#undef private
 #include "gtest/gtest.h"
+#include "dtbschedmgr_log.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
