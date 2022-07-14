@@ -16,6 +16,7 @@
 #ifndef OHOS_DISTRIBUTED_ABILITY_MANAGER_CONNECT_STATUS_INFO_H
 #define OHOS_DISTRIBUTED_ABILITY_MANAGER_CONNECT_STATUS_INFO_H
 
+#include <iosfwd>
 #include <string>
 
 #include "device_connect_status.h"

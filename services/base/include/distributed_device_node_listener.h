@@ -16,7 +16,10 @@
 #ifndef OHOS_DISTRIBUTED_DEVICE_NODE_LISTENER_H
 #define OHOS_DISTRIBUTED_DEVICE_NODE_LISTENER_H
 
+#include <iosfwd>
+
 #include "adapter/dnetwork_adapter.h"
+#include "softbus_bus_center.h"
 
 namespace OHOS {
 namespace DistributedSchedule {

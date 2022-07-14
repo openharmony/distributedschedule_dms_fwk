@@ -15,8 +15,6 @@
 
 #include "continuationManager/notifier_info.h"
 
-#include "dtbschedmgr_log.h"
-
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {

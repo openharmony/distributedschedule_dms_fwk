@@ -15,7 +15,15 @@
 
 #include "distributed_ability_manager_stub.h"
 
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "continuation_extra_params.h"
+#include "device_connect_status.h"
 #include "dtbschedmgr_log.h"
+#include "iremote_object.h"
 #include "parcel_helper.h"
 
 namespace OHOS {
