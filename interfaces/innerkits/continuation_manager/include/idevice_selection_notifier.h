@@ -24,8 +24,8 @@
 namespace OHOS {
 namespace DistributedSchedule {
 namespace {
-const std::string EVENT_CONNECT = "deviceConnect";
-const std::string EVENT_DISCONNECT = "deviceDisconnect";
+constexpr const char* EVENT_CONNECT = "deviceConnect";
+constexpr const char* EVENT_DISCONNECT = "deviceDisconnect";
 }
 
 class IDeviceSelectionNotifier : public IRemoteBroker {
