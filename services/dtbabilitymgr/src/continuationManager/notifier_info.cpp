@@ -17,23 +17,59 @@
 
 namespace OHOS {
 namespace DistributedSchedule {
-namespace {
-const std::string TAG = "NotifierInfo";
-}
-
-NotifierInfo::NotifierMap& NotifierInfo::GetNotifierMap()
+sptr<IRemoteObject> NotifierInfo::GetNotifier(const std::string& cbType) const
 {
-    return notifierMap_;
-}
-
-sptr<IRemoteObject> NotifierInfo::GetNotifier(const std::string& cbType)
-{
-    return notifierMap_[cbType];
+    auto iter = notifierMap_.find(cbType);
+    if (iter == notifierMap_.end()) {
+        return nullptr;
+    }
+    return iter->second;
 }
 
 void NotifierInfo::SetNotifier(const std::string& cbType, const sptr<IRemoteObject>& notifier)
 {
     notifierMap_[cbType] = notifier;
+}
+
+void NotifierInfo::DeleteNotifier(const std::string& cbType)
+{
+    auto iter = notifierMap_.find(cbType);
+    if (iter != notifierMap_.end()) {
+        notifierMap_.erase(iter);
+    }
+}
+
+bool NotifierInfo::QueryNotifier(const sptr<IRemoteObject>& notifier) const
+{
+    for (auto iter = notifierMap_.begin(); iter != notifierMap_.end(); iter++) {
+        if (iter->second == notifier) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool NotifierInfo::IsNotifierMapEmpty()
+{
+    if (notifierMap_.empty()) {
+        return true;
+    }
+    return false;
+}
+
+void NotifierInfo::RemoveDeathRecipient(const sptr<IRemoteObject::DeathRecipient>& notifierDeathRecipient,
+    const std::string& cbType)
+{
+    if (cbType.empty()) {
+        for (auto iter = notifierMap_.begin(); iter != notifierMap_.end(); iter++) {
+            iter->second->RemoveDeathRecipient(notifierDeathRecipient);
+        }
+        return;
+    }
+    auto it = notifierMap_.find(cbType);
+    if (it != notifierMap_.end()) {
+        it->second->RemoveDeathRecipient(notifierDeathRecipient);
+    }
 }
 
 std::shared_ptr<ConnectStatusInfo> NotifierInfo::GetConnectStatusInfo() const
