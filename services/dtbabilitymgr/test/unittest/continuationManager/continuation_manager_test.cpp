@@ -931,71 +931,71 @@ HWTEST_F(ContinuationManagerTest, IsTokenRegisteredTest_002, TestSize.Level1)
 }
 
 /**
- * @tc.name: IfNotifierRegisteredTest_001
- * @tc.desc: test IfNotifierRegistered function with invalid token.
+ * @tc.name: IsNotifierRegisteredTest_001
+ * @tc.desc: test IsNotifierRegistered function with invalid token.
  * @tc.type: FUNC
  * @tc.require: SR000H34KJ
  */
-HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_001, TestSize.Level1)
+HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredTest_001, TestSize.Level1)
 {
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_001 start" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredTest_001 start" << std::endl;
     if (dtbabilitymgrService_ == nullptr) {
         DTEST_LOG << "dtbabilitymgrService_ is nullptr" << std::endl;
         return;
     }
-    bool result = dtbabilitymgrService_->IfNotifierRegistered(TEST_TOKEN);
+    bool result = dtbabilitymgrService_->IsNotifierRegistered(TEST_TOKEN);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(false, result);
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_001 end" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredTest_001 end" << std::endl;
 }
 
 /**
- * @tc.name: IfNotifierRegisteredTest_002
- * @tc.desc: test IfNotifierRegistered function with invalid token.
+ * @tc.name: IsNotifierRegisteredLockedTest_002
+ * @tc.desc: test IsNotifierRegisteredLocked function with invalid token.
  * @tc.type: FUNC
  * @tc.require: AR000H34KK
  */
-HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_002, TestSize.Level1)
+HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_002, TestSize.Level1)
 {
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_002 start" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_002 start" << std::endl;
     if (dtbabilitymgrService_ == nullptr) {
         DTEST_LOG << "dtbabilitymgrService_ is nullptr" << std::endl;
         return;
     }
-    bool result = dtbabilitymgrService_->IfNotifierRegistered(TEST_TOKEN, CALLBACK_TYPE1);
+    bool result = dtbabilitymgrService_->IsNotifierRegisteredLocked(TEST_TOKEN, CALLBACK_TYPE1);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(false, result);
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_002 end" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_002 end" << std::endl;
 }
 
 /**
- * @tc.name: IfNotifierRegisteredTest_003
- * @tc.desc: test IfNotifierRegistered function with invalid callback type.
+ * @tc.name: IsNotifierRegisteredLockedTest_003
+ * @tc.desc: test IsNotifierRegisteredLocked function with invalid callback type.
  * @tc.type: FUNC
  * @tc.require: AR000H34KK
  */
-HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_003, TestSize.Level1)
+HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_003, TestSize.Level1)
 {
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_003 start" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_003 start" << std::endl;
     if (dtbabilitymgrService_ == nullptr) {
         DTEST_LOG << "dtbabilitymgrService_ is nullptr" << std::endl;
         return;
     }
-    bool result = dtbabilitymgrService_->IfNotifierRegistered(TEST_TOKEN, INVALID_CALLBACK_TYPE);
+    bool result = dtbabilitymgrService_->IsNotifierRegisteredLocked(TEST_TOKEN, INVALID_CALLBACK_TYPE);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(false, result);
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_003 end" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_003 end" << std::endl;
 }
 
 /**
- * @tc.name: IfNotifierRegisteredTest_004
- * @tc.desc: test IfNotifierRegistered function with correct token.
+ * @tc.name: IsNotifierRegisteredTest_004
+ * @tc.desc: test IsNotifierRegistered function with correct token.
  * @tc.type: FUNC
  * @tc.require: AR000H34KK
  */
-HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_004, TestSize.Level1)
+HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredTest_004, TestSize.Level1)
 {
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_004 start" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredTest_004 start" << std::endl;
     if (dtbabilitymgrService_ == nullptr) {
         DTEST_LOG << "dtbabilitymgrService_ is nullptr" << std::endl;
         return;
@@ -1004,21 +1004,21 @@ HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_004, TestSize.Level1)
     sptr<DeviceSelectionNotifierTest> notifier = new DeviceSelectionNotifierTest();
     notifierInfo->SetNotifier(CALLBACK_TYPE1, notifier);
     dtbabilitymgrService_->callbackMap_[TEST_TOKEN] = std::move(notifierInfo);
-    bool result = dtbabilitymgrService_->IfNotifierRegistered(TEST_TOKEN);
+    bool result = dtbabilitymgrService_->IsNotifierRegistered(TEST_TOKEN);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(true, result);
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_004 end" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredTest_004 end" << std::endl;
 }
 
 /**
- * @tc.name: IfNotifierRegisteredTest_005
- * @tc.desc: test IfNotifierRegistered function with incorrect callback type.
+ * @tc.name: IsNotifierRegisteredLockedTest_005
+ * @tc.desc: test IsNotifierRegisteredLocked function with incorrect callback type.
  * @tc.type: FUNC
  * @tc.require: AR000H34KK
  */
-HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_005, TestSize.Level1)
+HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_005, TestSize.Level1)
 {
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_005 start" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_005 start" << std::endl;
     if (dtbabilitymgrService_ == nullptr) {
         DTEST_LOG << "dtbabilitymgrService_ is nullptr" << std::endl;
         return;
@@ -1027,21 +1027,21 @@ HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_005, TestSize.Level1)
     sptr<DeviceSelectionNotifierTest> notifier = new DeviceSelectionNotifierTest();
     notifierInfo->SetNotifier(CALLBACK_TYPE1, notifier);
     dtbabilitymgrService_->callbackMap_[TEST_TOKEN] = std::move(notifierInfo);
-    bool result = dtbabilitymgrService_->IfNotifierRegistered(TEST_TOKEN, CALLBACK_TYPE2);
+    bool result = dtbabilitymgrService_->IsNotifierRegisteredLocked(TEST_TOKEN, CALLBACK_TYPE2);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(false, result);
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_005 end" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_005 end" << std::endl;
 }
 
 /**
- * @tc.name: IfNotifierRegisteredTest_006
- * @tc.desc: test IfNotifierRegistered function with incorrect token.
+ * @tc.name: IsNotifierRegisteredLockedTest_006
+ * @tc.desc: test IsNotifierRegisteredLocked function with incorrect token.
  * @tc.type: FUNC
  * @tc.require: AR000H34KK
  */
-HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_006, TestSize.Level1)
+HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_006, TestSize.Level1)
 {
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_006 start" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_006 start" << std::endl;
     if (dtbabilitymgrService_ == nullptr) {
         DTEST_LOG << "dtbabilitymgrService_ is nullptr" << std::endl;
         return;
@@ -1050,21 +1050,21 @@ HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_006, TestSize.Level1)
     sptr<DeviceSelectionNotifierTest> notifier = new DeviceSelectionNotifierTest();
     notifierInfo->SetNotifier(CALLBACK_TYPE1, notifier);
     dtbabilitymgrService_->callbackMap_[TEST_TOKEN] = std::move(notifierInfo);
-    bool result = dtbabilitymgrService_->IfNotifierRegistered(UNREGISTER_TOKEN, CALLBACK_TYPE1);
+    bool result = dtbabilitymgrService_->IsNotifierRegisteredLocked(UNREGISTER_TOKEN, CALLBACK_TYPE1);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(false, result);
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_006 end" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_006 end" << std::endl;
 }
 
 /**
- * @tc.name: IfNotifierRegisteredTest_007
- * @tc.desc: test IfNotifierRegistered function with correct token and callback type.
+ * @tc.name: IsNotifierRegisteredLockedTest_007
+ * @tc.desc: test IsNotifierRegisteredLocked function with correct token and callback type.
  * @tc.type: FUNC
  * @tc.require: AR000H34KK
  */
-HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_007, TestSize.Level1)
+HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_007, TestSize.Level1)
 {
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_007 start" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_007 start" << std::endl;
     if (dtbabilitymgrService_ == nullptr) {
         DTEST_LOG << "dtbabilitymgrService_ is nullptr" << std::endl;
         return;
@@ -1073,10 +1073,10 @@ HWTEST_F(ContinuationManagerTest, IfNotifierRegisteredTest_007, TestSize.Level1)
     sptr<DeviceSelectionNotifierTest> notifier = new DeviceSelectionNotifierTest();
     notifierInfo->SetNotifier(CALLBACK_TYPE1, notifier);
     dtbabilitymgrService_->callbackMap_[TEST_TOKEN] = std::move(notifierInfo);
-    bool result = dtbabilitymgrService_->IfNotifierRegistered(TEST_TOKEN, CALLBACK_TYPE1);
+    bool result = dtbabilitymgrService_->IsNotifierRegisteredLocked(TEST_TOKEN, CALLBACK_TYPE1);
     DTEST_LOG << "result:" << result << std::endl;
     EXPECT_EQ(true, result);
-    DTEST_LOG << "ContinuationManagerTest IfNotifierRegisteredTest_007 end" << std::endl;
+    DTEST_LOG << "ContinuationManagerTest IsNotifierRegisteredLockedTest_007 end" << std::endl;
 }
 
 /**

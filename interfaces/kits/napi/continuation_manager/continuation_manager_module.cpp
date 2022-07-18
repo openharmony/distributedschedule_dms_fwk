@@ -16,7 +16,7 @@
 #include "native_engine/native_engine.h"
 #include "js_continuation_manager.h"
 
-extern "C" __attribute__((constructor)) void NAPI_application_continuationmanager_AutoRegister()
+__attribute__((constructor)) static void NAPI_application_continuationmanager_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
