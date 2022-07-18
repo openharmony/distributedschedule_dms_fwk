@@ -35,6 +35,7 @@ const std::string TAG = "DistributedSchedProxy";
 const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
 const std::string EXTRO_INFO_JSON_KEY_ACCESS_TOKEN = "accessTokenID";
 const std::string EXTRO_INFO_JSON_KEY_REQUEST_CODE = "requestCode";
+const std::string FREE_INSTLL_CALLING_BUNDLENAMES = "freeInstallCallingBundleNames";
 #ifdef SUPPORT_DISTRIBUTED_MISSION_MANAGER
 constexpr int32_t WAIT_TIME = 15;
 #endif
@@ -735,6 +736,7 @@ int32_t DistributedSchedProxy::StartFreeInstallFromRemote(const FreeInstallInfo&
     PARCEL_WRITE_HELPER(data, String, info.callerInfo.callerAppId);
     PARCEL_WRITE_HELPER(data, Int64, taskId);
     OHOS::AAFwk::Want cmpWant;
+    cmpWant.SetParam(FREE_INSTLL_CALLING_BUNDLENAMES, info.callerInfo.bundleNames);
     PARCEL_WRITE_HELPER(data, Parcelable, &cmpWant);
     nlohmann::json extraInfoJson;
     extraInfoJson[EXTRO_INFO_JSON_KEY_ACCESS_TOKEN] = info.callerInfo.accessToken;
