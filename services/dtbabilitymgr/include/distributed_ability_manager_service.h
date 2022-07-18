@@ -61,8 +61,8 @@ private:
     bool IsContinuationModeValid(ContinuationMode continuationMode);
     bool IsConnectStatusValid(DeviceConnectStatus deviceConnectStatus);
     bool IsTokenRegistered(uint32_t accessToken, int32_t token);
-    bool IfNotifierRegistered(int32_t token);
-    bool IfNotifierRegistered(int32_t token, const std::string& cbType);
+    bool IsNotifierRegistered(int32_t token);
+    bool IsNotifierRegisteredLocked(int32_t token, const std::string& cbType);
     bool QueryTokenByNotifier(const sptr<IRemoteObject>& notifier, int32_t& token);
     bool HandleDeviceConnect(const sptr<IRemoteObject>& notifier,
         const std::vector<ContinuationResult>& continuationResults);
