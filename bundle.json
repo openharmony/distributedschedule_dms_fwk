@@ -48,16 +48,23 @@
         "third_party": []
       },
       "build": {
-        "sub_component": [
-          "//foundation/distributedschedule/dmsfwk/etc/init:etc",
-          "//foundation/distributedschedule/dmsfwk/etc/param:param_files",
-          "//foundation/distributedschedule/dmsfwk/etc/profile:distributedsched_trust",
-          "//foundation/distributedschedule/dmsfwk/interfaces/kits/napi:napi_packages",
-          "//foundation/distributedschedule/dmsfwk/sa_profile:dms_sa_profile",
-          "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner",
-          "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
-          "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
-        ],
+        "group_type": {
+          "base_group": [],
+          "fwk_group": [
+            "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common:common_sdk",
+            "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager:continuation_manager",
+            "//foundation/distributedschedule/dmsfwk/interfaces/kits/napi:napi_packages"
+          ],
+          "service_group": [
+            "//foundation/distributedschedule/dmsfwk/etc/init:etc",
+            "//foundation/distributedschedule/dmsfwk/etc/param:param_files",
+            "//foundation/distributedschedule/dmsfwk/etc/profile:distributedsched_trust",
+            "//foundation/distributedschedule/dmsfwk/sa_profile:dms_sa_profile",
+            "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner",
+            "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
+            "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
+          ]
+        },
         "inner_kits": [
           {
             "header": {
