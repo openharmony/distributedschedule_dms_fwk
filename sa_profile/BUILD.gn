@@ -15,5 +15,5 @@ import("//build/ohos/sa_profile/sa_profile.gni")
 
 ohos_sa_profile("dms_sa_profile") {
   sources = [ "1401.xml" ]
-  part_name = "dmsfwk_standard"
+  part_name = "dmsfwk"
 }

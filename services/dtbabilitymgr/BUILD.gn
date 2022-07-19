@@ -24,8 +24,8 @@ config("distributed_ability_manager_config") {
   include_dirs = [
     "include/",
     "../base/include/",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common/include/",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager/include/",
+    "//foundation/ability/dmsfwk/interfaces/innerkits/common/include/",
+    "//foundation/ability/dmsfwk/interfaces/innerkits/continuation_manager/include/",
   ]
 }
 
@@ -59,9 +59,8 @@ ohos_shared_library("distributed_ability_manager_svr") {
     "utils_base:utils",
   ]
 
-  deps =
-      [ "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner" ]
+  deps = [ "//foundation/ability/dmsfwk/services/base:dmsbaseinner" ]
 
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }

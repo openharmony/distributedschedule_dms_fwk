@@ -14,11 +14,11 @@
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 import("//build/test.gni")
-import("//foundation/distributedschedule/dmsfwk/dmsfwk.gni")
+import("//foundation/ability/dmsfwk/dmsfwk.gni")
 
-module_output_path = "dmsfwk_standard/distributed_ability_manager_svr_test"
+module_output_path = "dmsfwk/distributed_ability_manager_svr_test"
 
-distributed_service = "//foundation/distributedschedule/dmsfwk/services"
+distributed_service = "//foundation/ability/dmsfwk/services"
 
 dtbabilitymgr_configs = [
   "${distributed_service}/dtbabilitymgr:distributed_ability_manager_config",
@@ -27,8 +27,8 @@ dtbabilitymgr_configs = [
 config("test_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "//foundation/distributedschedule/dmsfwk/utils/native/include",
-    "//foundation/distributedschedule/dmsfwk/services/base/include",
+    "//foundation/ability/dmsfwk/utils/native/include",
+    "//foundation/ability/dmsfwk/services/base/include",
   ]
 }
 
@@ -44,7 +44,7 @@ dtbabilitymgr_external_deps = [
 ]
 
 dtbabilitymgr_public_deps = [
-  "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner",
+  "//foundation/ability/dmsfwk/services/base:dmsbaseinner",
   "//third_party/googletest:gmock_main",
   "//third_party/googletest:gtest_main",
   "//third_party/libxml2:libxml2",
@@ -76,7 +76,7 @@ ohos_unittest("continuationmanagertest") {
     external_deps = dtbabilitymgr_external_deps
     public_deps = dtbabilitymgr_public_deps
   }
-  part_name = "dmsfwk_standard"
+  part_name = "dmsfwk"
 }
 
 group("unittest") {

@@ -16,7 +16,7 @@ import("//build/ohos.gni")
 js_declaration("continuation_manager") {
   sources = [ "./api" ]
 
-  part_name = "dmsfwk_standard"
+  part_name = "dmsfwk"
 }
 
 ohos_copy("continuation_manager_declaration") {
