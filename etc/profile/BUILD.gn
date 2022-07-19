@@ -16,6 +16,6 @@ import("//build/ohos.gni")
 ohos_prebuilt_etc("distributedsched_trust") {
   source = "distributedsched_trust.xml"
   module_install_dir = "profile"
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }

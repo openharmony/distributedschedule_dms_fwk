@@ -14,11 +14,11 @@
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 import("//build/test.gni")
-import("//foundation/distributedschedule/dmsfwk/dmsfwk.gni")
+import("//foundation/ability/dmsfwk/dmsfwk.gni")
 
-module_output_path = "dmsfwk_standard/distributedschedsvrtest"
+module_output_path = "dmsfwk/distributedschedsvrtest"
 
-distributed_service = "//foundation/distributedschedule/dmsfwk/services"
+distributed_service = "//foundation/ability/dmsfwk/services"
 
 dsched_configs =
     [ "${distributed_service}/dtbschedmgr:distributed_sched_config" ]
@@ -26,8 +26,8 @@ dsched_configs =
 config("test_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "//foundation/distributedschedule/dmsfwk/utils/native/include",
-    "//foundation/distributedschedule/dmsfwk/services/base/include",
+    "//foundation/ability/dmsfwk/utils/native/include",
+    "//foundation/ability/dmsfwk/services/base/include",
   ]
 }
 
@@ -39,7 +39,7 @@ dsched_external_deps = [
   "bundle_framework:appexecfwk_core",
   "device_auth:deviceauth_sdk",
   "distributeddatamgr:distributeddata_inner",
-  "dmsfwk_standard:continuation_manager",
+  "dmsfwk:continuation_manager",
   "dsoftbus:softbus_client",
   "eventhandler:libeventhandler",
   "hitrace_native:hitrace_meter",
@@ -53,12 +53,12 @@ dsched_external_deps = [
   "utils_base:utils",
 ]
 
-if (dmsfwk_standard_mission_manager) {
+if (dmsfwk_mission_manager) {
   dsched_external_deps += [ "multimedia_image_standard:image_native" ]
 }
 
 dsched_public_deps = [
-  "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner",
+  "//foundation/ability/dmsfwk/services/base:dmsbaseinner",
   "//third_party/googletest:gmock_main",
   "//third_party/googletest:gtest_main",
   "//third_party/libxml2:libxml2",
@@ -85,7 +85,7 @@ dtbschedmgr_sources = [
   "${distributed_service}/dtbschedmgr/src/dms_token_callback.cpp",
 ]
 
-if (dmsfwk_standard_mission_manager) {
+if (dmsfwk_mission_manager) {
   dtbschedmgr_sources += [
     "${distributed_service}/dtbschedmgr/src/mission/distributed_data_change_listener.cpp",
     "${distributed_service}/dtbschedmgr/src/mission/distributed_data_storage.cpp",
@@ -111,8 +111,8 @@ ohos_unittest("distributedschedsvrtest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }
 
 ohos_unittest("distributedcalltest") {
@@ -126,8 +126,8 @@ ohos_unittest("distributedcalltest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }
 
 ohos_unittest("dschedcontinuetest") {
@@ -145,12 +145,12 @@ ohos_unittest("dschedcontinuetest") {
     public_deps = dsched_public_deps
   }
 
-  if (dmsfwk_standard_mission_manager) {
+  if (dmsfwk_mission_manager) {
     defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
   }
 
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }
 
 ohos_unittest("dschedconnecttest") {
@@ -164,8 +164,8 @@ ohos_unittest("dschedconnecttest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }
 
 ohos_unittest("dschedpermissiontest") {
@@ -179,8 +179,8 @@ ohos_unittest("dschedpermissiontest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }
 
 ohos_unittest("dschedmissionmanagertest") {
@@ -194,8 +194,8 @@ ohos_unittest("dschedmissionmanagertest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }
 
 ohos_unittest("dscheddatastoragetest") {
@@ -209,7 +209,7 @@ ohos_unittest("dscheddatastoragetest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
+  part_name = "dmsfwk"
 }
 
 ohos_unittest("bundlemanagerinternaltest") {
@@ -223,7 +223,7 @@ ohos_unittest("bundlemanagerinternaltest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
+  part_name = "dmsfwk"
 }
 
 ohos_unittest("hisyseventreporttest") {
@@ -237,7 +237,7 @@ ohos_unittest("hisyseventreporttest") {
     external_deps = dsched_external_deps
     public_deps = dsched_public_deps
   }
-  part_name = "dmsfwk_standard"
+  part_name = "dmsfwk"
 }
 
 group("unittest") {
@@ -249,7 +249,7 @@ group("unittest") {
     ":dschedconnecttest",
     ":dschedcontinuetest",
   ]
-  if (dmsfwk_standard_mission_manager) {
+  if (dmsfwk_mission_manager) {
     deps += [
       ":dscheddatastoragetest",
       ":dschedmissionmanagertest",

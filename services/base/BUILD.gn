@@ -18,7 +18,7 @@ config("distributed_sched_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager/include/",
+    "//foundation/ability/dmsfwk/interfaces/innerkits/continuation_manager/include/",
   ]
 }
 
@@ -49,6 +49,6 @@ ohos_shared_library("dmsbaseinner") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }

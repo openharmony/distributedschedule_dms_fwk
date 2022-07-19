@@ -17,7 +17,7 @@ config("continuationmanager_napi_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "//foundation/distributedschedule/dmsfwk/services/base/include",
+    "//foundation/ability/dmsfwk/services/base/include",
   ]
 
   cflags = []
@@ -41,8 +41,8 @@ ohos_shared_library("continuationmanager_napi") {
     "ability_base:want",
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "dmsfwk_standard:common_sdk",
-    "dmsfwk_standard:continuation_manager",
+    "dmsfwk:common_sdk",
+    "dmsfwk:continuation_manager",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
@@ -51,6 +51,6 @@ ohos_shared_library("continuationmanager_napi") {
 
   relative_install_dir = "module/continuation"
 
-  subsystem_name = "distributedschedule"
-  part_name = "dmsfwk_standard"
+  subsystem_name = "ability"
+  part_name = "dmsfwk"
 }
