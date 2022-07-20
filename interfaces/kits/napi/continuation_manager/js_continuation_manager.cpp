@@ -38,7 +38,11 @@ constexpr int32_t ARG_COUNT_THREE = 3;
 void JsContinuationManager::Finalizer(NativeEngine* engine, void* data, void* hint)
 {
     HILOGI("JsContinuationManager::Finalizer is called");
-    std::unique_ptr<JsContinuationManager>(static_cast<JsContinuationManager*>(data));
+    JsContinuationManager* jsContinuationManager = static_cast<JsContinuationManager*>(data);
+    if (jsContinuationManager != nullptr) {
+        delete jsContinuationManager;
+        jsContinuationManager = nullptr;
+    }
 }
 
 NativeValue* JsContinuationManager::Register(NativeEngine* engine, NativeCallbackInfo* info)
@@ -179,32 +183,32 @@ NativeValue* JsContinuationManager::OnRegisterDeviceSelectionCallback(NativeEngi
         return engine.CreateUndefined();
     }
     NativeValue* jsListenerObj = info.argv[ARG_COUNT_TWO];
-    if (!IfCallbackValid(jsListenerObj)) {
+    if (!IsCallbackValid(jsListenerObj)) {
         return engine.CreateUndefined();
     }
-    if (IfCallbackRegistered(token, cbType)) {
-        return engine.CreateUndefined();
-    }
-    std::unique_ptr<NativeReference> callbackRef;
-    callbackRef.reset(engine.CreateReference(jsListenerObj, 1));
-    sptr<JsDeviceSelectionListener> deviceSelectionListener = new JsDeviceSelectionListener(&engine);
-    if (deviceSelectionListener == nullptr) {
-        HILOGE("deviceSelectionListener is nullptr");
-        return engine.CreateUndefined();
-    }
-    int32_t ret = DistributedAbilityManagerClient::GetInstance().RegisterDeviceSelectionCallback(
-        token, cbType, deviceSelectionListener);
-    if (ret == ERR_OK) {
-        deviceSelectionListener->AddCallback(cbType, jsListenerObj);
-        CallbackPair callbackPair = std::make_pair(std::move(callbackRef), deviceSelectionListener);
-        {
-            std::lock_guard<std::mutex> jsCbMapLock(jsCbMapMutex_);
-            jsCbMap_[token][cbType] = std::move(callbackPair); // move assignment
+    {
+        std::lock_guard<std::mutex> jsCbMapLock(jsCbMapMutex_);
+        if (IsCallbackRegistered(token, cbType)) {
+            return engine.CreateUndefined();
         }
-        HILOGI("RegisterDeviceSelectionListener success");
-    } else {
-        deviceSelectionListener = nullptr;
-        HILOGE("RegisterDeviceSelectionListener failed");
+        std::unique_ptr<NativeReference> callbackRef;
+        callbackRef.reset(engine.CreateReference(jsListenerObj, 1));
+        sptr<JsDeviceSelectionListener> deviceSelectionListener = new JsDeviceSelectionListener(&engine);
+        if (deviceSelectionListener == nullptr) {
+            HILOGE("deviceSelectionListener is nullptr");
+            return engine.CreateUndefined();
+        }
+        int32_t ret = DistributedAbilityManagerClient::GetInstance().RegisterDeviceSelectionCallback(
+            token, cbType, deviceSelectionListener);
+        if (ret == ERR_OK) {
+            deviceSelectionListener->AddCallback(cbType, jsListenerObj);
+            CallbackPair callbackPair = std::make_pair(std::move(callbackRef), deviceSelectionListener);
+            jsCbMap_[token][cbType] = std::move(callbackPair); // move assignment
+            HILOGI("RegisterDeviceSelectionListener success");
+        } else {
+            deviceSelectionListener = nullptr;
+            HILOGE("RegisterDeviceSelectionListener failed");
+        }
     }
     return engine.CreateUndefined();
 }
@@ -230,11 +234,11 @@ NativeValue* JsContinuationManager::OnUnregisterDeviceSelectionCallback(NativeEn
         HILOGE("Parse token failed");
         return engine.CreateUndefined();
     }
-    if (!IfCallbackRegistered(token, cbType)) {
-        return engine.CreateUndefined();
-    }
     {
         std::lock_guard<std::mutex> jsCbMapLock(jsCbMapMutex_);
+        if (!IsCallbackRegistered(token, cbType)) {
+            return engine.CreateUndefined();
+        }
         CallbackPair& callbackPair = jsCbMap_[token][cbType];
         auto& listener = callbackPair.second;
         int32_t ret = DistributedAbilityManagerClient::GetInstance().UnregisterDeviceSelectionCallback(token, cbType);
@@ -390,7 +394,7 @@ napi_status JsContinuationManager::SetEnumItem(const napi_env& env, napi_value o
     return napi_ok;
 }
 
-bool JsContinuationManager::IfCallbackValid(NativeValue* listenerObj)
+bool JsContinuationManager::IsCallbackValid(NativeValue* listenerObj)
 {
     if (listenerObj == nullptr) {
         HILOGE("listenerObj is nullptr");
@@ -403,9 +407,8 @@ bool JsContinuationManager::IfCallbackValid(NativeValue* listenerObj)
     return true;
 }
 
-bool JsContinuationManager::IfCallbackRegistered(int32_t token, const std::string& cbType)
+bool JsContinuationManager::IsCallbackRegistered(int32_t token, const std::string& cbType)
 {
-    std::lock_guard<std::mutex> jsCbMapLock(jsCbMapMutex_);
     if (jsCbMap_.empty() || jsCbMap_.find(token) == jsCbMap_.end()) {
         HILOGE("token %{public}d not registered callback!", token);
         return false;
@@ -426,36 +429,36 @@ bool JsContinuationManager::UnWrapContinuationExtraParams(const napi_env& env, c
         HILOGE("options is invalid.");
         return false;
     }
-    std::vector<std::string> deviceTypeStringList;
-    if (UnwrapStringArrayByPropertyName(env, options, "deviceType", deviceTypeStringList)) {
-        continuationExtraParams->SetDeviceType(deviceTypeStringList);
+    std::vector<std::string> deviceTypes;
+    if (UnwrapStringArrayByPropertyName(env, options, "deviceType", deviceTypes)) {
+        continuationExtraParams->SetDeviceType(deviceTypes);
     }
-    std::string targetBundleString("");
-    if (UnwrapStringByPropertyName(env, options, "targetBundle", targetBundleString)) {
-        continuationExtraParams->SetTargetBundle(targetBundleString);
+    std::string targetBundle("");
+    if (UnwrapStringByPropertyName(env, options, "targetBundle", targetBundle)) {
+        continuationExtraParams->SetTargetBundle(targetBundle);
     }
-    std::string descriptionString("");
-    if (UnwrapStringByPropertyName(env, options, "description", descriptionString)) {
-        continuationExtraParams->SetDescription(descriptionString);
+    std::string description("");
+    if (UnwrapStringByPropertyName(env, options, "description", description)) {
+        continuationExtraParams->SetDescription(description);
     }
-    nlohmann::json filterJson;
-    if (!UnwrapJsonByPropertyName(env, options, "filter", filterJson)) {
+    nlohmann::json filter;
+    if (!UnwrapJsonByPropertyName(env, options, "filter", filter)) {
         return false;
     }
-    continuationExtraParams->SetFilter(filterJson.dump());
+    continuationExtraParams->SetFilter(filter.dump());
     int32_t continuationMode = 0;
     if (UnwrapInt32ByPropertyName(env, options, "continuationMode", continuationMode)) {
         continuationExtraParams->SetContinuationMode(static_cast<ContinuationMode>(continuationMode));
     }
-    nlohmann::json authInfoJson;
-    if (UnwrapJsonByPropertyName(env, options, "authInfo", authInfoJson)) {
-        continuationExtraParams->SetAuthInfo(authInfoJson.dump());
+    nlohmann::json authInfo;
+    if (UnwrapJsonByPropertyName(env, options, "authInfo", authInfo)) {
+        continuationExtraParams->SetAuthInfo(authInfo.dump());
     }
     return true;
 }
 
 bool JsContinuationManager::UnwrapJsonByPropertyName(const napi_env& env, const napi_value& param,
-    const std::string& fieldStr, nlohmann::json& jsonObj)
+    const std::string& field, nlohmann::json& jsonObject)
 {
     HILOGD("called.");
     if (!IsTypeForNapiValue(env, param, napi_object)) {
@@ -463,18 +466,18 @@ bool JsContinuationManager::UnwrapJsonByPropertyName(const napi_env& env, const 
         return false;
     }
     napi_value jsonField = nullptr;
-    napi_get_named_property(env, param, fieldStr.c_str(), &jsonField);
+    napi_get_named_property(env, param, field.c_str(), &jsonField);
     napi_valuetype jsonFieldType = napi_undefined;
     napi_typeof(env, jsonField, &jsonFieldType);
     if (jsonFieldType != napi_object && jsonFieldType != napi_undefined) {
-        HILOGE("field: %{public}s is invalid json.", fieldStr.c_str());
+        HILOGE("field: %{public}s is invalid json.", field.c_str());
         return false;
     }
     napi_value jsProNameList = nullptr;
     uint32_t jsProCount = 0;
     napi_get_property_names(env, jsonField, &jsProNameList);
     napi_get_array_length(env, jsProNameList, &jsProCount);
-    if (!PraseJson(env, jsonField, jsProNameList, jsProCount, jsonObj)) {
+    if (!PraseJson(env, jsonField, jsProNameList, jsProCount, jsonObject)) {
         HILOGE("PraseJson failed.");
         return false;
     }
@@ -482,7 +485,7 @@ bool JsContinuationManager::UnwrapJsonByPropertyName(const napi_env& env, const 
 }
 
 bool JsContinuationManager::PraseJson(const napi_env& env, const napi_value& jsonField,
-    const napi_value& jsProNameList, uint32_t jsProCount, nlohmann::json& jsonObj)
+    const napi_value& jsProNameList, uint32_t jsProCount, nlohmann::json& jsonObject)
 {
     napi_value jsProName = nullptr;
     napi_value jsProValue = nullptr;
@@ -496,14 +499,14 @@ bool JsContinuationManager::PraseJson(const napi_env& env, const napi_value& jso
             case napi_string: {
                 std::string elementValue = UnwrapStringFromJS(env, jsProValue);
                 HILOGI("Property name=%{public}s, string, value=%{public}s", strProName.c_str(), elementValue.c_str());
-                jsonObj[strProName] = elementValue;
+                jsonObject[strProName] = elementValue;
                 break;
             }
             case napi_boolean: {
                 bool elementValue = false;
                 napi_get_value_bool(env, jsProValue, &elementValue);
                 HILOGI("Property name=%{public}s, boolean, value=%{public}d.", strProName.c_str(), elementValue);
-                jsonObj[strProName] = elementValue;
+                jsonObject[strProName] = elementValue;
                 break;
             }
             case napi_number: {
@@ -512,7 +515,7 @@ bool JsContinuationManager::PraseJson(const napi_env& env, const napi_value& jso
                     HILOGE("Property name=%{public}s, Property int32_t parse error", strProName.c_str());
                 } else {
                     HILOGI("Property name=%{public}s, number, value=%{public}d.", strProName.c_str(), elementValue);
-                    jsonObj[strProName] = elementValue;
+                    jsonObject[strProName] = elementValue;
                 }
                 break;
             }
@@ -539,8 +542,8 @@ NativeValue* JsContinuationManagerInit(NativeEngine* engine, NativeValue* export
         return nullptr;
     }
 
-    std::unique_ptr<JsContinuationManager> jsContinuationManager = std::make_unique<JsContinuationManager>();
-    object->SetNativePointer(jsContinuationManager.release(), JsContinuationManager::Finalizer, nullptr);
+    JsContinuationManager* jsContinuationManager = new JsContinuationManager();
+    object->SetNativePointer(jsContinuationManager, JsContinuationManager::Finalizer, nullptr);
 
     BindNativeFunction(*engine, *object, "register", JsContinuationManager::Register);
     BindNativeFunction(*engine, *object, "unregister", JsContinuationManager::Unregister);

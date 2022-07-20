@@ -48,16 +48,23 @@
         "third_party": []
       },
       "build": {
-        "sub_component": [
-          "//foundation/ability/dmsfwk/etc/init:etc",
-          "//foundation/ability/dmsfwk/etc/param:param_files",
-          "//foundation/ability/dmsfwk/etc/profile:distributedsched_trust",
-          "//foundation/ability/dmsfwk/interfaces/kits/napi:napi_packages",
-          "//foundation/ability/dmsfwk/sa_profile:dms_sa_profile",
-          "//foundation/ability/dmsfwk/services/base:dmsbaseinner",
-          "//foundation/ability/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
-          "//foundation/ability/dmsfwk/services/dtbschedmgr:distributedschedsvr"
-        ],
+        "group_type": {
+          "base_group": [],
+          "fwk_group": [
+            "//foundation/ability/dmsfwk/interfaces/innerkits/common:common_sdk",
+            "//foundation/ability/dmsfwk/interfaces/innerkits/continuation_manager:continuation_manager",
+            "//foundation/ability/dmsfwk/interfaces/kits/napi:napi_packages"
+          ],
+          "service_group": [
+            "//foundation/ability/dmsfwk/etc/init:etc",
+            "//foundation/ability/dmsfwk/etc/param:param_files",
+            "//foundation/ability/dmsfwk/etc/profile:distributedsched_trust",
+            "//foundation/ability/dmsfwk/sa_profile:dms_sa_profile",
+            "//foundation/ability/dmsfwk/services/base:dmsbaseinner",
+            "//foundation/ability/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
+            "//foundation/ability/dmsfwk/services/dtbschedmgr:distributedschedsvr"
+          ]
+        },
         "inner_kits": [
           {
             "header": {
