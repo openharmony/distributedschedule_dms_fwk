@@ -13,7 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
-import("//foundation/distributedschedule/dmsfwk/dmsfwk.gni")
+import("//foundation/ability/dmsfwk/dmsfwk.gni")
 
 group("unittest") {
   testonly = true
@@ -26,7 +26,7 @@ config("distributed_sched_config") {
     "include",
     "../base/include/",
   ]
-  if (dmsfwk_standard_mission_manager) {
+  if (dmsfwk_mission_manager) {
     defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
   }
 }
@@ -65,7 +65,7 @@ ohos_shared_library("distributedschedsvr") {
     "bundle_framework:appexecfwk_core",
     "device_auth:deviceauth_sdk",
     "distributeddatamgr:distributeddata_inner",
-    "dmsfwk_standard:continuation_manager",
+    "dmsfwk:continuation_manager",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hitrace_native:hitrace_meter",
@@ -79,10 +79,9 @@ ohos_shared_library("distributedschedsvr") {
     "utils_base:utils",
   ]
 
-  deps =
-      [ "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner" ]
+  deps = [ "//foundation/ability/dmsfwk/services/base:dmsbaseinner" ]
 
-  if (dmsfwk_standard_mission_manager) {
+  if (dmsfwk_mission_manager) {
     defines = [ "SUPPORT_DISTRIBUTED_MISSION_MANAGER" ]
     sources += [
       "src/mission/distributed_data_change_listener.cpp",
@@ -99,6 +98,6 @@ ohos_shared_library("distributedschedsvr") {
     external_deps += [ "multimedia_image_standard:image_native" ]
   }
 
-  part_name = "dmsfwk_standard"
-  subsystem_name = "distributedschedule"
+  part_name = "dmsfwk"
+  subsystem_name = "ability"
 }

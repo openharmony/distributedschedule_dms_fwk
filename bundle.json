@@ -6,20 +6,20 @@
     "repository": "https://gitee.com/openharmony/distributedschedule_dms_fwk",
     "publishAs": "code-segment",
     "segment": {
-      "destPath": "foundation/distributedschedule/dmsfwk"
+      "destPath": "foundation/ability/dmsfwk"
     },
     "dirs": {},
     "scripts": {},
     "license": "Apache License 2.0",
     "component": {
-      "name": "dmsfwk_standard",
-      "subsystem": "distributedschedule",
+      "name": "dmsfwk",
+      "subsystem": "ability",
       "adapted_system_type": [ "standard" ],
       "features" : [
-        "dmsfwk_standard_mission_manager"
+        "dmsfwk_mission_manager"
       ],
       "hisysevent_config": [
-        "//foundation/distributedschedule/dmsfwk/hisysevent.yaml"
+        "//foundation/ability/dmsfwk/hisysevent.yaml"
       ],
       "rom": "",
       "ram": "",
@@ -51,24 +51,24 @@
         "group_type": {
           "base_group": [],
           "fwk_group": [
-            "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common:common_sdk",
-            "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager:continuation_manager",
-            "//foundation/distributedschedule/dmsfwk/interfaces/kits/napi:napi_packages"
+            "//foundation/ability/dmsfwk/interfaces/innerkits/common:common_sdk",
+            "//foundation/ability/dmsfwk/interfaces/innerkits/continuation_manager:continuation_manager",
+            "//foundation/ability/dmsfwk/interfaces/kits/napi:napi_packages"
           ],
           "service_group": [
-            "//foundation/distributedschedule/dmsfwk/etc/init:etc",
-            "//foundation/distributedschedule/dmsfwk/etc/param:param_files",
-            "//foundation/distributedschedule/dmsfwk/etc/profile:distributedsched_trust",
-            "//foundation/distributedschedule/dmsfwk/sa_profile:dms_sa_profile",
-            "//foundation/distributedschedule/dmsfwk/services/base:dmsbaseinner",
-            "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
-            "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr"
+            "//foundation/ability/dmsfwk/etc/init:etc",
+            "//foundation/ability/dmsfwk/etc/param:param_files",
+            "//foundation/ability/dmsfwk/etc/profile:distributedsched_trust",
+            "//foundation/ability/dmsfwk/sa_profile:dms_sa_profile",
+            "//foundation/ability/dmsfwk/services/base:dmsbaseinner",
+            "//foundation/ability/dmsfwk/services/dtbabilitymgr:distributed_ability_manager_svr",
+            "//foundation/ability/dmsfwk/services/dtbschedmgr:distributedschedsvr"
           ]
         },
         "inner_kits": [
           {
             "header": {
-              "header_base": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager/include",
+              "header_base": "//foundation/ability/dmsfwk/interfaces/innerkits/continuation_manager/include",
               "header_files": [
                 "continuation_extra_params.h",
                 "continuation_mode.h",
@@ -78,22 +78,22 @@
                 "idevice_selection_notifier.h"
               ]
             },
-            "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/continuation_manager:continuation_manager"
+            "name": "//foundation/ability/dmsfwk/interfaces/innerkits/continuation_manager:continuation_manager"
           },
           {
             "header": {
-              "header_base": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common/include",
+              "header_base": "//foundation/ability/dmsfwk/interfaces/innerkits/common/include",
               "header_files": [
                 "distributed_ability_manager_client.h",
                 "distributed_ability_manager_proxy.h"
               ]
             },
-            "name": "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/common:common_sdk"
+            "name": "//foundation/ability/dmsfwk/interfaces/innerkits/common:common_sdk"
           }
         ],
         "test": [
-          "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:unittest",
-          "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr:unittest"
+          "//foundation/ability/dmsfwk/services/dtbschedmgr:unittest",
+          "//foundation/ability/dmsfwk/services/dtbabilitymgr:unittest"
         ]
       }
     }

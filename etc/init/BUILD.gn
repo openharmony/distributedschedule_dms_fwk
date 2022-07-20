@@ -22,6 +22,6 @@ group("etc") {
 ohos_prebuilt_etc("dms_etc") {
   source = "distributedsched.cfg"
   relative_install_dir = "init"
-  subsystem_name = "distributedschedule"
-  part_name = "dmsfwk_standard"
+  subsystem_name = "ability"
+  part_name = "dmsfwk"
 }

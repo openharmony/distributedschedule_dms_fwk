@@ -26,7 +26,7 @@
 ## 目录<a name="section161941989596"></a>
 
 ```
-/foundation/distributedschedule
+/foundation/ability
 ├── dmsfwk                      # 分布式组件管理部件模块
 ├── dms_fwk_lite                # 轻量分布式组件管理部件模块
 ```
@@ -35,6 +35,6 @@
 
 **分布式组件管理部件**
 
-distributedschedule\_dms\_fwk
+ability\_dms\_fwk
 
-distributedschedule\_dms\_fwk\_lite
+ability\_dms\_fwk\_lite
