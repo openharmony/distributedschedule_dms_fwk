@@ -75,7 +75,6 @@ std::string DistributedDataStorageTest::GetLocalDeviceId() const
  * @tc.name: InitTest_001
  * @tc.desc: test init DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: SR000GK5MR
  */
 HWTEST_F(DistributedDataStorageTest, InitTest_001, TestSize.Level0)
 {
@@ -91,7 +90,6 @@ HWTEST_F(DistributedDataStorageTest, InitTest_001, TestSize.Level0)
  * @tc.name: InsertTest_001
  * @tc.desc: test insert DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: AR000GK5MS
  */
 HWTEST_F(DistributedDataStorageTest, InsertTest_001, TestSize.Level1)
 {
@@ -110,7 +108,6 @@ HWTEST_F(DistributedDataStorageTest, InsertTest_001, TestSize.Level1)
  * @tc.name: DeleteTest_001
  * @tc.desc: test delete DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: SR000GK66E
  */
 HWTEST_F(DistributedDataStorageTest, DeleteTest_001, TestSize.Level0)
 {
@@ -128,7 +125,6 @@ HWTEST_F(DistributedDataStorageTest, DeleteTest_001, TestSize.Level0)
  * @tc.name: DeleteTest_002
  * @tc.desc: test delete DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: AR000GK66F
  */
 HWTEST_F(DistributedDataStorageTest, DeleteTest_002, TestSize.Level1)
 {
@@ -148,7 +144,6 @@ HWTEST_F(DistributedDataStorageTest, DeleteTest_002, TestSize.Level1)
  * @tc.name: FuzzyDeleteTest_001
  * @tc.desc: test fuzzy delete DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: SR000GK67F
  */
 HWTEST_F(DistributedDataStorageTest, FuzzyDeleteTest_001, TestSize.Level0)
 {
@@ -166,7 +161,6 @@ HWTEST_F(DistributedDataStorageTest, FuzzyDeleteTest_001, TestSize.Level0)
  * @tc.name: FuzzyDeleteTest_002
  * @tc.desc: test fuzzy delete DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: AR000GK67G
  */
 HWTEST_F(DistributedDataStorageTest, FuzzyDeleteTest_002, TestSize.Level1)
 {
@@ -187,7 +181,6 @@ HWTEST_F(DistributedDataStorageTest, FuzzyDeleteTest_002, TestSize.Level1)
  * @tc.name: QueryTest_001
  * @tc.desc: test query DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: SR000GK67F
  */
 HWTEST_F(DistributedDataStorageTest, QueryTest_001, TestSize.Level0)
 {
@@ -206,7 +199,6 @@ HWTEST_F(DistributedDataStorageTest, QueryTest_001, TestSize.Level0)
  * @tc.name: QueryTest_002
  * @tc.desc: test query DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: AR000GK67G
  */
 HWTEST_F(DistributedDataStorageTest, QueryTest_002, TestSize.Level1)
 {
@@ -227,7 +219,6 @@ HWTEST_F(DistributedDataStorageTest, QueryTest_002, TestSize.Level1)
  * @tc.name: QueryTest_003
  * @tc.desc: test query DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: AR000GK67G
  */
 HWTEST_F(DistributedDataStorageTest, QueryTest_003, TestSize.Level1)
 {
@@ -249,7 +240,6 @@ HWTEST_F(DistributedDataStorageTest, QueryTest_003, TestSize.Level1)
  * @tc.name: QueryTest_004
  * @tc.desc: test query DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: AR000GK67G
  */
 HWTEST_F(DistributedDataStorageTest, QueryTest_004, TestSize.Level1)
 {
@@ -274,7 +264,6 @@ HWTEST_F(DistributedDataStorageTest, QueryTest_004, TestSize.Level1)
  * @tc.name: QueryTest_005
  * @tc.desc: test query DistributedDataStorage
  * @tc.type: FUNC
- * @tc.require: AR000GK67G
  */
 HWTEST_F(DistributedDataStorageTest, QueryTest_005, TestSize.Level1)
 {

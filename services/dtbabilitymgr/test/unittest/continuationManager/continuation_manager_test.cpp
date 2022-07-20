@@ -96,7 +96,6 @@ void ContinuationManagerTest::TearDown()
  * @tc.name: RegisterTest_001
  * @tc.desc: test register token
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, RegisterTest_001, TestSize.Level1)
 {
@@ -117,7 +116,6 @@ HWTEST_F(ContinuationManagerTest, RegisterTest_001, TestSize.Level1)
  * @tc.name: RegisterTest_002
  * @tc.desc: test register token with extra param
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterTest_002, TestSize.Level1)
 {
@@ -140,7 +138,6 @@ HWTEST_F(ContinuationManagerTest, RegisterTest_002, TestSize.Level1)
  * @tc.name: UnregisterTest_001
  * @tc.desc: test unregister token
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, UnregisterTest_001, TestSize.Level1)
 {
@@ -159,7 +156,6 @@ HWTEST_F(ContinuationManagerTest, UnregisterTest_001, TestSize.Level1)
  * @tc.name: UnregisterTest_002
  * @tc.desc: test unregister token with invalid token
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UnregisterTest_002, TestSize.Level1)
 {
@@ -174,7 +170,6 @@ HWTEST_F(ContinuationManagerTest, UnregisterTest_002, TestSize.Level1)
  * @tc.name: RegisterDeviceSelectionCallbackTest_001
  * @tc.desc: test register device selection callback
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_001, TestSize.Level1)
 {
@@ -199,7 +194,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_001, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_002
  * @tc.desc: test register device selection callback with invalid token
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_002, TestSize.Level1)
 {
@@ -220,7 +214,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_002, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_003
  * @tc.desc: test register device selection callback with invalid callback type
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_003, TestSize.Level1)
 {
@@ -241,7 +234,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_003, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_004
  * @tc.desc: test dms deviceConnect callback called when device selection callback has registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_004, TestSize.Level1)
 {
@@ -280,7 +272,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_004, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_005
  * @tc.desc: test dms deviceConnect callback called when device selection callback has not registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_005, TestSize.Level1)
 {
@@ -319,7 +310,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_005, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_006
  * @tc.desc: test dms deviceDisconnect callback called when device selection callback has registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_006, TestSize.Level1)
 {
@@ -351,7 +341,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_006, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_007
  * @tc.desc: test dms deviceDisconnect callback called when device selection callback has not registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_007, TestSize.Level1)
 {
@@ -383,7 +372,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_007, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_008
  * @tc.desc: test dms callback called when device selection callback has not registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_008, TestSize.Level1)
 {
@@ -424,7 +412,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_008, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_009
  * @tc.desc: test dms callback called when token has not registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_009, TestSize.Level1)
 {
@@ -471,7 +458,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_009, TestS
  * @tc.name: RegisterDeviceSelectionCallbackTest_010
  * @tc.desc: test dms callback called when token and device selection callback has not registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_010, TestSize.Level1)
 {
@@ -509,7 +495,6 @@ HWTEST_F(ContinuationManagerTest, RegisterDeviceSelectionCallbackTest_010, TestS
  * @tc.name: UnregisterDeviceSelectionCallbackTest_001
  * @tc.desc: test unregister device selection callback
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_001, TestSize.Level1)
 {
@@ -542,7 +527,6 @@ HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_001, Tes
  * @tc.name: UnregisterDeviceSelectionCallbackTest_002
  * @tc.desc: test unregister device selection callback that has not been registered
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_002, TestSize.Level1)
 {
@@ -566,7 +550,6 @@ HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_002, Tes
  * @tc.name: UnregisterDeviceSelectionCallbackTest_003
  * @tc.desc: test register device selection callback with invalid token
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_003, TestSize.Level1)
 {
@@ -586,7 +569,6 @@ HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_003, Tes
  * @tc.name: UnregisterDeviceSelectionCallbackTest_004
  * @tc.desc: test register device selection callback with invalid callback type
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_004, TestSize.Level1)
 {
@@ -606,7 +588,6 @@ HWTEST_F(ContinuationManagerTest, UnregisterDeviceSelectionCallbackTest_004, Tes
  * @tc.name: StartDeviceManagerTest_001
  * @tc.desc: test start device manager
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, StartDeviceManagerTest_001, TestSize.Level1)
 {
@@ -629,7 +610,6 @@ HWTEST_F(ContinuationManagerTest, StartDeviceManagerTest_001, TestSize.Level1)
  * @tc.name: StartDeviceManagerTest_002
  * @tc.desc: test start device manager with extra param
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, StartDeviceManagerTest_002, TestSize.Level1)
 {
@@ -655,7 +635,6 @@ HWTEST_F(ContinuationManagerTest, StartDeviceManagerTest_002, TestSize.Level1)
  * @tc.name: StartDeviceManagerTest_003
  * @tc.desc: test start device manager with invalid token
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, StartDeviceManagerTest_003, TestSize.Level1)
 {
@@ -676,7 +655,6 @@ HWTEST_F(ContinuationManagerTest, StartDeviceManagerTest_003, TestSize.Level1)
  * @tc.name: UpdateConnectStatusTest_001
  * @tc.desc: test update connect status when device selection callback has registered.
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_001, TestSize.Level1)
 {
@@ -703,7 +681,6 @@ HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_001, TestSize.Level1)
  * @tc.name: UpdateConnectStatusTest_002
  * @tc.desc: test update connect status when device selection callback has not registered.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_002, TestSize.Level1)
 {
@@ -725,7 +702,6 @@ HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_002, TestSize.Level1)
  * @tc.name: UpdateConnectStatusTest_003
  * @tc.desc: test update connect status with invalid token
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_003, TestSize.Level1)
 {
@@ -743,7 +719,6 @@ HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_003, TestSize.Level1)
  * @tc.name: UpdateConnectStatusTest_004
  * @tc.desc: test update connect status with empty deviceId
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_004, TestSize.Level1)
 {
@@ -765,7 +740,6 @@ HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_004, TestSize.Level1)
  * @tc.name: UpdateConnectStatusTest_005
  * @tc.desc: test update connect status with invalid status
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_005, TestSize.Level1)
 {
@@ -786,7 +760,6 @@ HWTEST_F(ContinuationManagerTest, UpdateConnectStatusTest_005, TestSize.Level1)
  * @tc.name: IsExceededRegisterMaxNumTest_001
  * @tc.desc: test IsExceededRegisterMaxNum function.
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, IsExceededRegisterMaxNumTest_001, TestSize.Level1)
 {
@@ -809,7 +782,6 @@ HWTEST_F(ContinuationManagerTest, IsExceededRegisterMaxNumTest_001, TestSize.Lev
  * @tc.name: IsContinuationModeValidTest_001
  * @tc.desc: test IsContinuationModeValid function with invalid continuation mode.
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, IsContinuationModeValidTest_001, TestSize.Level1)
 {
@@ -829,7 +801,6 @@ HWTEST_F(ContinuationManagerTest, IsContinuationModeValidTest_001, TestSize.Leve
  * @tc.name: IsContinuationModeValidTest_002
  * @tc.desc: test IsContinuationModeValid function with correct continuation mode.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsContinuationModeValidTest_002, TestSize.Level1)
 {
@@ -849,7 +820,6 @@ HWTEST_F(ContinuationManagerTest, IsContinuationModeValidTest_002, TestSize.Leve
  * @tc.name: IsConnectStatusValidTest_001
  * @tc.desc: test IsConnectStatusValid function with invalid connect status.
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, IsConnectStatusValidTest_001, TestSize.Level1)
 {
@@ -869,7 +839,6 @@ HWTEST_F(ContinuationManagerTest, IsConnectStatusValidTest_001, TestSize.Level1)
  * @tc.name: IsConnectStatusValidTest_002
  * @tc.desc: test IsConnectStatusValid function with correct connect status.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsConnectStatusValidTest_002, TestSize.Level1)
 {
@@ -889,7 +858,6 @@ HWTEST_F(ContinuationManagerTest, IsConnectStatusValidTest_002, TestSize.Level1)
  * @tc.name: IsTokenRegisteredTest_001
  * @tc.desc: test IsTokenRegistered function with invalid token.
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, IsTokenRegisteredTest_001, TestSize.Level1)
 {
@@ -911,7 +879,6 @@ HWTEST_F(ContinuationManagerTest, IsTokenRegisteredTest_001, TestSize.Level1)
  * @tc.name: IsTokenRegisteredTest_002
  * @tc.desc: test IsTokenRegistered function with correct token.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsTokenRegisteredTest_002, TestSize.Level1)
 {
@@ -934,7 +901,6 @@ HWTEST_F(ContinuationManagerTest, IsTokenRegisteredTest_002, TestSize.Level1)
  * @tc.name: IsNotifierRegisteredTest_001
  * @tc.desc: test IsNotifierRegistered function with invalid token.
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredTest_001, TestSize.Level1)
 {
@@ -953,7 +919,6 @@ HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredTest_001, TestSize.Level1)
  * @tc.name: IsNotifierRegisteredLockedTest_002
  * @tc.desc: test IsNotifierRegisteredLocked function with invalid token.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_002, TestSize.Level1)
 {
@@ -972,7 +937,6 @@ HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_002, TestSize.L
  * @tc.name: IsNotifierRegisteredLockedTest_003
  * @tc.desc: test IsNotifierRegisteredLocked function with invalid callback type.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_003, TestSize.Level1)
 {
@@ -991,7 +955,6 @@ HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_003, TestSize.L
  * @tc.name: IsNotifierRegisteredTest_004
  * @tc.desc: test IsNotifierRegistered function with correct token.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredTest_004, TestSize.Level1)
 {
@@ -1014,7 +977,6 @@ HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredTest_004, TestSize.Level1)
  * @tc.name: IsNotifierRegisteredLockedTest_005
  * @tc.desc: test IsNotifierRegisteredLocked function with incorrect callback type.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_005, TestSize.Level1)
 {
@@ -1037,7 +999,6 @@ HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_005, TestSize.L
  * @tc.name: IsNotifierRegisteredLockedTest_006
  * @tc.desc: test IsNotifierRegisteredLocked function with incorrect token.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_006, TestSize.Level1)
 {
@@ -1060,7 +1021,7 @@ HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_006, TestSize.L
  * @tc.name: IsNotifierRegisteredLockedTest_007
  * @tc.desc: test IsNotifierRegisteredLocked function with correct token and callback type.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
+
  */
 HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_007, TestSize.Level1)
 {
@@ -1083,7 +1044,6 @@ HWTEST_F(ContinuationManagerTest, IsNotifierRegisteredLockedTest_007, TestSize.L
  * @tc.name: QueryTokenByNotifier_001
  * @tc.desc: test QueryTokenByNotifier function with incorrect notifier.
  * @tc.type: FUNC
- * @tc.require: SR000H34KJ
  */
 HWTEST_F(ContinuationManagerTest, QueryTokenByNotifier_001, TestSize.Level1)
 {
@@ -1107,7 +1067,6 @@ HWTEST_F(ContinuationManagerTest, QueryTokenByNotifier_001, TestSize.Level1)
  * @tc.name: QueryTokenByNotifier_002
  * @tc.desc: test QueryTokenByNotifier function with correct notifier.
  * @tc.type: FUNC
- * @tc.require: AR000H34KK
  */
 HWTEST_F(ContinuationManagerTest, QueryTokenByNotifier_002, TestSize.Level1)
 {
