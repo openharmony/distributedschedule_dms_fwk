@@ -54,8 +54,8 @@ private:
     NativeValue* OnInitContinuationModeObject(NativeEngine &engine, NativeCallbackInfo &info);
     napi_status SetEnumItem(const napi_env& env, napi_value object, const char* name, int32_t value);
 
-    bool IfCallbackValid(NativeValue* listenerObj);
-    bool IfCallbackRegistered(int32_t token, const std::string& cbType);
+    bool IsCallbackValid(NativeValue* listenerObj);
+    bool IsCallbackRegistered(int32_t token, const std::string& cbType);
     bool UnWrapContinuationExtraParams(const napi_env& env, const napi_value& options,
         std::shared_ptr<ContinuationExtraParams>& continuationExtraParams);
     bool UnwrapJsonByPropertyName(const napi_env& env, const napi_value& param,

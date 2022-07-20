@@ -220,11 +220,8 @@ int32_t DistributedAbilityManagerService::Unregister(int32_t token)
     // remove death recipient and update callbackMap_ by token
     {
         std::lock_guard<std::mutex> callbackMapLock(callbackMapMutex_);
-        if (IfNotifierRegistered(token)) {
-            auto& notifierMap = callbackMap_[token]->GetNotifierMap();
-            for (auto iter = notifierMap.begin(); iter != notifierMap.end(); iter++) {
-                iter->second->RemoveDeathRecipient(notifierDeathRecipient_);
-            }
+        if (IsNotifierRegistered(token)) {
+            callbackMap_[token]->RemoveDeathRecipient(notifierDeathRecipient_);
             callbackMap_.erase(token);
         }
     }
@@ -259,7 +256,7 @@ int32_t DistributedAbilityManagerService::RegisterDeviceSelectionCallback(
     if (!IsTokenRegistered(accessToken, token)) {
         return TOKEN_HAS_NOT_REGISTERED;
     }
-    if (IfNotifierRegistered(token, cbType)) {
+    if (IsNotifierRegisteredLocked(token, cbType)) {
         return CALLBACK_HAS_REGISTERED;
     }
     {
@@ -292,21 +289,17 @@ int32_t DistributedAbilityManagerService::UnregisterDeviceSelectionCallback(int3
     if (!IsTokenRegistered(accessToken, token)) {
         return TOKEN_HAS_NOT_REGISTERED;
     }
-    if (!IfNotifierRegistered(token, cbType)) {
+    if (!IsNotifierRegisteredLocked(token, cbType)) {
         return CALLBACK_HAS_NOT_REGISTERED;
     }
     {
         std::lock_guard<std::mutex> callbackMapLock(callbackMapMutex_);
         auto iter = callbackMap_.find(token);
         if (iter != callbackMap_.end()) {
-            auto& notifierMap = iter->second->GetNotifierMap();
-            auto it = notifierMap.find(cbType);
-            if (it != notifierMap.end()) {
-                it->second->RemoveDeathRecipient(notifierDeathRecipient_);
-                notifierMap.erase(it);
-                if (notifierMap.empty()) {
-                    callbackMap_.erase(iter);
-                }
+            iter->second->RemoveDeathRecipient(notifierDeathRecipient_, cbType);
+            iter->second->DeleteNotifier(cbType);
+            if (iter->second->IsNotifierMapEmpty()) {
+                callbackMap_.erase(iter);
             }
         }
     }
@@ -329,7 +322,7 @@ int32_t DistributedAbilityManagerService::UpdateConnectStatus(int32_t token, con
     if (!IsTokenRegistered(accessToken, token)) {
         return TOKEN_HAS_NOT_REGISTERED;
     }
-    if (!IfNotifierRegistered(token)) {
+    if (!IsNotifierRegistered(token)) {
         return CALLBACK_HAS_NOT_REGISTERED;
     }
     {
@@ -362,7 +355,7 @@ int32_t DistributedAbilityManagerService::StartDeviceManager(
     if (!IsTokenRegistered(accessToken, token)) {
         return TOKEN_HAS_NOT_REGISTERED;
     }
-    if (!IfNotifierRegistered(token)) {
+    if (!IsNotifierRegistered(token)) {
         return CALLBACK_HAS_NOT_REGISTERED;
     }
     // 1. connect to app and get the app proxy if appProxy_ is null, otherwise start device manager directly.
@@ -389,17 +382,14 @@ int32_t DistributedAbilityManagerService::OnDeviceConnect(int32_t token,
     if (!HandleDisconnectAbility()) {
         return DISCONNECT_ABILITY_FAILED;
     }
-    if (!IfNotifierRegistered(token, EVENT_CONNECT)) {
+    if (!IsNotifierRegisteredLocked(token, EVENT_CONNECT)) {
         return CALLBACK_HAS_NOT_REGISTERED;
     }
     {
         std::lock_guard<std::mutex> callbackMapLock(callbackMapMutex_);
-        auto& notifierMap = callbackMap_[token]->GetNotifierMap();
-        auto it = notifierMap.find(EVENT_CONNECT);
-        if (it != notifierMap.end()) {
-            if (!HandleDeviceConnect(it->second, continuationResults)) {
-                return INVALID_PARAMETERS_ERR;
-            }
+        auto notifier = callbackMap_[token]->GetNotifier(EVENT_CONNECT);
+        if (!HandleDeviceConnect(notifier, continuationResults)) {
+            return INVALID_PARAMETERS_ERR;
         }
     }
     return ERR_OK;
@@ -411,17 +401,14 @@ int32_t DistributedAbilityManagerService::OnDeviceDisconnect(int32_t token, cons
     if (!HandleDisconnectAbility()) {
         return DISCONNECT_ABILITY_FAILED;
     }
-    if (!IfNotifierRegistered(token, EVENT_DISCONNECT)) {
+    if (!IsNotifierRegisteredLocked(token, EVENT_DISCONNECT)) {
         return CALLBACK_HAS_NOT_REGISTERED;
     }
     {
         std::lock_guard<std::mutex> callbackMapLock(callbackMapMutex_);
-        auto& notifierMap = callbackMap_[token]->GetNotifierMap();
-        auto it = notifierMap.find(EVENT_DISCONNECT);
-        if (it != notifierMap.end()) {
-            if (!HandleDeviceDisconnect(it->second, deviceIds)) {
-                return INVALID_PARAMETERS_ERR;
-            }
+        auto notifier = callbackMap_[token]->GetNotifier(EVENT_DISCONNECT);
+        if (!HandleDeviceDisconnect(notifier, deviceIds)) {
+            return INVALID_PARAMETERS_ERR;
         }
     }
     return ERR_OK;
@@ -504,7 +491,7 @@ bool DistributedAbilityManagerService::IsTokenRegistered(uint32_t accessToken, i
     return false;
 }
 
-bool DistributedAbilityManagerService::IfNotifierRegistered(int32_t token)
+bool DistributedAbilityManagerService::IsNotifierRegistered(int32_t token)
 {
     // must be in callbackMapLock scope
     auto iter = callbackMap_.find(token);
@@ -519,15 +506,13 @@ bool DistributedAbilityManagerService::IfNotifierRegistered(int32_t token)
     return true;
 }
 
-bool DistributedAbilityManagerService::IfNotifierRegistered(int32_t token, const std::string& cbType)
+bool DistributedAbilityManagerService::IsNotifierRegisteredLocked(int32_t token, const std::string& cbType)
 {
     std::lock_guard<std::mutex> callbackMapLock(callbackMapMutex_);
-    if (!IfNotifierRegistered(token)) {
+    if (!IsNotifierRegistered(token)) {
         return false;
     }
-    auto& notifierMap = callbackMap_[token]->GetNotifierMap();
-    auto it = notifierMap.find(cbType);
-    if (it != notifierMap.end()) {
+    if (callbackMap_[token]->GetNotifier(cbType) != nullptr) {
         HILOGD("token: %{public}d cbType:%{public}s has already registered", token, cbType.c_str());
         return true;
     }
@@ -611,7 +596,7 @@ void DistributedAbilityManagerService::HandleStartDeviceManager(int32_t token,
         // query whether the connect status needs to be send
         {
             std::lock_guard<std::mutex> callbackMapLock(callbackMapMutex_);
-            if (IfNotifierRegistered(token)) {
+            if (IsNotifierRegistered(token)) {
                 std::shared_ptr<ConnectStatusInfo> connectStatusInfo = callbackMap_[token]->GetConnectStatusInfo();
                 if (connectStatusInfo == nullptr) {
                     PARCEL_WRITE_HELPER_NORET(data, Int32, VALUE_NULL);
@@ -673,12 +658,9 @@ bool DistributedAbilityManagerService::QueryTokenByNotifier(const sptr<IRemoteOb
         if (iter->second == nullptr) {
             return false;
         }
-        auto& notifierMap = iter->second->GetNotifierMap();
-        for (auto it = notifierMap.begin(); it != notifierMap.end(); it++) {
-            if (it->second == notifier) {
-                token = iter->first;
-                return true;
-            }
+        if (iter->second->QueryNotifier(notifier)) {
+            token = iter->first;
+            return true;
         }
     }
     return false;
@@ -710,11 +692,8 @@ void DistributedAbilityManagerService::HandleNotifierDied(const sptr<IRemoteObje
         // remove death recipient and update callbackMap_ by token
         {
             std::lock_guard<std::mutex> callbackMapLock(callbackMapMutex_);
-            if (IfNotifierRegistered(token)) {
-                auto& notifierMap = callbackMap_[token]->GetNotifierMap();
-                for (auto iter = notifierMap.begin(); iter != notifierMap.end(); iter++) {
-                    iter->second->RemoveDeathRecipient(notifierDeathRecipient_);
-                }
+            if (IsNotifierRegistered(token)) {
+                callbackMap_[token]->RemoveDeathRecipient(notifierDeathRecipient_);
                 callbackMap_.erase(token);
             }
         }
