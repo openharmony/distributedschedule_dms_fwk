@@ -144,7 +144,6 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_004, TestSize.Level0)
  * @tc.name: CheckDPermission_005
  * @tc.desc: call CheckDPermission with illegal parameter
  * @tc.type: FUNC
- * @tc.require: SR000GK79C
  */
 HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_005, TestSize.Level0)
 {
@@ -164,7 +163,6 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_005, TestSize.Level0)
  * @tc.name: CheckDPermission_006
  * @tc.desc: call CheckDPermission with different account type
  * @tc.type: FUNC
- * @tc.require: AR000GK79E
  */
 HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_006, TestSize.Level1)
 {
@@ -185,7 +183,6 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_006, TestSize.Level1)
  * @tc.name: CheckDPermission_007
  * @tc.desc: call CheckDPermission with illegal ability info
  * @tc.type: FUNC
- * @tc.require: AR000GK79E
  */
 HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_007, TestSize.Level1)
 {
@@ -205,7 +202,6 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_007, TestSize.Level1)
  * @tc.name: CheckDPermission_008
  * @tc.desc: call CheckDPermission with same account type
  * @tc.type: FUNC
- * @tc.require: SR000H1FJV
  */
 HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_008, TestSize.Level0)
 {
@@ -226,7 +222,6 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_008, TestSize.Level0)
  * @tc.name: CheckDPermission_009
  * @tc.desc: call CheckDPermission with illegal account info
  * @tc.type: FUNC
- * @tc.require: AR000H1RID
  */
 HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_009, TestSize.Level1)
 {
@@ -249,7 +244,6 @@ HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_009, TestSize.Level1)
  * @tc.name: CheckDPermission_010
  * @tc.desc: call CheckDPermission with illegal account info
  * @tc.type: FUNC
- * @tc.require: AR000H1RID
  */
 HWTEST_F(DistributedSchedPermissionTest, CheckDPermission_010, TestSize.Level1)
 {
