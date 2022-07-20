@@ -17,7 +17,7 @@ config("continuation_manager_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "//foundation/distributedschedule/dmsfwk/services/base/include",
+    "//foundation/ability/dmsfwk/services/base/include",
   ]
 
   cflags = []
@@ -28,9 +28,9 @@ config("continuation_manager_public_config") {
 
 ohos_shared_library("continuation_manager") {
   sources = [
-    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_extra_params.cpp",
-    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_result.cpp",
-    "//foundation/distributedschedule/dmsfwk/services/dtbabilitymgr/src/continuationManager/device_selection_notifier_stub.cpp",
+    "//foundation/ability/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_extra_params.cpp",
+    "//foundation/ability/dmsfwk/services/dtbabilitymgr/src/continuationManager/continuation_result.cpp",
+    "//foundation/ability/dmsfwk/services/dtbabilitymgr/src/continuationManager/device_selection_notifier_stub.cpp",
   ]
 
   public_configs = [ ":continuation_manager_public_config" ]
@@ -41,6 +41,6 @@ ohos_shared_library("continuation_manager") {
     "utils_base:utils",
   ]
 
-  subsystem_name = "distributedschedule"
-  part_name = "dmsfwk_standard"
+  subsystem_name = "ability"
+  part_name = "dmsfwk"
 }
