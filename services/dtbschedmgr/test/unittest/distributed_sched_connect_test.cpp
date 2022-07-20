@@ -319,7 +319,6 @@ HWTEST_F(DistributedSchedConnectTest, ProcessConnectDied002, TestSize.Level0)
  * @tc.name: ProcessConnectDied003
  * @tc.desc: process connect died and check the trackingUidMap_
  * @tc.type: FUNC
- * @tc.require: AR000GI8IE
  */
 HWTEST_F(DistributedSchedConnectTest, ProcessConnectDied003, TestSize.Level1)
 {
@@ -357,7 +356,6 @@ HWTEST_F(DistributedSchedConnectTest, ProcessConnectDied003, TestSize.Level1)
  * @tc.name: ProcessConnectDied004
  * @tc.desc: process connect died and check the connectAbilityMap_
  * @tc.type: FUNC
- * @tc.require: AR000GI8IE
  */
 HWTEST_F(DistributedSchedConnectTest, ProcessConnectDied004, TestSize.Level1)
 {
@@ -498,7 +496,6 @@ HWTEST_F(DistributedSchedConnectTest, ProcessDeviceOffline003, TestSize.Level0)
  * @tc.name: ProcessDeviceOffline004
  * @tc.desc: process device offline and check the trackingUidMap_
  * @tc.type: FUNC
- * @tc.require: AR000GI8IE
  */
 HWTEST_F(DistributedSchedConnectTest, ProcessDeviceOffline004, TestSize.Level1)
 {
@@ -535,7 +532,6 @@ HWTEST_F(DistributedSchedConnectTest, ProcessDeviceOffline004, TestSize.Level1)
  * @tc.name: ProcessDeviceOffline005
  * @tc.desc: process device offline and check the connectAbilityMap_
  * @tc.type: FUNC
- * @tc.require: AR000GI8IE
  */
 HWTEST_F(DistributedSchedConnectTest, ProcessDeviceOffline005, TestSize.Level1)
 {
@@ -602,7 +598,6 @@ HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility001, TestSize.Level
  * @tc.name: DisconnectRemoteAbility002
  * @tc.desc: disconnect remote ability and check the trackingUidMap_
  * @tc.type: FUNC
- * @tc.require: AR000GI8IE
  */
 HWTEST_F(DistributedSchedConnectTest, DisconnectRemoteAbility002, TestSize.Level1)
 {
