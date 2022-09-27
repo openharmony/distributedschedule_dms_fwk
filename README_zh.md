@@ -1,3 +1,6 @@
+公告：
+因OpenHarmony部件设计规范化需求，2022.07月起distributedschedule_dms_fwk仓库更名为ability_dmsfwk，本仓库归档不在维护。
+请前往[**ability\_dmsfwk**](https://gitee.com/openharmony/ability_dmsfwk)仓库，了解最新代码信息
 # 分布式组件管理部件<a name="ZH-CN_TOPIC_0000001115719369"></a>
 
 -   [简介](#section11660541593)
@@ -27,14 +30,19 @@
 
 ```
 /foundation/ability
-├── dmsfwk                      # 分布式组件管理部件模块
-├── dms_fwk_lite                # 轻量分布式组件管理部件模块
+├── dmsfwk              # 分布式组件管理部件模块
+│  ├── bundle.json      # 组件描述及编译脚本 
+│  ├── etc              # 配置文件
+│  ├── interfaces       # 对外接口目录
+│  ├── services         # 组件服务实现
+│  ├── sa_profile       # sa相关配置文件
+│  ├── utils            # 工具类目录
 ```
 
 ## 相关仓<a name="section1371113476307"></a>
 
-**分布式组件管理部件**
+分布式组件管理部件
 
-ability\_dms\_fwk
+[**ability\_dmsfwk**](https://gitee.com/openharmony/ability_dmsfwk)
 
-ability\_dms\_fwk\_lite
+[ability\_dmsfwk\_lite](https://gitee.com/openharmony/ability_dmsfwk_lite)
