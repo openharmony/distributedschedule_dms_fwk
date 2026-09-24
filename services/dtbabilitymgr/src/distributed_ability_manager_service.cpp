@@ -15,7 +15,9 @@
 
 #include "distributed_ability_manager_service.h"
 
+#include <charconv>
 #include <chrono>
+#include <system_error>
 #include <thread>
 
 #include "adapter/dnetwork_adapter.h"
@@ -42,6 +44,28 @@ constexpr int32_t MAX_TOKEN_NUM = 100000000;
 constexpr int32_t MAX_REGISTER_NUM = 600;
 constexpr int32_t START_DEVICE_MANAGER_CODE = 1;
 constexpr int32_t UPDATE_CONNECT_STATUS_CODE = 2;
+
+/* Digits-only continuation token. Rejects empty, junk, and int32 overflow (stoi abort class). */
+bool ParseContinuationToken(const std::string &s, int32_t &out)
+{
+    if (s.empty()) {
+        return false;
+    }
+    for (char c : s) {
+        if (c < '0' || c > '9') {
+            return false;
+        }
+    }
+    int32_t value = 0;
+    const char *first = s.data();
+    const char *last = first + s.size();
+    auto result = std::from_chars(first, last, value);
+    if (result.ec != std::errc() || result.ptr != last) {
+        return false;
+    }
+    out = value;
+    return true;
+}
 }
 
 REGISTER_SYSTEM_ABILITY_BY_ID(DistributedAbilityManagerService, DISTRIBUTED_SCHED_SA_ID, true);
@@ -62,7 +86,12 @@ void DistributedAbilityManagerService::OnStart()
         std::lock_guard<std::mutex> tokenLock(tokenMutex_);
         std::string tokenStr = system::GetParameter(TOKEN_KEY, DEFAULT_TOKEN_VALUE);
         if (!tokenStr.empty()) {
-            token_.store(std::stoi(tokenStr));
+            int32_t parsedToken = 0;
+            if (ParseContinuationToken(tokenStr, parsedToken)) {
+                token_.store(parsedToken);
+            } else {
+                HILOGE("invalid continuation token param %{public}s", tokenStr.c_str());
+            }
         }
     }
     notifierDeathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new NotifierDeathRecipient(this));
